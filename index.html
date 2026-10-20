@@ -10,6 +10,7 @@
 <meta property="og:image" content="https://furkiozknn.github.io/marti/docs/bridge.png">
 <meta property="og:url" content="https://furkiozknn.github.io/marti/">
 <meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" href="assets/ui/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
@@ -45,10 +46,37 @@ body{overflow:hidden;background:#0b1020;color:#fff;font-family:'Fredoka',system-
 #lives{display:flex;gap:4px;align-items:center}
 #lives svg{width:20px;height:20px;transition:opacity .3s,transform .3s}
 #lives svg.lost{opacity:.18;transform:scale(.7) rotate(-20deg)}
-.ibtn{font:inherit;font-size:13px;font-weight:600;color:#fff;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);
-  border-radius:10px;padding:6px 9px;cursor:pointer;pointer-events:auto;min-width:36px}
+.logo .crest-s{width:28px;height:28px;vertical-align:-6px;margin-right:6px}
+.icons{display:flex;gap:6px}
+.ibtn{font:inherit;font-size:12px;font-weight:700;color:#fff;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);
+  border-radius:10px;width:36px;height:36px;padding:0;cursor:pointer;pointer-events:auto;display:inline-flex;align-items:center;justify-content:center;position:relative}
+.ibtn svg{width:20px;height:20px;display:block}
+.ibtn .code{position:absolute;right:-3px;bottom:-4px;font-size:9px;line-height:1;padding:2px 3px;border-radius:5px;background:var(--accent);color:#2a1700}
 .ibtn:hover{background:rgba(255,255,255,.26)}
-.ibtn.off{opacity:.45;text-decoration:line-through}
+.ibtn.off{opacity:.45}
+.ibtn.off::after{content:'';position:absolute;left:7px;right:7px;top:50%;height:2px;background:#fff;transform:rotate(-40deg);border-radius:2px}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(--accent2);outline-offset:2px}
+.btn:disabled{filter:grayscale(.6);opacity:.75;cursor:wait;transform:none}
+.card .crest{display:block;width:112px;height:112px;margin:-6px auto 2px;filter:drop-shadow(0 6px 12px rgba(0,0,0,.35))}
+.btn.pill{padding:9px 16px}
+.col{display:grid;gap:12px;max-width:280px;margin:8px auto 0}
+.bestline{margin:12px 0 0;font-size:15px;color:var(--accent2);min-height:1em}
+.bestline:empty{display:none}
+.foot{margin:12px 0 0;font-size:12px;opacity:.7}
+.foot a{color:inherit}
+.setgrid{display:grid;grid-template-columns:auto 1fr;gap:16px 16px;align-items:center;text-align:left;margin:16px 0 20px;font-size:16px}
+.setgrid input[type=range]{width:100%;accent-color:var(--accent);height:24px}
+.seg{display:flex;gap:8px;flex-wrap:wrap}
+.segb{font:inherit;font-size:15px;font-weight:600;color:#fff;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:8px 16px;cursor:pointer;min-height:40px}
+.segb.on{background:var(--accent);color:#2a1700;border-color:transparent}
+#settings{z-index:6}
+.setopen #title .card,.setopen #pause .card{visibility:hidden}
+#pause{backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.simit-i{display:inline-block;width:14px;height:14px;vertical-align:-2px}
+@media (pointer:coarse){
+  .ibtn{width:44px;height:44px}
+  .btn,.segb{min-height:44px}
+}
 #stamina{position:absolute;left:10px;right:10px;top:74px;height:14px;padding:3px;pointer-events:none;border-radius:999px;display:flex;align-items:center}
 #stBar{height:100%;width:100%;border-radius:999px;background:linear-gradient(90deg,#FBBF24,#F59E0B);box-shadow:0 0 12px rgba(251,191,36,.6);transform-origin:left;transition:background .3s}
 #stamina.low #stBar{background:linear-gradient(90deg,#F87171,#EF4444)}
@@ -59,7 +87,7 @@ body{overflow:hidden;background:#0b1020;color:#fff;font-family:'Fredoka',system-
 #toasts{position:absolute;left:50%;top:124px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none;width:max-content;max-width:92vw}
 .toast{padding:9px 16px;border-radius:14px;font-weight:600;font-size:16px;background:rgba(15,23,42,.6);border:1px solid rgba(255,255,255,.22);
   backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:0 6px 18px rgba(0,0,0,.25);text-align:center;animation:toastIn .3s ease-out both}
-.toast.gold{background:rgba(245,158,11,.92);color:#1f1300;border-color:transparent}
+.toast.gold,.toast.good{background:rgba(245,158,11,.92);color:#1f1300;border-color:transparent}
 .toast.bad{background:rgba(127,29,29,.8)}
 .toast.out{animation:toastOut .45s ease-in forwards}
 @keyframes toastIn{from{opacity:0;transform:translateY(-8px) scale(.96)}to{opacity:1;transform:none}}
@@ -109,12 +137,13 @@ body{overflow:hidden;background:#0b1020;color:#fff;font-family:'Fredoka',system-
   .stat{min-width:0}
   .stat b{font-size:15px}
   .stat small{font-size:8px}
-  #dist-stat{display:none}
-  .ibtn{padding:5px 7px;font-size:12px;min-width:30px}
+  #dist-stat,#best-stat,.logo .crest-s{display:none}
+  .icons{flex-basis:100%;justify-content:flex-end}
   #stamina{top:auto;bottom:10px;height:12px}
   #stLabel{display:none}
-  #chips{top:86px}
-  #toasts{top:116px}
+  #chips{top:120px}
+  #toasts{top:150px}
+  .setgrid{gap:12px;font-size:15px}
   .card{padding:16px 14px 14px;border-radius:20px}
   .card .logo{font-size:42px}
   .btn{font-size:18px;padding:10px 24px}
@@ -128,17 +157,20 @@ body{overflow:hidden;background:#0b1020;color:#fff;font-family:'Fredoka',system-
 
 <div id="hud" class="hidden">
   <div id="topbar" class="glass">
-    <div class="logo">Martı<i>.</i></div>
+    <div class="logo"><img class="crest-s" src="assets/ui/logo.png" alt="" onerror="this.remove()">Martı<i>.</i></div>
     <div class="stat"><small data-i18n="score">Skor</small><b id="sScore">0</b></div>
     <div class="stat combo"><small data-i18n="combo">Kombo</small><b id="sCombo">x1</b></div>
     <div class="stat" id="dist-stat"><small data-i18n="dist">Mesafe</small><b id="sDist">0 m</b></div>
-    <div class="stat"><small data-i18n="best">En iyi</small><b id="sBest">0</b></div>
+    <div class="stat" id="best-stat"><small data-i18n="best">En iyi</small><b id="sBest">0</b></div>
     <div class="grow"></div>
     <div id="lives"></div>
-    <button class="ibtn" id="bPause" title="P">II</button>
-    <button class="ibtn" id="bMusic" title="M">♪</button>
-    <button class="ibtn" id="bSfx" title="X">SES</button>
-    <button class="ibtn" id="bLang" title="L">EN</button>
+    <div class="icons">
+      <button class="ibtn" id="bPause" data-icon="pause"></button>
+      <button class="ibtn" id="bMusic" data-icon="music"></button>
+      <button class="ibtn" id="bSfx" data-icon="sound"></button>
+      <button class="ibtn" id="bLang" data-icon="globe"></button>
+      <button class="ibtn" id="bSet" data-icon="gear"></button>
+    </div>
   </div>
   <div id="stamina" class="glass"><span id="stLabel" data-i18n="stamina">Enerji</span><div id="stBar"></div></div>
   <div id="chips"></div>
@@ -147,15 +179,22 @@ body{overflow:hidden;background:#0b1020;color:#fff;font-family:'Fredoka',system-
 
 <div id="title" class="overlay">
   <div class="card">
+    <img class="crest" src="assets/ui/logo.png" alt="" onerror="this.remove()">
     <div class="logo">Martı<i>.</i></div>
     <p class="tag" data-i18n="tagline"></p>
     <ul class="how" id="how"></ul>
-    <div class="row"><button class="btn" id="bStart" data-i18n="start">Başla</button></div>
+    <div class="row">
+      <button class="btn" id="bStart" disabled>Loading…</button>
+      <button class="btn ghost" id="bSetT" data-i18n="settings">Ayarlar</button>
+      <button class="btn ghost pill" id="bLangT">EN</button>
+    </div>
+    <p class="bestline" id="bestLine"></p>
     <div class="two">
       <div><h4 data-i18n="missions">Görevler</h4><ul id="missList"></ul></div>
       <div><h4 data-i18n="highs">Yüksek skorlar</h4><ol id="highList"></ol></div>
     </div>
     <p class="hint" data-i18n="hint"></p>
+    <p class="foot"><a href="https://furkiozknn.github.io/claude-game-arena/" target="_blank" rel="noopener">Claude Game Arena · built by Claude Haiku 5.5 · assets remastered</a></p>
   </div>
 </div>
 
@@ -163,16 +202,34 @@ body{overflow:hidden;background:#0b1020;color:#fff;font-family:'Fredoka',system-
   <div class="card">
     <div class="logo" style="font-size:40px" data-i18n="paused">Duraklatıldı</div>
     <p class="tag" data-i18n="hint"></p>
-    <div class="row">
+    <div class="col">
       <button class="btn" id="bResume" data-i18n="resume">Devam et</button>
+      <button class="btn ghost" id="bRestart" data-i18n="restart">Yeniden başla</button>
+      <button class="btn ghost" id="bSetP" data-i18n="settings">Ayarlar</button>
       <button class="btn ghost" id="bMenuP" data-i18n="menu">Ana menü</button>
     </div>
+  </div>
+</div>
+
+<div id="settings" class="overlay hidden">
+  <div class="card">
+    <div class="logo" style="font-size:36px" data-i18n="settings">Ayarlar</div>
+    <div class="setgrid">
+      <label for="vMaster" data-i18n="master">Genel ses</label><input type="range" id="vMaster" min="0" max="100" step="5">
+      <label for="vMusic" data-i18n="music">Müzik</label><input type="range" id="vMusic" min="0" max="100" step="5">
+      <label for="vSfx" data-i18n="sfx">Efektler</label><input type="range" id="vSfx" min="0" max="100" step="5">
+      <span data-i18n="language">Dil</span><div class="seg"><button class="segb" id="sTR">Türkçe</button><button class="segb" id="sEN">English</button></div>
+      <span data-i18n="quality">Kalite</span><div class="seg"><button class="segb" id="sLow" data-i18n="low">Düşük</button><button class="segb" id="sHigh" data-i18n="high">Yüksek</button></div>
+      <span data-i18n="fullscreen">Tam ekran</span><div class="seg"><button class="segb" id="sFull" data-i18n="toggleFs">Aç / kapat</button></div>
+    </div>
+    <div class="row"><button class="btn" id="bSetBack" data-i18n="back">Geri</button></div>
   </div>
 </div>
 
 <div id="over" class="overlay hidden">
   <div class="card">
     <div class="logo" style="font-size:40px" data-i18n="over">Koşu bitti</div>
+    <p class="tag" id="overReason"></p>
     <div class="newbest" id="newBest"></div>
     <div class="grid">
       <div><small data-i18n="score">Skor</small><b id="oScore">0</b></div>
@@ -191,9 +248,21 @@ body{overflow:hidden;background:#0b1020;color:#fff;font-family:'Fredoka',system-
 <pre id="dbg" class="hidden"><span id="dbgL"></span><span id="dbgE"></span></pre>
 <div id="fatal"></div>
 
+<script>
+// CDN watchdog: if Three.js (jsDelivr) cannot load, the module never runs. Show a message instead of a dead Start button.
+setTimeout(function () {
+  if (window.martiBoot) return;
+  var f = document.getElementById('fatal');
+  f.style.display = 'flex';
+  f.textContent = 'Could not load the game (network or blocked CDN). Check your connection and reload. · Oyun yüklenemedi (ağ ya da engellenen CDN). Bağlantını kontrol edip sayfayı yenile.';
+}, 10000);
+</script>
+
 <script type="module">
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+window.martiBoot = true; // tells the CDN watchdog (classic script above) that the module started
 
 /* ============================================================
    Martı: an endless 3D seagull run over the Istanbul strait.
@@ -250,15 +319,19 @@ const I18N = {
       '<b>Simit kap:</b> enerjin dolsun, kombo kur, rüzgârı yakala',
       '<b>Kaçın:</b> köprü, gemi direkleri ve uçurtmalar. Rakip sürü simit çalar',
     ],
-    start: 'Başla', retry: 'Tekrar dene', resume: 'Devam et', menu: 'Ana menü',
-    paused: 'Duraklatıldı', over: 'Koşu bitti',
+    start: 'Başla', retry: 'Tekrar oyna', resume: 'Devam et', menu: 'Ana menü', restart: 'Yeniden başla',
+    paused: 'Duraklatıldı', over: 'Koşu bitti', loading: 'Yükleniyor… {n}/{m}', bestLine: 'En iyi skor: {n}',
     score: 'Skor', best: 'En iyi', dist: 'Mesafe', simit: 'Simit', combo: 'Kombo', stamina: 'Enerji',
     missions: 'Günlük görevler', highs: 'Yüksek skorlar',
-    hint: 'P duraklat · M müzik · X ses · L English',
+    hint: 'P duraklat · M müzik · X ses · L English · F tam ekran',
     newBest: 'Yeni rekor!', steal: 'Sürü simitini çaldı!', shield: 'Kalkan tüyü! Bir çarpmayı emer',
     shieldUsed: 'Kalkan çarpmayı emdi!', hit: 'Çarpıştın!', tail: 'Kuyruk rüzgârı! Hız ve skor x1.5',
-    gold: 'Altın simit! Skor x2', missionDone: 'Görev tamam', crash: 'Çarpıştın', energy: 'Enerjin bitti',
-    left: 'kaldı', fish: 'Balık', steals: 'Çalınan', m: 'm', km: 'km', fishN: 'balık',
+    gold: 'Altın simit! Skor x2', missionDone: 'Görev tamam', crash: 'Üç kez çarptın', energy: 'Enerjin bitti',
+    fly: 'İyi uçuşlar!', m: 'm', km: 'km',
+    settings: 'Ayarlar', master: 'Genel ses', music: 'Müzik', sfx: 'Efektler', language: 'Dil', quality: 'Kalite',
+    low: 'Düşük', high: 'Yüksek', fullscreen: 'Tam ekran', toggleFs: 'Aç / kapat', back: 'Geri',
+    aPause: 'Duraklat (P)', aMusic: 'Müzik (M)', aSound: 'Ses efektleri (X)', aLang: 'Dil: English (L)', aSet: 'Ayarlar',
+    tailChip: 'Kuyruk rüzgârı', goldChip: 'Altın simit x2', shieldChip: 'Kalkan hazır',
   },
   en: {
     tagline: 'A seagull run over the Bosphorus, hunting simit',
@@ -268,19 +341,40 @@ const I18N = {
       '<b>Snatch simit:</b> refill your stamina, build a combo, catch a tailwind',
       '<b>Avoid:</b> bridge, ship masts and kites. The rival flock steals your simit',
     ],
-    start: 'Start', retry: 'Retry', resume: 'Resume', menu: 'Main menu',
-    paused: 'Paused', over: 'Run over',
+    start: 'Start', retry: 'Play again', resume: 'Resume', menu: 'Main menu', restart: 'Restart',
+    paused: 'Paused', over: 'Run over', loading: 'Loading… {n}/{m}', bestLine: 'Best score: {n}',
     score: 'Score', best: 'Best', dist: 'Distance', simit: 'Simit', combo: 'Combo', stamina: 'Stamina',
     missions: 'Daily missions', highs: 'High scores',
-    hint: 'P pause · M music · X sound · L Türkçe',
+    hint: 'P pause · M music · X sound · L Türkçe · F fullscreen',
     newBest: 'New record!', steal: 'The flock stole your simit!', shield: 'Shield feather! Blocks one hit',
     shieldUsed: 'The shield absorbed a hit!', hit: 'Hit!', tail: 'Tailwind! Speed and score x1.5',
-    gold: 'Golden simit! Score x2', missionDone: 'Mission complete', crash: 'Crashed', energy: 'Out of stamina',
-    left: 'left', fish: 'Fish', steals: 'Stolen', m: 'm', km: 'km', fishN: 'fish',
+    gold: 'Golden simit! Score x2', missionDone: 'Mission complete', crash: 'Three hits', energy: 'Out of stamina',
+    fly: 'Have a good flight!', m: 'm', km: 'km',
+    settings: 'Settings', master: 'Master volume', music: 'Music', sfx: 'Effects', language: 'Language', quality: 'Quality',
+    low: 'Low', high: 'High', fullscreen: 'Fullscreen', toggleFs: 'On / off', back: 'Back',
+    aPause: 'Pause (P)', aMusic: 'Music (M)', aSound: 'Sound effects (X)', aLang: 'Language: Türkçe (L)', aSet: 'Settings',
+    tailChip: 'Tailwind', goldChip: 'Golden x2', shieldChip: 'Shield ready',
   },
 };
-let LANG = Q.get('lang') === 'en' ? 'en' : Q.get('lang') === 'tr' ? 'tr' : LS.get('marti.lang', 'tr') === 'en' ? 'en' : 'tr';
-const tx = (k) => (I18N[LANG][k] !== undefined ? I18N[LANG][k] : I18N.en[k]);
+// ---------- settings and saves (arena.marti.*; old marti.* keys are read once and kept) ----------
+const KEY = { settings: 'arena.marti.settings', best: 'arena.marti.best', save: 'arena.marti.save' };
+const browserLang = (navigator.language || 'en').toLowerCase().startsWith('tr') ? 'tr' : 'en';
+const coarse = window.matchMedia && matchMedia('(pointer:coarse)').matches;
+const SET = Object.assign({ master: 0.8, music: 0.6, sfx: 0.8, lang: browserLang, quality: coarse ? 'low' : 'high', musicOn: true, sfxOn: true },
+  LS.get(KEY.settings, null) || (() => {
+    // migration from the round-1 keys
+    const old = {};
+    const l = LS.get('marti.lang', null); if (l === 'tr' || l === 'en') old.lang = l;
+    if (LS.get('marti.music', true) === false) old.musicOn = false;
+    if (LS.get('marti.sfx', true) === false) old.sfxOn = false;
+    return old;
+  })());
+if (LS.get(KEY.best, null) === null && LS.get('marti.highs', null)) LS.set(KEY.best, LS.get('marti.highs', []));
+if (LS.get(KEY.save, null) === null && LS.get('marti.missions', null)) LS.set(KEY.save, LS.get('marti.missions', null));
+const saveSettings = () => LS.set(KEY.settings, SET);
+saveSettings();
+let LANG = Q.get('lang') === 'en' ? 'en' : Q.get('lang') === 'tr' ? 'tr' : SET.lang;
+const tx = (k, v) => { let s = I18N[LANG][k] !== undefined ? I18N[LANG][k] : I18N.en[k]; if (v) for (const n in v) s = s.replace('{' + n + '}', v[n]); return s; };
 
 const MISSION_DEFS = {
   simit: { goal: 60, tr: (n) => `${n} simit kap`, en: (n) => `Snatch ${n} simit` },
@@ -301,9 +395,10 @@ try {
   $('#fatal').textContent = 'WebGL is not available in this browser. / Tarayıcında WebGL yok.';
   throw e;
 }
-renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+const isLow = () => FLAG.low || SET.quality === 'low';
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isLow() ? 1 : 1.5));
 renderer.setSize(window.innerWidth, window.innerHeight, false);
-renderer.shadowMap.enabled = !FLAG.low;
+renderer.shadowMap.enabled = !isLow();
 renderer.shadowMap.type = THREE.PCFShadowMap;
 
 const scene = new THREE.Scene();
@@ -314,7 +409,7 @@ camera.position.set(0, 8, -15);
 
 const hemi = new THREE.HemisphereLight(0xfff1d0, 0x3a6a4a, 0.9);
 const sun = new THREE.DirectionalLight(0xffffff, 1.2);
-sun.castShadow = !FLAG.low;
+sun.castShadow = true; // renderer.shadowMap.enabled decides (quality setting)
 sun.shadow.mapSize.set(1024, 1024);
 Object.assign(sun.shadow.camera, { left: -55, right: 55, top: 55, bottom: -55, near: 10, far: 260 });
 sun.shadow.camera.updateProjectionMatrix();
@@ -342,11 +437,13 @@ const M = {
   water: new THREE.MeshLambertMaterial({ vertexColors: true, flatShading: true }),
   land: new THREE.MeshLambertMaterial({ vertexColors: true, flatShading: true, side: THREE.DoubleSide }),
   white: new THREE.MeshLambertMaterial({ color: 0xffffff }),
-  house: new THREE.MeshLambertMaterial({ color: 0xffffff, emissive: 0x000000 }),
+  house: new THREE.MeshLambertMaterial({ color: 0xffffff }),
+  win: new THREE.MeshLambertMaterial({ color: 0x1e293b, emissive: 0x000000 }), // house windows, glow at night
   sun: new THREE.MeshLambertMaterial({ color: 0xffe08a, emissive: 0xffd060, fog: false }),
   moon: new THREE.MeshLambertMaterial({ color: 0xe5e7eb, emissive: 0xcbd5e1, fog: false }),
   stars: new THREE.PointsMaterial({ color: 0xffffff, size: 2.4, sizeAttenuation: false, map: DOT, alphaTest: 0.05, transparent: true, opacity: 0, fog: false, depthWrite: false }),
-  fx: new THREE.PointsMaterial({ size: 0.8, vertexColors: true, sizeAttenuation: true, map: DOT, alphaTest: 0.05, transparent: true, depthWrite: false }),
+  // fog:false so fireworks 140-240 units ahead are not fogged into the sky (fog starts at 110)
+  fx: new THREE.PointsMaterial({ size: 0.8, vertexColors: true, sizeAttenuation: true, map: DOT, alphaTest: 0.05, transparent: true, depthWrite: false, fog: false }),
 };
 
 // ---------- geometry helpers ----------
@@ -366,38 +463,48 @@ function part(geo, hex, p = [0, 0, 0], r = [0, 0, 0], s = [1, 1, 1]) {
 }
 const merge = (list) => mergeGeometries(list, false);
 
-// Gull body, low-poly: rounded white body and head, yellow beak, grey tail, tucked orange legs.
-// The gull faces +z (direction of flight).
+// Gull (faces +z, the direction of flight): white body and head, grey mantle on the back, yellow beak with a red
+// spot, white fan tail, tucked orange legs. Wings are tapered two-layer panels: grey on top, white underneath,
+// black tips with a white spot, so the gull reads from behind (grey back and wing tops) and from below (white).
+const GULL_GREY = '#9AA6B2', GULL_WHITE = '#F8FAFC', GULL_BLACK = '#111827';
+// Flat panel from an outline in the x/z plane (points [x, z]; side mirrors x), `thick` tall, bottom at y.
+function panel(pts, side, hex, y, thick) {
+  const sh = new THREE.Shape(pts.map(([x, z]) => new THREE.Vector2(side * x, -z)));
+  const g = new THREE.ExtrudeGeometry(sh, { depth: thick, bevelEnabled: false }).rotateX(-Math.PI / 2);
+  return part(g, hex, [0, y, 0]);
+}
+const panel2 = (pts, side, top, bottom) => [panel(pts, side, bottom, -0.05, 0.05), panel(pts, side, top, 0, 0.05)];
 const gullBodyGeo = merge([
-  part(new THREE.SphereGeometry(0.62, 12, 8), '#FFFFFF', [0, 0, 0], [0, 0, 0], [1, 0.82, 1.6]),
-  part(new THREE.SphereGeometry(0.44, 10, 7), '#FFFFFF', [0, 0.36, 1.0]),
-  part(new THREE.ConeGeometry(0.12, 0.6, 5), '#FACC15', [0, 0.3, 1.52], [Math.PI / 2, 0, 0]),
-  part(new THREE.SphereGeometry(0.07, 5, 4), '#111827', [0.2, 0.46, 1.2]),
-  part(new THREE.SphereGeometry(0.07, 5, 4), '#111827', [-0.2, 0.46, 1.2]),
-  part(new THREE.BoxGeometry(0.85, 0.1, 0.9), '#CBD5E1', [0, 0.08, -1.25]),
-  part(new THREE.BoxGeometry(0.5, 0.1, 0.5), '#B6C2CF', [0, 0.02, -1.6]),
-  part(new THREE.BoxGeometry(0.06, 0.3, 0.06), '#F97316', [0.22, -0.55, 0.15]),
-  part(new THREE.BoxGeometry(0.06, 0.3, 0.06), '#F97316', [-0.22, -0.55, 0.15]),
+  part(new THREE.SphereGeometry(0.62, 14, 10), GULL_WHITE, [0, 0, 0], [0, 0, 0], [0.9, 0.78, 1.55]),
+  part(new THREE.SphereGeometry(0.6, 12, 8), GULL_GREY, [0, 0.2, -0.15], [0, 0, 0], [0.82, 0.45, 1.2]),
+  part(new THREE.SphereGeometry(0.42, 12, 8), GULL_WHITE, [0, 0.34, 1.0]),
+  part(new THREE.ConeGeometry(0.11, 0.55, 6), '#FACC15', [0, 0.28, 1.6], [Math.PI / 2, 0, 0]),
+  part(new THREE.SphereGeometry(0.05, 5, 4), '#DC2626', [0, 0.21, 1.62]),
+  part(new THREE.SphereGeometry(0.065, 6, 4), GULL_BLACK, [0.22, 0.44, 1.18]),
+  part(new THREE.SphereGeometry(0.065, 6, 4), GULL_BLACK, [-0.22, 0.44, 1.18]),
+  ...panel2([[-0.28, -0.75], [0.28, -0.75], [0.48, -1.75], [0, -1.62], [-0.48, -1.75]], 1, GULL_WHITE, '#E2E8F0').map((g) => g.translate(0, 0.08, 0)),
+  part(new THREE.BoxGeometry(0.07, 0.07, 0.35), '#F97316', [0.2, -0.45, -0.55]),
+  part(new THREE.BoxGeometry(0.07, 0.07, 0.35), '#F97316', [-0.2, -0.45, -0.55]),
 ]);
-// Wing segments (side = +1 right, -1 left). Inner segment hangs from the shoulder;
-// the outer segment hangs from the wrist and ends in a black tip.
-function wingInnerGeo(side) {
-  return merge([part(new THREE.BoxGeometry(1.5, 0.16, 1.3), '#F1F5F9', [side * 0.75, 0, 0])]);
+// Outlines relative to the joint (shoulder for the inner wing, wrist for the outer one), +x outwards, +z forward.
+const WING_INNER = [[0, 0.52], [1.5, 0.44], [1.5, -0.42], [0.8, -0.62], [0, -0.78]];
+const WING_OUTER = [[0, 0.44], [1.0, 0.2], [1.0, -0.38], [0, -0.42]];
+const WING_TIP = [[1.0, 0.2], [1.62, -0.12], [1.45, -0.3], [1.0, -0.38]];
+// Wing segments (side = +1 right, -1 left), positioned at the joint origin.
+function wingInnerGeo(side, ox = 0, oy = 0, oz = 0) {
+  return merge(panel2(WING_INNER, side, GULL_GREY, GULL_WHITE).map((g) => g.translate(ox, oy, oz)));
 }
-function wingOuterGeo(side) {
+function wingOuterGeo(side, ox = 0, oy = 0, oz = 0) {
   return merge([
-    part(new THREE.BoxGeometry(1.45, 0.14, 1.05), '#F1F5F9', [side * 0.75, 0, -0.05]),
-    part(new THREE.BoxGeometry(0.55, 0.15, 1.07), '#111827', [side * 1.22, 0, -0.05]),
-  ]);
+    ...panel2(WING_OUTER, side, GULL_GREY, GULL_WHITE),
+    ...panel2(WING_TIP, side, GULL_BLACK, GULL_BLACK),
+    part(new THREE.BoxGeometry(0.14, 0.02, 0.12), GULL_WHITE, [side * 1.32, 0.055, -0.12]),
+  ].map((g) => g.translate(ox, oy, oz)));
 }
-// Flat wings for the rival flock (instanced, no animation).
-function wingGeo(side, ox = 0, oy = 0, oz = 0) {
-  return merge([
-    part(new THREE.BoxGeometry(2.9, 0.16, 1.2), '#F1F5F9', [ox + side * 1.45, oy, oz - 0.1]),
-    part(new THREE.BoxGeometry(0.6, 0.17, 1.22), '#1E293B', [ox + side * 2.85, oy, oz - 0.1]),
-  ]);
-}
-const rivalGeo = merge([gullBodyGeo, wingGeo(1, 0.5, 0.15, 0.25), wingGeo(-1, -0.5, 0.15, 0.25)]);
+// Rival flock: the same gull with the wings spread flat (instanced; the shader flaps them).
+const rivalGeo = merge([gullBodyGeo,
+  wingInnerGeo(1, 0.45, 0.15, 0.25), wingInnerGeo(-1, -0.45, 0.15, 0.25),
+  wingOuterGeo(1, 1.95, 0.15, 0.25), wingOuterGeo(-1, -1.95, 0.15, 0.25)]);
 
 const simitGeo = part(new THREE.TorusGeometry(0.85, 0.32, 8, 16), '#C98A3E');
 const fishGeo = merge([
@@ -410,11 +517,29 @@ const PWR_GEO = {
   gold: merge([part(new THREE.TorusGeometry(1.1, 0.32, 8, 24), '#F59E0B'), part(new THREE.SphereGeometry(0.55, 8, 6), '#FDE68A')]),
   shield: merge([part(new THREE.ConeGeometry(0.45, 2.2, 6), '#E0F2FE', [0, 0, 0], [0, 0, 0]), part(new THREE.SphereGeometry(0.4, 8, 6), '#60A5FA', [0, -1.1, 0])]),
 };
+// Power-up meshes (replaced by the generated models when they load).
+const PWR = { tail: { geo: PWR_GEO.tail, mat: M.vc }, gold: { geo: PWR_GEO.gold, mat: M.vc }, shield: { geo: PWR_GEO.shield, mat: M.vc } };
 const kiteGeo = new THREE.OctahedronGeometry(1, 0).scale(1.5, 1.5, 0.15);
 const stringGeo = new THREE.BoxGeometry(0.12, 1, 0.12).translate(0, 0.5, 0);
-const balloonGeo = new THREE.SphereGeometry(1.3, 10, 8);
+// Hot-air balloon: envelope, four ropes and a basket (the instance colour tints all of it).
+const balloonGeo = merge([
+  part(new THREE.SphereGeometry(1.3, 10, 8), '#FFFFFF', [0, 0, 0], [0, 0, 0], [1, 1.1, 1]),
+  ...[[-1, -1], [1, -1], [-1, 1], [1, 1]].map(([sx, sz]) => part(new THREE.BoxGeometry(0.04, 1.2, 0.04), '#E5E7EB', [sx * 0.42, -1.55, sz * 0.42])),
+  part(new THREE.BoxGeometry(0.6, 0.5, 0.6), '#8B5A2B', [0, -2.1, 0]),
+]);
 const houseGeo = new THREE.BoxGeometry(1, 1, 1).translate(0, 0.5, 0);
-const roofGeo = new THREE.ConeGeometry(0.72, 0.8, 4).translate(0, 0.4, 0);
+// Night windows: 2x2 dark quads on each side of the unit house box, drawn with the house matrices (one draw call).
+const winGeo = (() => {
+  const P = [];
+  for (let f = 0; f < 4; f++) {
+    for (const wy of [0.32, 0.68]) for (const wx of [-0.2, 0.2]) {
+      P.push(new THREE.PlaneGeometry(0.18, 0.2).translate(wx, wy, 0.505).rotateY((f * Math.PI) / 2));
+    }
+  }
+  return mergeGeometries(P, false);
+})();
+// A 4-sided cone has its corners on the axes; turn it 45 degrees so the roof lines up with the box.
+const roofGeo = new THREE.ConeGeometry(0.72, 0.8, 4).rotateY(Math.PI / 4).translate(0, 0.4, 0);
 const treeGeo = new THREE.ConeGeometry(0.8, 3.2, 6).translate(0, 1.6, 0);
 const domeGeo = new THREE.SphereGeometry(1, 14, 8, 0, TAU, 0, Math.PI / 2);
 const minaretGeo = merge([
@@ -464,12 +589,15 @@ function boatGeo(type) {
   }
   return merge(P);
 }
-const BOAT_GEO = { ferry: boatGeo('ferry'), fishing: boatGeo('fishing'), tanker: boatGeo('tanker'), sail: boatGeo('sail') };
+// Boat meshes (ferry, fishing and sail are replaced by the generated models when they load; the tanker stays procedural).
+const BOAT = {};
+for (const t of ['ferry', 'fishing', 'tanker', 'sail']) BOAT[t] = { geo: boatGeo(t), mat: M.vc };
 const BOAT_BOXES = {
-  ferry: [{ ox: 0, oz: 0, y0: 0, y1: 2.6, hw: 3, hd: 7.5 }],
-  fishing: [{ ox: 0, oz: 0, y0: 0, y1: 1.8, hw: 1.6, hd: 3 }, { ox: 0, oz: 0, y0: 0, y1: 5.2, hw: 0.35, hd: 0.35 }],
-  tanker: [{ ox: 0, oz: 0, y0: 0, y1: 3.4, hw: 4.5, hd: 18 }, { ox: 0, oz: -13.5, y0: 3.4, y1: 10.5, hw: 1.1, hd: 1.2 }],
-  sail: [{ ox: 0, oz: 0, y0: 0, y1: 1.6, hw: 1.5, hd: 3.6 }, { ox: 0, oz: 0.5, y0: 0, y1: 23, hw: 0.4, hd: 0.4 }],
+  // The ferry cabin top stays at 4.5: the deck simit at y 5.3 (minus the gull's half height 0.55) must stay reachable.
+  ferry: [{ ox: 0, oz: 0, y0: 0, y1: 2.6, hw: 3, hd: 7.5 }, { ox: 0, oz: -1.5, y0: 2.6, y1: 4.5, hw: 2.65, hd: 4.15 }],
+  fishing: [{ ox: 0, oz: 0, y0: 0, y1: 1.8, hw: 1.6, hd: 3 }, { ox: 0, oz: 0.9, y0: 0, y1: 5.2, hw: 0.35, hd: 0.35 }, { ox: 0, oz: -0.8, y0: 1.4, y1: 2.8, hw: 0.9, hd: 0.9 }],
+  tanker: [{ ox: 0, oz: 0, y0: 0, y1: 3.4, hw: 4.5, hd: 18 }, { ox: 0, oz: -13.5, y0: 3.4, y1: 10.5, hw: 1.1, hd: 1.2 }, { ox: 0, oz: -13, y0: 3.4, y1: 8.5, hw: 2, hd: 2.5 }],
+  sail: [{ ox: 0, oz: 0, y0: 0, y1: 1.6, hw: 1.5, hd: 3.6 }, { ox: 0, oz: 0.5, y0: 0, y1: 23, hw: 0.4, hd: 0.4 }, { ox: 0.05, oz: -0.8, y0: 4, y1: 16, hw: 0.15, hd: 2 }],
 };
 
 // Bridge (red towers, suspension cables, hangers, fishing lines).
@@ -524,7 +652,7 @@ const LIGHTHOUSE_GEO = merge([
 
 // ---------- instanced meshes ----------
 const _im = new THREE.Matrix4(), _ip = new THREE.Vector3(), _iq = new THREE.Quaternion(), _is = new THREE.Vector3(), _ic = new THREE.Color();
-const AXY = new THREE.Vector3(0, 1, 0);
+const AXY = new THREE.Vector3(0, 1, 0), _ieu = new THREE.Euler(0, 0, 0, 'YXZ');
 function makeInst(geo, mat, cap) {
   const m = new THREE.InstancedMesh(geo, mat, cap);
   m.count = 0;
@@ -533,41 +661,60 @@ function makeInst(geo, mat, cap) {
   scene.add(m);
   return m;
 }
-// Writes matrices (and colours when an item has .c) for the first items of arr.
-function setInst(mesh, arr) {
-  const n = Math.min(arr.length, mesh.instanceMatrix.count);
+// Writes matrices (and colours when an item has .c, unless noColor) for the first n items of arr.
+// .r turns about y, .rx pitches about x (after the turn).
+function setInst(mesh, arr, n = arr.length, noColor = false) {
+  n = Math.min(n, mesh.instanceMatrix.count);
   mesh.count = n;
   for (let i = 0; i < n; i++) {
     const o = arr[i];
     _ip.set(o.x, o.y, o.z);
-    _iq.setFromAxisAngle(AXY, o.r || 0);
+    if (o.rx) _iq.setFromEuler(_ieu.set(o.rx, o.r || 0, 0));
+    else _iq.setFromAxisAngle(AXY, o.r || 0);
     _is.set(o.sx === undefined ? 1 : o.sx, o.sy === undefined ? 1 : o.sy, o.sz === undefined ? 1 : o.sz);
     _im.compose(_ip, _iq, _is);
     mesh.setMatrixAt(i, _im);
-    if (o.c !== undefined) mesh.setColorAt(i, _ic.set(o.c));
+    if (o.c !== undefined && !noColor) mesh.setColorAt(i, _ic.set(o.c));
   }
   mesh.instanceMatrix.needsUpdate = true;
-  if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+  if (mesh.instanceColor && !noColor) mesh.instanceColor.needsUpdate = true;
 }
+
+// Reused per-frame instance lists (no new arrays or objects per frame).
+const TMP = { kite: [], str: [], flock: [], simit: [], fish: [] };
+const slot = (arr, i) => arr[i] || (arr[i] = { x: 0, y: 0, z: 0, r: 0 });
 
 const HOUSE_COLS = ['#F4A261', '#E76F51', '#2A9D8F', '#E9C46A', '#F5F5DC', '#E63946', '#8ECAE6', '#F1FAEE', '#FFB4A2', '#B5E48C'];
 const KITE_COLS = ['#EF4444', '#F59E0B', '#22C55E', '#3B82F6', '#EC4899', '#A855F7'];
 const BAL_COLS = ['#F87171', '#FBBF24', '#60A5FA', '#34D399', '#F472B6'];
 
+// Rival flock material: the wings flap in the vertex shader (per-instance phase), still one draw call.
+const flockUniforms = { uTime: { value: 0 } };
+M.flock = M.vc.clone();
+M.flock.onBeforeCompile = (sh) => {
+  sh.uniforms.uTime = flockUniforms.uTime;
+  sh.vertexShader = sh.vertexShader
+    .replace('#include <common>', '#include <common>\nuniform float uTime;\nattribute float instPhase;')
+    .replace('#include <begin_vertex>', '#include <begin_vertex>\nfloat wingOut = max(abs(position.x) - 0.6, 0.0);\ntransformed.y += wingOut * 0.35 * sin(uTime * 9.0 + instPhase);');
+};
 const IM = {
   house: makeInst(houseGeo, M.house, 700),
+  win: makeInst(winGeo, M.win, 700),
+  mbody: makeInst(houseGeo, M.house, 40),
   roof: makeInst(roofGeo, M.white, 300),
   tree: makeInst(treeGeo, M.white, 260),
   dome: makeInst(domeGeo, M.white, 40),
   minaret: makeInst(minaretGeo, M.vc, 60),
-  balloon: makeInst(balloonGeo, M.white, 20),
+  balloon: makeInst(balloonGeo, M.vc, 20),
   sky: makeInst(cloudGeo, M.vc, 24),
   kite: makeInst(kiteGeo, M.white, 16),
   kiteStr: makeInst(stringGeo, M.white, 16),
-  flock: makeInst(rivalGeo, M.vc, 80),
+  flock: makeInst(rivalGeo, M.flock, 80),
   simit: makeInst(simitGeo, M.vc, 160),
   fish: makeInst(fishGeo, M.vc, 40),
 };
+const flockPhase = new THREE.InstancedBufferAttribute(new Float32Array(80), 1).setUsage(THREE.DynamicDrawUsage);
+IM.flock.geometry.setAttribute('instPhase', flockPhase);
 
 // ---------- sky, sun, moon, stars ----------
 const sunMesh = new THREE.Mesh(new THREE.SphereGeometry(15, 16, 12), M.sun);
@@ -589,6 +736,7 @@ scene.add(sunMesh, moonMesh, starsPts);
 // Colour keyframes: day phase (0..1) -> sky colour
 const SKY_STOPS = [[0, 0xf8d68f], [0.42, 0xf7c26b], [0.56, 0xf2784b], [0.68, 0x6b3fa0], [0.8, 0x1b1f4b], [1, 0x0a1030]];
 const _cA = new THREE.Color(), _cB = new THREE.Color(), _cS = new THREE.Color();
+const HEMI_DAY = new THREE.Color(0xfff1d0), HEMI_NIGHT = new THREE.Color(0xb8c8ff), SUN_DAY = new THREE.Color(0xffffff), SUN_NIGHT = new THREE.Color(0xbfd0ff);
 function rampColor(stops, p, out) {
   for (let i = 1; i < stops.length; i++) {
     if (p <= stops[i][0]) {
@@ -656,8 +804,11 @@ land.receiveShadow = true;
 scene.add(land);
 const _cc = new THREE.Color(), _cw = new THREE.Color();
 
+let lastLandZ0 = NaN;
 function updateTerrain() {
   const z0 = Math.floor((S.d - 60) / LZ) * LZ;
+  if (z0 === lastLandZ0) return; // the land is static in world space: rebuild only when the window moves
+  lastLandZ0 = z0;
   for (let side = 0; side < 2; side++) {
     const sx = side ? 1 : -1;
     for (let r = 0; r < LROWS; r++) {
@@ -695,23 +846,88 @@ const gull = new THREE.Group();
 gull.scale.setScalar(1.1);
 const gBody = new THREE.Group();
 gull.add(gBody);
-const bodyMesh = new THREE.Mesh(gullBodyGeo, M.vc);
+// Pose for the chase camera, which sits behind and only a little above: the body is tipped nose-up a touch and the
+// wings are pitched leading-edge-up (WING_PITCH), so the camera sees the grey back and wing tops instead of thin
+// edges. GULL_DIHEDRAL lifts the wings into a slight V; GULL_AMP is the flap amplitude at the shoulder (radians).
+// ?gp= ?wp= ?gd= ?ga= override them for screenshot tests.
+const qn = (k, d) => (Q.has(k) ? +Q.get(k) : d);
+const GULL_PITCH = qn('gp', -0.15), WING_PITCH = qn('wp', -0.6), GULL_DIHEDRAL = qn('gd', 0.12), GULL_AMP = qn('ga', 0.55);
+// own material: a faint glow keeps the white gull readable when it is backlit and at night
+M.gull = new THREE.MeshLambertMaterial({ vertexColors: true, emissive: 0x2b2f36 });
+const bodyMesh = new THREE.Mesh(gullBodyGeo, M.gull);
 gBody.add(bodyMesh);
 // Shoulder (wingL / wingR) -> wrist (wristL / wristR) -> outer segment.
 // Both joints rotate around z; the wrist bends so the outer wing folds and stretches.
 const wingL = new THREE.Group(), wingR = new THREE.Group();
 const wristL = new THREE.Group(), wristR = new THREE.Group();
 wingL.position.set(-0.45, 0.15, 0.25);
+wingL.rotation.x = wingR.rotation.x = WING_PITCH;
 wingR.position.set(0.45, 0.15, 0.25);
 wristL.position.set(-1.5, 0, 0);
 wristR.position.set(1.5, 0, 0);
-wingL.add(new THREE.Mesh(wingInnerGeo(-1), M.vc), wristL);
-wingR.add(new THREE.Mesh(wingInnerGeo(1), M.vc), wristR);
-wristL.add(new THREE.Mesh(wingOuterGeo(-1), M.vc));
-wristR.add(new THREE.Mesh(wingOuterGeo(1), M.vc));
+const wingMesh = {
+  innerL: new THREE.Mesh(wingInnerGeo(-1), M.gull), innerR: new THREE.Mesh(wingInnerGeo(1), M.gull),
+  outerL: new THREE.Mesh(wingOuterGeo(-1), M.gull), outerR: new THREE.Mesh(wingOuterGeo(1), M.gull),
+};
+wingL.add(wingMesh.innerL, wristL);
+wingR.add(wingMesh.innerR, wristR);
+wristL.add(wingMesh.outerL);
+wristR.add(wingMesh.outerR);
 gBody.add(wingL, wingR);
-gull.traverse((o) => { if (o.isMesh) o.castShadow = !FLAG.low; });
+gull.traverse((o) => { if (o.isMesh) o.castShadow = true; });
 scene.add(gull);
+
+// ---------- generated models (GLB) with procedural fallback ----------
+// Models in assets/models replace the procedural meshes once they have loaded. Every procedural builder stays as the
+// fallback: from file:// (Chrome blocks fetch there), with ?noassets, or when a file fails, the original look stays.
+// All files are already normalised (tools/assets/fit.mjs): +Y up, +Z forward, metres, base or centre pivot.
+const MODEL_FILES = ['simit', 'fish', 'feather', 'ferry', 'fishing', 'sail', 'mosque', 'galata', 'maiden', 'yali'];
+const ASSET = {};
+let assetsReady = false, assetsLoaded = 0;
+function loadAssets() {
+  if (Q.has('noassets') || location.protocol === 'file:') return Promise.resolve();
+  const loader = new GLTFLoader();
+  const one = (name) => loader.loadAsync(`assets/models/${name}.glb`).then((gltf) => {
+    const parts = [];
+    let map = null;
+    gltf.scene.updateMatrixWorld(true);
+    gltf.scene.traverse((o) => {
+      if (!o.isMesh) return;
+      const g = new THREE.BufferGeometry(), src = o.geometry;
+      const plain = (a) => { const out = new Float32Array(a.count * a.itemSize); for (let i = 0; i < a.count; i++) for (let k = 0; k < a.itemSize; k++) out[i * a.itemSize + k] = a.getComponent(i, k); return new THREE.BufferAttribute(out, a.itemSize); };
+      g.setAttribute('position', plain(src.attributes.position));
+      if (src.attributes.uv) g.setAttribute('uv', plain(src.attributes.uv));
+      if (src.index) g.setIndex(src.index.clone());
+      g.applyMatrix4(o.matrixWorld);
+      parts.push(g.index ? g.toNonIndexed() : g);
+      map = map || o.material.map;
+    });
+    const geo = parts.length > 1 ? mergeGeometries(parts) : parts[0];
+    geo.computeVertexNormals();
+    if (map) map.colorSpace = THREE.SRGBColorSpace;
+    ASSET[name] = { geo, map, mat: new THREE.MeshLambertMaterial({ map, flatShading: true }) };
+  }).catch((err) => console.warn('[marti] model not loaded, using the procedural one:', name, (err && err.message) || err))
+    .finally(() => { assetsLoaded++; renderStartButton(); });
+  return Promise.all(MODEL_FILES.map(one));
+}
+// Swaps in the models that loaded (only those).
+function applyAssets() {
+  const A = ASSET;
+  if (A.simit) {
+    IM.simit.geometry = A.simit.geo; IM.simit.material = A.simit.mat;
+    PWR.gold = { geo: A.simit.geo.clone().scale(1.3, 1.3, 1.3), mat: new THREE.MeshLambertMaterial({ map: A.simit.map, color: 0xffc94d, emissive: 0x7a4a00, flatShading: true }) };
+  }
+  if (A.fish) { IM.fish.geometry = A.fish.geo; IM.fish.material = A.fish.mat; }
+  if (A.feather) PWR.shield = A.feather;
+  for (const t of ['ferry', 'fishing', 'sail']) if (A[t]) BOAT[t] = A[t];
+  if (A.mosque) {
+    IM.mosque = makeInst(A.mosque.geo, A.mosque.mat, 40);
+    IM.mosque.castShadow = false;
+    for (const k of ['mbody', 'dome', 'minaret']) IM[k].count = 0;
+  }
+  PR.dirty = true;
+  S.assets = Object.keys(A);
+}
 
 // ---------- particles (one Points object, ring buffer) ----------
 const FX_N = FLAG.low ? 260 : 520;
@@ -760,10 +976,10 @@ const S = {
   score: 0, lives: 3, stamina: 100, combo: 0, comboT: 0, runCombo: 0, mult: 1,
   tailT: 0, goldT: 0, shieldOn: false, inv: 0, simit: 0, fish: 0, powers: 0, steals: 0,
   tx: 0, tyBase: 12, diveHold: false, diveOff: 0, diveTimer: 0, gustX: 0, gustY: 0, shake: 0,
-  overT: 0, cullT: 0, bestAtStart: 0, newBest: false, runs: [], draws: 0, fps: 0, wt: 0,
-  bot: false, lastBank: 0, lastSimitTime: 0, horn: false,
+  overT: 0, cullT: 0, newBest: false, runs: [], draws: 0, fps: 0, assets: [],
 };
 window.marti = S;
+if (FLAG.debug) window.martiDebug = { THREE, scene, camera, gull, G }; // for screenshot tests (camera placement while paused)
 S.G = G;
 let WT = 0;             // ambient clock for waves and animation (runs in every state)
 let simming = false;
@@ -771,7 +987,9 @@ let simming = false;
 // ---------- entities ----------
 let obsBoats = [], obsKites = [], obsBridges = [], obsStorms = [], flocks = [];
 let simits = [], fishes = [], powers = [];
-const PR = { house: [], roof: [], tree: [], dome: [], minaret: [], balloon: [], sky: [] };
+const PR_KEYS = ['house', 'roof', 'tree', 'dome', 'minaret', 'mbody', 'mosque', 'balloon', 'sky'];
+const PR = { dirty: true };
+for (const k of PR_KEYS) PR[k] = [];
 let specials = [];
 let nextBandZ = 0, nextPatZ = 90, nextBridgeZ = 900;
 
@@ -796,10 +1014,15 @@ function spawnShoreBand(z0) {
     }
     if (Math.random() < 0.22) {
       const x = side * rnd(46, 54), z = z0 + rnd(5, 35), y = terrH(x, z);
+      // The mosque model faces the water (its +z turned towards x = 0).
+      PR.mosque.push({ x, y: y - 0.3, z, r: side < 0 ? Math.PI / 2 : -Math.PI / 2 });
+      // Procedural fallback: a cream body, a dome on top and two minarets on their own ground height.
       const gold = Math.random() < 0.5 ? '#E9C46A' : '#F8FAFC';
-      PR.dome.push({ x, y: y + 0.2, z, sx: 3.2, sy: 2.6, sz: 3.2, c: gold });
-      PR.minaret.push({ x: x + side * 4.5, y, z: z - 2.5, sx: 0.9, sy: 2.1, sz: 0.9 });
-      PR.minaret.push({ x: x - side * 0.5, y, z: z + 3.5, sx: 0.8, sy: 2.4, sz: 0.8 });
+      PR.mbody.push({ x, y: y - 0.3, z, sx: 6.4, sy: 2.5, sz: 6.4, c: '#EFE6D2' });
+      PR.dome.push({ x, y: y + 2.2, z, sx: 3.2, sy: 2.6, sz: 3.2, c: gold });
+      const mx1 = x + side * 4.5, mz1 = z - 2.5, mx2 = x - side * 0.5, mz2 = z + 3.5;
+      PR.minaret.push({ x: mx1, y: terrH(mx1, mz1) - 0.2, z: mz1, sx: 0.9, sy: 2.1, sz: 0.9 });
+      PR.minaret.push({ x: mx2, y: terrH(mx2, mz2) - 0.2, z: mz2, sx: 0.8, sy: 2.4, sz: 0.8 });
     }
     if (Math.random() < 0.12) {
       const x = side * rnd(40, 70), z = z0 + rnd(0, 30);
@@ -812,15 +1035,21 @@ function spawnShoreBand(z0) {
     else if (Math.random() < 0.035) addSpecial('tower', side * rnd(60, 74), z0 + rnd(5, 30), side);
     else if (Math.random() < 0.02) addSpecial('light', side * rnd(64, 80), z0 + rnd(5, 30), side);
   }
+  PR.dirty = true;
 }
+// Specials use the generated model when it loaded (ASSET[name]), else the procedural one.
 const SPECIAL_GEO = { mansion: MANSION_GEO, tower: TOWER_GEO, light: LIGHTHOUSE_GEO };
-const SPECIAL_MAT = { mansion: M.vc, tower: M.vc, light: M.vc };
+const SPECIAL_ASSET = { mansion: 'yali', tower: 'galata', light: 'maiden' };
 function addSpecial(kind, x, z, side) {
-  const m = new THREE.Mesh(SPECIAL_GEO[kind], SPECIAL_MAT[kind]);
+  const A = ASSET[SPECIAL_ASSET[kind]];
+  const m = A ? new THREE.Mesh(A.geo, A.mat) : new THREE.Mesh(SPECIAL_GEO[kind], M.vc);
   m.castShadow = false;
   m.receiveShadow = true;
-  m.position.set(x, terrH(x, z), z);
-  m.rotation.y = kind === 'mansion' ? Math.PI / 2 : 0;
+  // Maiden's tower stands on its islet in the water, 31 units out (corridor 20 + wings 3.7, with clearance).
+  if (A && kind === 'light') x = side * 31;
+  m.position.set(x, A && kind === 'light' ? -0.3 : terrH(x, z) - (A ? 0.3 : 0), z);
+  // Fronts (+z) face the water.
+  m.rotation.y = side < 0 ? Math.PI / 2 : -Math.PI / 2;
   scene.add(m);
   specials.push({ kind, z, mesh: m });
 }
@@ -856,8 +1085,8 @@ function fishPattern(z) {
 }
 function makeBoat(type, x, z) {
   const vz = type === 'ferry' ? 11 : type === 'tanker' ? 8 : type === 'fishing' ? 5 : 9;
-  const mesh = new THREE.Mesh(BOAT_GEO[type === 'sail' ? 'sail' : type], M.vc);
-  mesh.castShadow = !FLAG.low;
+  const mesh = new THREE.Mesh(BOAT[type].geo, BOAT[type].mat);
+  mesh.castShadow = true;
   mesh.receiveShadow = true;
   scene.add(mesh);
   return { type, x, z, vz, mesh, horned: false, ph: rnd(0, TAU) };
@@ -881,9 +1110,10 @@ function kitePattern(z) {
 }
 function flockPattern(z) {
   const hostile = Math.random() < 0.6;
+  const back = hostile ? 1 : -1; // followers trail behind the leader, against the flight direction
   flocks.push({
     x: rnd(-12, 12), y: rnd(6, 22), z: hostile ? z + 40 : z - 20, vz: hostile ? -9 : 9, hostile, ph: rnd(0, TAU),
-    members: [{ ox: 0, oy: 0, oz: 0 }, { ox: -2.2, oy: 1, oz: -2.5 }, { ox: 2.2, oy: 1, oz: -2.5 }, { ox: -4.4, oy: 2, oz: -5 }],
+    members: [{ ox: 0, oy: 0, oz: 0 }, { ox: -2.2, oy: 1, oz: 2.5 * back }, { ox: 2.2, oy: 1, oz: 2.5 * back }, { ox: -4.4, oy: 2, oz: 5 * back }],
   });
 }
 function stormPattern(z) {
@@ -895,7 +1125,7 @@ function powerPattern(z) {
 }
 function spawnBridge(z) {
   const mesh = new THREE.Mesh(BRIDGE_GEO, M.vc);
-  mesh.castShadow = !FLAG.low;
+  mesh.castShadow = true;
   mesh.receiveShadow = true;
   mesh.position.set(0, 0, z);
   scene.add(mesh);
@@ -905,7 +1135,7 @@ function spawnBridge(z) {
 // Removes entries behind the gull (and their meshes).
 function cull() {
   const lim = S.d - BACK;
-  for (const k of ['house', 'roof', 'tree', 'dome', 'minaret', 'balloon', 'sky']) PR[k] = PR[k].filter((o) => o.z > lim);
+  for (const k of PR_KEYS) { const n = PR[k].length; PR[k] = PR[k].filter((o) => o.z > lim); if (PR[k].length !== n) PR.dirty = true; }
   specials = specials.filter((s) => { if (s.z > lim) return true; scene.remove(s.mesh); return false; });
   obsBoats = obsBoats.filter((o) => { if (o.z > lim) return true; scene.remove(o.mesh); return false; });
   obsBridges = obsBridges.filter((o) => { if (o.z > lim) return true; scene.remove(o.mesh); return false; });
@@ -919,7 +1149,8 @@ function cull() {
 function clearWorld() {
   for (const arr of [obsBoats, obsBridges, obsStorms, powers, specials]) for (const o of arr) if (o.mesh) scene.remove(o.mesh);
   obsBoats = []; obsKites = []; obsBridges = []; obsStorms = []; flocks = []; simits = []; fishes = []; powers = []; specials = [];
-  for (const k of Object.keys(PR)) PR[k] = [];
+  for (const k of PR_KEYS) PR[k] = [];
+  PR.dirty = true;
   nextBandZ = 0; nextPatZ = 90; nextBridgeZ = 900;
 }
 
@@ -968,7 +1199,7 @@ function hitPlayer() {
   if (S.attract || S.inv > 0) return;
   if (S.shieldOn) {
     S.shieldOn = false; S.inv = 1.2;
-    toast(tx('shieldUsed'), 'gold');
+    toast(tx('shieldUsed'), 'good');
     fxBurst(G.x, G.y, S.d, '#E0F2FE', 16, 7, 0.9, 6);
     sfxHit(0.4);
     return;
@@ -1047,20 +1278,21 @@ function collectPower(p) {
   missionAdd('power', 1);
   S.stamina = Math.min(100, S.stamina + 10);
   S.score += 25;
-  if (p.type === 'tail') { S.tailT = 8; toast(tx('tail'), 'gold'); }
-  if (p.type === 'gold') { S.goldT = 12; S.score += 50; toast(tx('gold'), 'gold'); }
-  if (p.type === 'shield') { S.shieldOn = true; toast(tx('shield'), 'gold'); }
+  if (p.type === 'tail') { S.tailT = 8; toast(tx('tail'), 'good'); }
+  if (p.type === 'gold') { S.goldT = 12; S.score += 50; toast(tx('gold'), 'good'); }
+  if (p.type === 'shield') { S.shieldOn = true; toast(tx('shield'), 'good'); }
   fxBurst(p.x, p.y, p.z, p.type === 'shield' ? '#E0F2FE' : p.type === 'gold' ? '#FBBF24' : '#6EE7B7', 26, 10, 0.9, 4);
   sfxWhoosh();
   if (p.mesh) scene.remove(p.mesh);
   floatText(p.x, p.y + 1.5, p.z, '+25');
 }
 
-// ---------- spawning and the fixed-step simulation ----------
+// ---------- spawning and the simulation step (variable dt, clamped to 0.05 s by the loop) ----------
 function simStep(dt) {
   dt = Math.max(dt, 1 / 240); // a zero frame time would give 0/0 velocities below
   const A = S.attract;
   S.t += dt;
+  if (S.state === 'title') S.t = Math.min(S.t, 60); // the title attract mode stays in the golden afternoon
   const want = A ? 36 : baseSpeed(S.t) + (S.tailT > 0 ? 14 : 0);
   S.speed += (want - S.speed) * Math.min(1, dt * 2.2);
   S.tailT = Math.max(0, S.tailT - dt);
@@ -1095,9 +1327,7 @@ function simStep(dt) {
   }
 
   // Spawning ahead of the gull.
-  while (nextBandZ < S.d + LOOK) { spawnShoreBand(nextBandZ); nextBandZ += 40; }
-  while (nextPatZ < S.d + LOOK) { spawnPattern(nextPatZ); nextPatZ += patSpacing(); }
-  while (nextBridgeZ < S.d + LOOK) { spawnBridge(nextBridgeZ); nextBridgeZ += rnd(520, 780); }
+  spawnAhead();
 
   // Ferry simit follow their boat.
   for (const s of simits) if (s.follow) s.z = s.follow.z + s.off;
@@ -1116,7 +1346,8 @@ function simStep(dt) {
 
   if (!A) {
     checkHits();
-    if (S.lives > 0) checkPickups();
+    if (S.state !== 'playing') return; // a hit or a steal ended the run: nothing may change the saved score
+    checkPickups();
     if (S.stamina > 0) {
       S.stamina -= (2.2 + S.t * 0.01) * dt * (diving ? 1.3 : 1);
       if (S.stamina <= 0) { S.stamina = 0; gameOver('energy'); }
@@ -1129,7 +1360,7 @@ function simStep(dt) {
   if (S.cullT <= 0) { S.cullT = 0.25; cull(); }
 
   if (S.shake > 0) S.shake = Math.max(0, S.shake - dt * 2.4);
-  updateVisuals(dt);
+  if (!simming) updateVisuals(dt); // martiSim only needs the simulation (collisions use simulation data)
 }
 
 // Called from the main loop (every frame in every state, dt in seconds).
@@ -1141,11 +1372,9 @@ function frameLogic(dt) {
     if (S.state === 'over') S.overT += dt;
     simStep(dt * (S.state === 'over' ? 0.4 : 1));
     if (FLAG.auto && S.state === 'over' && S.overT > (simming ? 0.05 : 2.5)) startRun();
-    if (FLAG.auto && S.state === 'title' && !simming) { S.autoT = (S.autoT || 0) + dt; if (S.autoT > 3) startRun(); }
+    if (FLAG.auto && S.state === 'title' && !simming && assetsReady) { S.autoT = (S.autoT || 0) + dt; if (S.autoT > 3) startRun(); }
   }
-  if (S.state === 'paused') updateWaterOnly();
 }
-function updateWaterOnly() { updateWater(); }
 
 // ---------- visuals ----------
 const _tmp = new THREE.Vector3();
@@ -1155,18 +1384,26 @@ function updateVisuals(dt) {
   updateWater();
   updateTerrain();
 
-  // Shore props.
-  setInst(IM.house, PR.house);
-  setInst(IM.roof, PR.roof);
-  setInst(IM.tree, PR.tree);
-  setInst(IM.dome, PR.dome);
-  setInst(IM.minaret, PR.minaret);
+  // Shore props: static, so their matrices are only rewritten when the set changed (spawn, cull, clear).
+  if (PR.dirty) {
+    PR.dirty = false;
+    setInst(IM.house, PR.house);
+    setInst(IM.win, PR.house, PR.house.length, true);
+    setInst(IM.roof, PR.roof);
+    setInst(IM.tree, PR.tree);
+    if (IM.mosque) setInst(IM.mosque, PR.mosque);
+    else {
+      setInst(IM.mbody, PR.mbody);
+      setInst(IM.dome, PR.dome);
+      setInst(IM.minaret, PR.minaret);
+    }
+    setInst(IM.sky, PR.sky);
+  }
   for (const b of PR.balloon) b.y = b.y0 + Math.sin(WT * 0.7 + b.ph) * 0.6;
   setInst(IM.balloon, PR.balloon);
-  setInst(IM.sky, PR.sky);
-  // Night: house windows glow warm.
+  // Night: only the windows glow warm.
   const p = clamp(S.t / 170, 0, 1), night = smooth(0.6, 0.78, p);
-  M.house.emissive.setRGB(0.55 * night, 0.32 * night, 0.08 * night);
+  M.win.emissive.setRGB(1.0 * night, 0.7 * night, 0.28 * night);
 
   // Boats: ride the waves.
   for (const o of obsBoats) {
@@ -1174,38 +1411,56 @@ function updateVisuals(dt) {
     o.mesh.position.set(o.x, h * 0.8 - 0.2, o.z);
     o.mesh.rotation.set(Math.sin(WT * 1.3 + o.ph) * 0.04, 0, Math.sin(WT * 0.9 + o.ph) * 0.05);
   }
-  for (const b of obsBridges) b.mesh.visible = true;
+  // Kites and strings (kite cx is set in simStep).
+  let n = 0;
+  for (const k of obsKites) { if (k.z < S.d - 4) continue; const o = slot(TMP.kite, n), s = slot(TMP.str, n++); o.x = k.cx; o.y = k.y; o.z = k.z; o.c = k.c; s.x = k.cx; s.y = 0; s.z = k.z; s.sy = k.y; }
+  setInst(IM.kite, TMP.kite, n);
+  setInst(IM.kiteStr, TMP.str, n);
 
-  // Kites and strings.
-  for (const k of obsKites) k.cx = k.x + Math.sin(WT * 0.8 + k.ph) * 1.5;
-  const kiteArr = obsKites.map((k) => ({ x: k.cx, y: k.y, z: k.z, c: k.c }));
-  setInst(IM.kite, kiteArr);
-  setInst(IM.kiteStr, obsKites.map((k) => ({ x: k.cx, y: 0, z: k.z, sy: k.y, sx: 1, sz: 1 })));
+  // Flocks: white (friendly) and dark (rival) gulls; wings flap in the shader with a phase per bird.
+  n = 0;
+  for (const f of flocks) {
+    for (let i = 0; i < f.members.length; i++) {
+      const m = f.members[i];
+      if (f.z + m.oz < S.d - 4) continue; // passed the gull: would fly through the camera
+      const o = slot(TMP.flock, n);
+      o.x = f.x + m.ox; o.y = f.y + m.oy + Math.sin(WT * 4 + f.ph) * 0.2; o.z = f.z + m.oz;
+      o.c = f.hostile ? '#2B2F36' : '#FFFFFF'; o.r = f.vz > 0 ? 0 : Math.PI;
+      if (n < flockPhase.count) flockPhase.array[n] = f.ph + i * 1.3;
+      n++;
+    }
+  }
+  setInst(IM.flock, TMP.flock, n);
+  flockPhase.needsUpdate = true;
+  flockUniforms.uTime.value = WT;
 
-  // Flocks: white (friendly) and dark (rival) gulls.
-  const flockArr = [];
-  for (const f of flocks) for (const m of f.members) flockArr.push({ x: f.x + m.ox, y: f.y + m.oy + Math.sin(WT * 4 + f.ph) * 0.2, z: f.z + m.oz, c: f.hostile ? '#2B2F36' : '#FFFFFF', r: f.vz > 0 ? 0 : Math.PI });
-  setInst(IM.flock, flockArr);
-
-  // Simit (with ferry deck simit following the boat) and fish.
-  setInst(IM.simit, simits.filter((s) => !s.dead).map((s) => ({ x: s.x, y: s.y + Math.sin(WT * 3 + s.ph) * 0.3, z: s.z, r: WT * 1.6 + s.ph })));
-  const fishArr = [];
+  // Simit (with ferry deck simit following the boat) and fish, which pitch along their leap.
+  n = 0;
+  // Pickups the gull has passed (more than 3 units behind it, out of reach) are hidden: they would otherwise fly
+  // past right in front of the chase camera, 19 units back, and fill the screen.
+  const behind = S.d - 3;
+  for (const s of simits) { if (s.dead || s.z < behind) continue; const o = slot(TMP.simit, n++); o.x = s.x; o.y = s.y + Math.sin(WT * 3 + s.ph) * 0.3; o.z = s.z; o.r = WT * 1.6 + s.ph; }
+  setInst(IM.simit, TMP.simit, n);
+  n = 0;
   for (const f of fishes) {
     const u = (S.d - f.zs) / f.D;
-    if (f.dead || u < -0.02 || u > 1.6) continue;
-    fishArr.push({ x: f.x, y: fishY(f, clamp(u, 0, 2)), z: f.zf, r: 0, c: '#FFFFFF', sx: 1, sy: 1, sz: 1, _ang: u });
+    if (f.dead || u < -0.02 || u > 1.6 || f.zf < behind) continue;
+    const o = slot(TMP.fish, n++);
+    o.x = f.x; o.y = fishY(f, clamp(u, 0, 2)); o.z = f.zf; o.r = 0;
+    o.rx = -0.9 * Math.cos((clamp(u, 0, 2) * Math.PI) / 2); // nose up while rising, down while falling
   }
-  setInst(IM.fish, fishArr);
+  setInst(IM.fish, TMP.fish, n);
 
   // Powers: create meshes on demand, spin them.
   for (const p2 of powers) {
     if (!p2.mesh && !p2.dead) {
-      p2.mesh = new THREE.Mesh(PWR_GEO[p2.type], M.vc);
+      p2.mesh = new THREE.Mesh(PWR[p2.type].geo, PWR[p2.type].mat);
       p2.mesh.castShadow = false;
       scene.add(p2.mesh);
     }
     if (p2.mesh) {
       p2.mesh.position.set(p2.x, p2.y + Math.sin(WT * 2.2 + p2.ph) * 0.4, p2.z);
+      p2.mesh.visible = p2.z > behind;
       p2.mesh.rotation.y = WT * 2 + p2.ph;
     }
   }
@@ -1222,8 +1477,8 @@ function updateVisuals(dt) {
   // Gull: wings flap (less when diving), body banks and pitches.
   const diving = S.diveHold || S.diveTimer > 0;
   G.flap += dt * (diving ? 4.5 : 10) * (0.85 + 0.15 * (S.speed / 40));
-  const amp = diving ? 0.15 : 0.7 + 0.15 * Math.sin(WT * 0.9);
-  const flapA = amp * Math.sin(G.flap);
+  const amp = diving ? 0.15 : GULL_AMP + 0.12 * Math.sin(WT * 0.9);
+  const flapA = amp * Math.sin(G.flap) + GULL_DIHEDRAL; // a slight V at rest
   wingR.rotation.z = flapA;
   wingL.rotation.z = -flapA;
   // Wrist: outer wing folds on the upstroke and stretches on the downstroke.
@@ -1231,10 +1486,9 @@ function updateVisuals(dt) {
   wristR.rotation.z = wrist;
   wristL.rotation.z = -wrist;
   gBody.rotation.z = -G.bank * 0.8;
-  gBody.rotation.x = diving ? 0.5 : clamp(-G.vy * 0.03, -0.35, 0.35);
+  gBody.rotation.x = (diving ? 0.5 : clamp(-G.vy * 0.03, -0.35, 0.35)) + GULL_PITCH;
   gull.position.set(G.x, G.y, S.d);
   gull.visible = !(S.inv > 0 && Math.floor(WT * 12) % 2 === 0 && !S.attract);
-  if (!S.attract && diving && G.y < 3 && Math.random() < dt * 8) fxBurst(G.x, 0.3, S.d, '#E0F2FE', 6, 4, 0.5, 9);
   if (!S.attract && Math.floor(G.flap / TAU) !== G._lastCycle) { G._lastCycle = Math.floor(G.flap / TAU); if (!diving) sfxFlap(); }
 
   // Camera: behind and above the gull, shake on hits, wider when speeding.
@@ -1264,10 +1518,11 @@ function updateVisuals(dt) {
   scene.background.copy(_cS);
   scene.fog.color.copy(_cS);
   hemi.intensity = lerp(0.9, 0.42, smooth(0.45, 0.8, p));
-  hemi.color.set(p < 0.5 ? 0xfff1d0 : 0xb8c8ff);
+  const dusk = smooth(0.45, 0.7, p); // light colours blend instead of jumping at p = 0.5
+  hemi.color.lerpColors(HEMI_DAY, HEMI_NIGHT, dusk);
   sun.intensity = lerp(1.25, 0.32, smooth(0.5, 0.78, p));
-  sun.color.set(p < 0.5 ? 0xffffff : 0xbfd0ff);
-  sun.position.set(G.x - 30, 70, S.d + 45);
+  sun.color.lerpColors(SUN_DAY, SUN_NIGHT, dusk);
+  sun.position.set(G.x + 30, 70, S.d + 45); // same side as the visible sun disc (+x is screen-left)
   sun.target.position.set(G.x, 0, S.d);
   sun.target.updateMatrixWorld();
 
@@ -1285,7 +1540,7 @@ function fireworkBurst() {
   const x = rnd(-50, 50), y = rnd(40, 70), z = S.d + rnd(140, 240);
   const cols = ['#FDE68A', '#F87171', '#60A5FA', '#34D399', '#F472B6', '#FFFFFF'];
   const c = pick(cols);
-  fxBurst(x, y, z, c, FLAG.low ? 14 : 30, 14, 1.6, 9);
+  fxBurst(x, y, z, c, isLow() ? 14 : 30, 14, 1.6, 9);
   sfxBoom();
 }
 
@@ -1296,16 +1551,20 @@ window.addEventListener('keydown', (e) => {
   ensureAudio();
   KEYS[e.code] = true;
   if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) e.preventDefault();
-  if (e.code === 'Space') {
-    if (S.state === 'title') { startRun(); return; }
+  if (e.repeat) return; // a held key must not restart the run or toggle twice
+  const onButton = document.activeElement && document.activeElement.tagName === 'BUTTON';
+  if (settingsOpen) { if (e.code === 'Escape' || e.code === 'KeyP') closeSettings(); return; }
+  if (e.code === 'Space' && !onButton) {
+    if (S.state === 'title' && assetsReady) { startRun(); return; }
     if (S.state === 'over' && S.overT > 0.6) { startRun(); return; }
     if (S.state === 'playing') S.diveHold = true;
   }
-  if (e.code === 'Enter' && (S.state === 'title' || S.state === 'over')) { startRun(); return; }
+  if (e.code === 'Enter' && !onButton && ((S.state === 'title' && assetsReady) || S.state === 'over')) { startRun(); return; }
   if (e.code === 'KeyP' || e.code === 'Escape') togglePause();
   if (e.code === 'KeyM') toggleMusic();
   if (e.code === 'KeyX') toggleSfx();
   if (e.code === 'KeyL') setLang(LANG === 'tr' ? 'en' : 'tr');
+  if (e.code === 'KeyF') toggleFullscreen();
 });
 window.addEventListener('keyup', (e) => {
   KEYS[e.code] = false;
@@ -1316,39 +1575,48 @@ function keyControls(dt) {
   const lf = KEYS.ArrowLeft || KEYS.KeyA, rt = KEYS.ArrowRight || KEYS.KeyD;
   if (up) S.tyBase += dt * 16;
   if (dn) S.tyBase -= dt * 16;
-  if (lf) S.tx -= dt * 18;
-  if (rt) S.tx += dt * 18;
+  // The camera looks along +z, so screen-right is world -x: Right/D lowers S.tx.
+  if (lf) S.tx += dt * 18;
+  if (rt) S.tx -= dt * 18;
   S.tx = clamp(S.tx, -CORR, CORR);
 }
+// Mouse: absolute position (screen-right = world -x).
 function pointerSteer(e) {
   if (S.state !== 'playing') return;
   const nx = clamp((e.clientX / window.innerWidth) * 2 - 1, -1, 1);
   const ny = clamp(e.clientY / window.innerHeight, 0, 1);
-  S.tx = nx * CORR;
+  S.tx = -nx * CORR;
   S.tyBase = lerp(YMAX, 3, ny);
+}
+// Touch: relative drag from where the finger went down, so a tap (dive) never moves the steering target.
+function touchSteer(e) {
+  if (S.state !== 'playing' || !ptrStart) return;
+  const dx = e.clientX - ptrStart.x, dy = e.clientY - ptrStart.y;
+  S.tx = clamp(ptrStart.tx - (dx / window.innerWidth) * 2 * CORR * 1.4, -CORR, CORR);
+  S.tyBase = clamp(ptrStart.ty - (dy / window.innerHeight) * (YMAX - 3) * 1.4, YMIN, YMAX);
 }
 function isUI(t) { return t && t.closest && t.closest('button, .card, .ibtn, a, input'); }
 window.addEventListener('pointerdown', (e) => {
   ensureAudio();
   if (isUI(e.target)) return;
-  ptrDown = true; ptrType = e.pointerType; ptrStart = { x: e.clientX, y: e.clientY, t: performance.now() }; ptrMoved = 0;
-  if (S.state === 'title') { startRun(); return; }
+  ptrDown = true; ptrType = e.pointerType; ptrMoved = 0;
+  ptrStart = { x: e.clientX, y: e.clientY, t: performance.now(), tx: S.tx, ty: S.tyBase };
+  if (S.state === 'title' && assetsReady) { startRun(); return; }
   if (S.state === 'over' && S.overT > 0.6) { startRun(); return; }
-  if (S.state === 'playing') {
+  if (S.state === 'playing' && ptrType !== 'touch') {
     pointerSteer(e);
-    if (ptrType !== 'touch') S.diveHold = true;
+    S.diveHold = true;
   }
 });
 window.addEventListener('pointermove', (e) => {
   if (ptrDown && ptrStart) ptrMoved = Math.max(ptrMoved, Math.hypot(e.clientX - ptrStart.x, e.clientY - ptrStart.y));
-  if (e.pointerType === 'touch' && !ptrDown) return;
+  if (e.pointerType === 'touch') { if (ptrDown) touchSteer(e); return; }
   if (isUI(e.target)) return;
   pointerSteer(e);
 });
-window.addEventListener('pointerup', (e) => {
+window.addEventListener('pointerup', () => {
   if (ptrType === 'touch' && ptrStart && S.state === 'playing' && ptrMoved < 12 && performance.now() - ptrStart.t < 350) S.diveTimer = 0.8;
   ptrDown = false; S.diveHold = false;
-  void e;
 });
 
 // ---------- bot (used for the title attract mode and ?auto) ----------
@@ -1382,8 +1650,6 @@ function botThink(dt) {
         if (Math.abs(x - b.x) < b.hw + 2.6 && y + 1.6 > b.y0 && y - 1.6 < b.y1) cost += 1000 / (1 + Math.max(0, ahead) / 12);
       }
       for (const p of picks) {
-        const ahead = p.fish ? 0 : 0;
-        void ahead;
         if (Math.abs(x - p.x) < 3 && Math.abs(y - p.y) < 3) cost += p.w;
       }
       cost += Math.abs(x - G.x) * 0.5 + Math.abs(y - G.y) * 0.35;
@@ -1405,19 +1671,21 @@ function startRun() {
   S.tailT = 0; S.goldT = 0; S.shieldOn = false; S.inv = 0; S.simit = 0; S.fish = 0; S.powers = 0; S.steals = 0;
   S.tx = 0; S.tyBase = 12; S.diveHold = false; S.diveOff = 0; S.diveTimer = 0; S.gustX = 0; S.gustY = 0; S.shake = 0;
   S.overT = 0; S.cullT = 0; S.newBest = false; S.autoT = 0;
+  if (Q.has('t0')) S.t = +Q.get('t0') || 0; // test hook: start later in the day (e.g. ?t0=150 for night)
   G.x = 0; G.y = 12; G.bank = 0;
-  S.bestAtStart = bestScore();
   S.state = 'playing';
   S.attract = false;
-  S.runStartWT = WT;
   setScreen('playing');
-  spawnBandsAhead();
-  toast(LANG === 'tr' ? 'İyi uçuşlar!' : 'Have a good flight!', '');
+  spawnAhead();
+  toast(tx('fly'), 'info');
+  audioPause(false);
   sfxStart();
 }
-function spawnBandsAhead() {
+// Spawns shore bands, patterns and bridges up to LOOK units ahead of the gull.
+function spawnAhead() {
   while (nextBandZ < S.d + LOOK) { spawnShoreBand(nextBandZ); nextBandZ += 40; }
   while (nextPatZ < S.d + LOOK) { spawnPattern(nextPatZ); nextPatZ += patSpacing(); }
+  while (nextBridgeZ < S.d + LOOK) { spawnBridge(nextBridgeZ); nextBridgeZ += rnd(520, 780); }
 }
 function gameOver(reason) {
   if (S.state !== 'playing') return;
@@ -1433,21 +1701,23 @@ function gameOver(reason) {
   S.newBest = isNew;
   saveHigh(run);
   missionsFlush();
+  if (!simming) sfxOver();
   setScreen('over', run, isNew);
-  void reason;
 }
 function togglePause() {
-  if (S.state === 'playing') { S.state = 'paused'; setScreen('paused'); }
-  else if (S.state === 'paused') { S.state = 'playing'; setScreen('playing'); }
+  if (S.state === 'playing') { S.state = 'paused'; setScreen('paused'); audioPause(true); }
+  else if (S.state === 'paused') { S.state = 'playing'; setScreen('playing'); audioPause(false); }
 }
 
 // ---------- high scores and missions (localStorage, daily) ----------
-function bestScore() { const h = LS.get('marti.highs', []); return h.length ? h[0].s : 0; }
+let HIGHS = LS.get(KEY.best, []);
+if (!Array.isArray(HIGHS)) HIGHS = [];
+function bestScore() { return HIGHS.length ? HIGHS[0].s : 0; }
 function saveHigh(run) {
-  const h = LS.get('marti.highs', []);
-  h.push({ s: run.score, d: run.dist, n: run.simit, date: new Date().toISOString().slice(0, 10) });
-  h.sort((a, b) => b.s - a.s);
-  LS.set('marti.highs', h.slice(0, 5));
+  HIGHS.push({ s: run.score, d: run.dist, n: run.simit, date: new Date().toISOString().slice(0, 10) });
+  HIGHS.sort((a, b) => b.s - a.s);
+  HIGHS = HIGHS.slice(0, 5);
+  LS.set(KEY.best, HIGHS);
 }
 function dayKey() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
 function hashStr(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
@@ -1465,17 +1735,19 @@ function dailyIds() {
 }
 let MS = null;
 function missionsLoad() {
-  const saved = LS.get('marti.missions', null);
+  const saved = LS.get(KEY.save, null);
   if (saved && saved.date === dayKey()) MS = saved;
   else MS = { date: dayKey(), p: {}, done: {} };
 }
 let msDirty = false;
 function missionAdd(id, n) {
+  if (MS && MS.date !== dayKey()) missionsLoad(); // the session crossed midnight
   if (!MS || !dailyIds().includes(id) && id !== 'combo') return;
   MS.p[id] = (MS.p[id] || 0) + n;
   missionCheck(id);
 }
 function missionSet(id, v) {
+  if (MS && MS.date !== dayKey()) missionsLoad();
   if (!MS) return;
   MS.p[id] = Math.max(MS.p[id] || 0, v);
   missionCheck(id);
@@ -1487,16 +1759,24 @@ function missionCheck(id) {
   if ((MS.p[id] || 0) >= def.goal) {
     MS.done[id] = true;
     S.score += 150;
-    toast(tx('missionDone') + ': ' + missionName(id), 'gold');
+    toast(tx('missionDone') + ': ' + missionName(id), 'good');
     sfxChime(12);
   }
   msDirty = true;
 }
-function missionsFlush() { if (MS) LS.set('marti.missions', MS); msDirty = false; }
+function missionsFlush() { if (MS) LS.set(KEY.save, MS); msDirty = false; }
 
 // ---------- audio (Web Audio: synthesized music and sound effects) ----------
 const AU = { ctx: null, bus: null, mus: null, sfx: null, noise: null, step: 0, next: 0, timer: null, intensity: 0 };
-AU.on = { music: LS.get('marti.music', true) !== false, sfx: LS.get('marti.sfx', true) !== false };
+AU.on = { music: SET.musicOn !== false, sfx: SET.sfxOn !== false };
+// Gains from the settings: at the defaults (0.8 / 0.6 / 0.8) they match the round-1 mix (0.9 / 0.42 / 0.85).
+function applyVolumes() {
+  if (!AU.ctx) return;
+  const t = AU.ctx.currentTime;
+  AU.bus.gain.setTargetAtTime(SET.master * 1.125, t, 0.03);
+  AU.mus.gain.setTargetAtTime(AU.on.music ? SET.music * 0.7 * (AU.duck || 1) : 0, t, 0.03);
+  AU.sfx.gain.setTargetAtTime(AU.on.sfx ? SET.sfx * 1.0625 : 0, t, 0.03);
+}
 function ensureAudio() {
   if (AU.ctx) { if (AU.ctx.state === 'suspended') AU.ctx.resume().catch(() => {}); return; }
   try {
@@ -1504,9 +1784,10 @@ function ensureAudio() {
     if (!C) return;
     const ctx = new C();
     AU.ctx = ctx;
-    AU.bus = ctx.createGain(); AU.bus.gain.value = 0.9; AU.bus.connect(ctx.destination);
-    AU.mus = ctx.createGain(); AU.mus.gain.value = AU.on.music ? 0.42 : 0; AU.mus.connect(AU.bus);
-    AU.sfx = ctx.createGain(); AU.sfx.gain.value = AU.on.sfx ? 0.85 : 0; AU.sfx.connect(AU.bus);
+    AU.bus = ctx.createGain(); AU.bus.connect(ctx.destination);
+    AU.mus = ctx.createGain(); AU.mus.connect(AU.bus);
+    AU.sfx = ctx.createGain(); AU.sfx.connect(AU.bus);
+    applyVolumes();
     const len = ctx.sampleRate * 1.5, buf = ctx.createBuffer(1, len, ctx.sampleRate), d = buf.getChannelData(0);
     for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
     AU.noise = buf;
@@ -1522,7 +1803,9 @@ const CHORDS = [
   { root: 98, arp: [392, 493.9, 587.3, 784], pad: [196, 246.9, 293.7] },
 ];
 function scheduleMusic() {
-  if (!AU.ctx) return;
+  if (!AU.ctx || AU.ctx.state !== 'running') return;
+  // After a throttled or hidden tab, skip the missed steps instead of playing them all at once.
+  if (AU.next < AU.ctx.currentTime) AU.next = AU.ctx.currentTime + 0.05;
   while (AU.next < AU.ctx.currentTime + 0.15) {
     playStep(AU.step, AU.next);
     AU.next += STEP;
@@ -1624,70 +1907,117 @@ function sfxBoom() {
   noiseSrc(t, 0.8, 0.45, 'lowpass', 300, 80, AU.sfx);
   tone('sine', 80, 40, 0.5, 0.3, t);
 }
+// Game over: three falling notes, and the music ducks for a moment.
+function sfxOver() {
+  if (!AU.ctx) return;
+  AU.duck = 0.25; applyVolumes();
+  setTimeout(() => { AU.duck = 1; applyVolumes(); }, 1600);
+  if (!AU.on.sfx) return;
+  const t = AU.ctx.currentTime;
+  [523, 392, 262].forEach((f, i) => tone('triangle', f, f * 0.97, 0.22, 0.22, t + i * 0.12));
+}
+// Pause and hidden tabs freeze all sound.
+function audioPause(on) {
+  if (!AU.ctx) return;
+  if (on) AU.ctx.suspend().catch(() => {});
+  else AU.ctx.resume().catch(() => {});
+}
 function sfxStart() { if (!AU.ctx || !AU.on.sfx) return; const t = AU.ctx.currentTime; tone('triangle', 523, 523, 0.12, 0.2, t); tone('triangle', 784, 784, 0.16, 0.2, t + 0.1); }
 function toggleMusic() {
   AU.on.music = !AU.on.music;
-  LS.set('marti.music', AU.on.music);
-  if (AU.mus) AU.mus.gain.value = AU.on.music ? 0.42 : 0;
+  SET.musicOn = AU.on.music; saveSettings();
+  applyVolumes();
   renderToggles();
 }
 function toggleSfx() {
   AU.on.sfx = !AU.on.sfx;
-  LS.set('marti.sfx', AU.on.sfx);
-  if (AU.sfx) AU.sfx.gain.value = AU.on.sfx ? 0.85 : 0;
+  SET.sfxOn = AU.on.sfx; saveSettings();
+  applyVolumes();
   renderToggles();
 }
 
 // ---------- UI ----------
+// Inline SVG icons (24x24, stroke = currentColor): no OS glyphs or emoji in the interface.
+const svg = (d, extra = '') => '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"' + extra + '>' + d + '</svg>';
+const ICON = {
+  pause: svg('<path d="M9 5v14M15 5v14"/>'),
+  music: svg('<path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5" fill="currentColor"/><circle cx="16.5" cy="16" r="2.5" fill="currentColor"/>'),
+  sound: svg('<path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/>'),
+  globe: svg('<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18"/>'),
+  gear: svg('<circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v2.6M12 18.6v2.6M2.8 12h2.6M18.6 12h2.6M5.5 5.5l1.8 1.8M16.7 16.7l1.8 1.8M5.5 18.5l1.8-1.8M16.7 7.3l1.8-1.8"/>'),
+  check: '<svg class="simit-i" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#34D399" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"/></svg> ',
+};
+// Simit: a gold ring with sesame dots.
+const SIMIT_SVG = '<svg class="simit-i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7.5" fill="none" stroke="#D08A3A" stroke-width="5"/><g fill="#FFF3D6"><circle cx="12" cy="5" r="1"/><circle cx="18" cy="9" r="1"/><circle cx="17.5" cy="16" r="1"/><circle cx="11" cy="19" r="1"/><circle cx="5.5" cy="15" r="1"/><circle cx="6" cy="8" r="1"/></g></svg>';
 const FEATHER = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#FDE68A" d="M20.5 3.5c-5.6 0-11.2 3.8-12.6 9.1L6 17.5l-2.5 3 1 .6 3.1-1.4c4.5-.5 8-4.8 8-9.7 0-2.3-.3-4.5 1.3-6.5z"/></svg>';
+for (const b of document.querySelectorAll('[data-icon]')) b.innerHTML = ICON[b.dataset.icon];
+$('#bLang').insertAdjacentHTML('beforeend', '<span class="code"></span>');
+
 function renderLives() {
   const el = $('#lives');
+  if (el.dataset.k === String(S.lives)) return;
   let html = '';
   for (let i = 0; i < 3; i++) html += FEATHER.replace('<svg', '<svg class="' + (i < S.lives ? '' : 'lost') + '"');
-  if (el.dataset.k !== String(S.lives)) { el.innerHTML = html; el.dataset.k = String(S.lives); }
+  el.innerHTML = html; el.dataset.k = String(S.lives);
 }
 function renderToggles() {
   $('#bMusic').classList.toggle('off', !AU.on.music);
   $('#bSfx').classList.toggle('off', !AU.on.sfx);
-  $('#bLang').textContent = LANG === 'tr' ? 'EN' : 'TR';
+  $('#bLang .code').textContent = LANG === 'tr' ? 'EN' : 'TR';
+  $('#bLangT').textContent = LANG === 'tr' ? 'English' : 'Türkçe';
+  const aria = { bPause: 'aPause', bMusic: 'aMusic', bSfx: 'aSound', bLang: 'aLang', bSet: 'aSet' };
+  for (const id in aria) { const b = $('#' + id); b.setAttribute('aria-label', tx(aria[id])); b.title = tx(aria[id]); }
+  $('#bMusic').setAttribute('aria-pressed', String(AU.on.music));
+  $('#bSfx').setAttribute('aria-pressed', String(AU.on.sfx));
+  renderSettings();
 }
 function setLang(l) {
   LANG = l;
-  LS.set('marti.lang', l);
+  SET.lang = l; saveSettings();
   applyLang();
 }
 function applyLang() {
   document.documentElement.lang = LANG;
   document.querySelectorAll('[data-i18n]').forEach((el) => { el.textContent = tx(el.dataset.i18n); });
   $('#how').innerHTML = I18N[LANG].how.map((h) => '<li>' + h + '</li>').join('');
+  renderStartButton();
   renderMissionList();
   renderHighList();
   renderToggles();
   renderOverMissions();
+  if (lastRun) $('#overReason').textContent = tx(lastRun.reason);
   if (S.state === 'playing' || S.state === 'paused') renderChips();
+}
+function renderStartButton() {
+  const b = $('#bStart');
+  b.disabled = !assetsReady;
+  b.textContent = assetsReady ? tx('start') : tx('loading', { n: assetsLoaded, m: MODEL_FILES.length });
+}
+// "12/60", or "1234/3000 m" for the distance mission (rounded).
+function missionProgress(id) {
+  const def = MISSION_DEFS[id], p = Math.round(Math.min(MS.p[id] || 0, def.goal));
+  return p + '/' + def.goal + (id === 'dist' ? ' ' + tx('m') : '');
 }
 function renderMissionList() {
   if (!MS) missionsLoad();
   const ids = dailyIds();
-  $('#missList').innerHTML = ids.map((id) => {
-    const def = MISSION_DEFS[id], p = Math.min(MS.p[id] || 0, def.goal);
-    return '<li class="' + (MS.done[id] ? 'done' : '') + '"><span>' + missionName(id) + '</span><span>' + (id === 'dist' ? p : p + '/' + def.goal) + '</span></li>';
-  }).join('');
+  $('#missList').innerHTML = ids.map((id) => '<li class="' + (MS.done[id] ? 'done' : '') + '"><span>' + missionName(id) + '</span><span>' + missionProgress(id) + '</span></li>').join('');
 }
 function renderHighList() {
-  const h = LS.get('marti.highs', []);
-  $('#highList').innerHTML = h.length ? h.map((r) => '<li><span>' + r.s + '</span><span>' + r.d + ' m · ' + r.n + ' 🥯</span></li>').join('') : '<li><span>—</span></li>';
+  const h = HIGHS;
+  $('#highList').innerHTML = h.length ? h.map((r) => '<li><span>' + r.s + '</span><span>' + r.d + ' m · ' + r.n + ' ' + SIMIT_SVG + '</span></li>').join('') : '<li><span>—</span></li>';
+  $('#bestLine').textContent = h.length ? tx('bestLine', { n: h[0].s }) : '';
 }
 function renderOverMissions() {
   if (!MS) return;
   const ids = dailyIds();
-  $('#overMissions').textContent = ids.map((id) => (MS.done[id] ? '✔ ' : '') + missionName(id) + ' (' + Math.min(MS.p[id] || 0, MISSION_DEFS[id].goal) + '/' + MISSION_DEFS[id].goal + ')').join(' · ');
+  $('#overMissions').innerHTML = ids.map((id) => (MS.done[id] ? ICON.check : '') + missionName(id) + ' (' + missionProgress(id) + ')').join(' · ');
 }
 function renderChips() {
   const chips = [];
-  if (S.tailT > 0) chips.push(['on', (LANG === 'tr' ? 'Kuyruk rüzgârı ' : 'Tailwind ') + Math.ceil(S.tailT) + 's']);
-  if (S.goldT > 0) chips.push(['on', (LANG === 'tr' ? 'Altın simit x2 ' : 'Golden x2 ') + Math.ceil(S.goldT) + 's']);
-  if (S.shieldOn) chips.push(['on', LANG === 'tr' ? 'Kalkan hazır' : 'Shield ready']);
+  if (S.tailT > 0) chips.push(['on', tx('tailChip') + ' ' + Math.ceil(S.tailT) + 's']);
+  if (S.goldT > 0) chips.push(['on', tx('goldChip') + ' ' + Math.ceil(S.goldT) + 's']);
+  if (S.shieldOn) chips.push(['on', tx('shieldChip')]);
   if (S.combo >= 4) chips.push(['', 'x' + comboMult() + ' · ' + S.combo]);
   const el = $('#chips');
   const sig = chips.map((c) => c[1]).join('|');
@@ -1696,11 +2026,12 @@ function renderChips() {
     el.innerHTML = chips.map((c) => '<span class="chip ' + c[0] + '">' + c[1] + '</span>').join('');
   }
 }
+// Toast variants: 'good', 'bad', 'info'.
 function toast(text, kind) {
-  if (!text) return;
+  if (!text || simming) return;
   const box = $('#toasts');
   const el = document.createElement('div');
-  el.className = 'toast ' + (kind || '');
+  el.className = 'toast ' + (kind || 'info');
   el.textContent = text;
   box.appendChild(el);
   while (box.children.length > 3) box.firstElementChild.remove();
@@ -1708,6 +2039,7 @@ function toast(text, kind) {
 }
 // "+points" text at the pickup's world position, projected to the screen.
 function floatText(x, y, z, text) {
+  if (simming) return;
   _tmp.set(x, y, z);
   _tmp.project(camera);
   if (_tmp.z > 1) return;
@@ -1719,6 +2051,7 @@ function floatText(x, y, z, text) {
   document.body.appendChild(el);
   setTimeout(() => el.remove(), 950);
 }
+let lastRun = null;
 function setScreen(mode, run, isNew) {
   const hud = $('#hud');
   $('#title').classList.toggle('hidden', mode !== 'title');
@@ -1727,6 +2060,8 @@ function setScreen(mode, run, isNew) {
   hud.classList.toggle('hidden', mode === 'title' || mode === 'over');
   if (mode === 'title') { renderMissionList(); renderHighList(); $('#chips').innerHTML = ''; $('#toasts').innerHTML = ''; }
   if (mode === 'over' && run) {
+    lastRun = run;
+    $('#overReason').textContent = tx(run.reason);
     $('#oScore').textContent = run.score;
     $('#oBest').textContent = Math.max(bestScore(), run.score);
     $('#oDist').textContent = fmtDist(run.dist);
@@ -1736,6 +2071,12 @@ function setScreen(mode, run, isNew) {
     renderHighList();
   }
   if (mode === 'playing') { $('#toasts').innerHTML = ''; }
+  // keyboard focus lands on the main button of the new card
+  if (!simming) {
+    const f = { title: '#bStart', paused: '#bResume', over: '#bRetry' }[mode];
+    if (f) setTimeout(() => { const b = $(f); if (b && !b.disabled && b.offsetParent) b.focus({ preventScroll: true }); }, 60);
+    else if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+  }
 }
 function fmtDist(m) { return m >= 1000 ? (m / 1000).toFixed(2) + ' ' + tx('km') : Math.round(m) + ' ' + tx('m'); }
 let hudT = 0;
@@ -1755,13 +2096,10 @@ function updateHud(dt) {
   if (playing) renderChips();
   if (msDirty && S.state === 'playing' && Math.random() < 0.5) missionsFlush();
 }
-function renderHudLabels() {
-  $('#stLabel').textContent = tx('stamina');
-}
-function updateDebug(dt) {
+function updateDebug() {
   if (!FLAG.debug) return;
   const lines = [
-    'FPS ' + S.fps.toFixed(0) + '  draws ' + S.draws + '  tris ' + (renderer.info.render.triangles || 0),
+    'FPS ' + S.fps.toFixed(0) + '  draws ' + S.draws + '  tris ' + (renderer.info.render.triangles || 0) + '  quality ' + (isLow() ? 'low' : 'high') + '  assets ' + S.assets.length + '/' + MODEL_FILES.length,
     'state ' + S.state + '  t ' + S.t.toFixed(1) + 's  d ' + S.d.toFixed(0) + 'm  v ' + S.speed.toFixed(1),
     'score ' + Math.round(S.score) + '  simit ' + S.simit + '  fish ' + S.fish + '  combo ' + S.combo + '  lives ' + S.lives + '  stam ' + S.stamina.toFixed(0),
     'tail ' + S.tailT.toFixed(1) + '  gold ' + S.goldT.toFixed(1) + '  shield ' + S.shieldOn + '  runs ' + S.runs.length,
@@ -1771,6 +2109,67 @@ function updateDebug(dt) {
   $('#dbgL').textContent = lines.join('\n') + '\n';
 }
 
+// ---------- settings ----------
+let settingsOpen = false;
+function openSettings() {
+  settingsOpen = true;
+  document.body.classList.add('setopen');
+  renderSettings();
+  $('#settings').classList.remove('hidden');
+  setTimeout(() => $('#vMaster').focus({ preventScroll: true }), 60);
+}
+function closeSettings() {
+  settingsOpen = false;
+  document.body.classList.remove('setopen');
+  $('#settings').classList.add('hidden');
+  const f = { title: '#bSetT', paused: '#bSetP' }[S.state];
+  if (f) $(f).focus({ preventScroll: true });
+}
+function renderSettings() {
+  $('#vMaster').value = Math.round(SET.master * 100);
+  $('#vMusic').value = Math.round(SET.music * 100);
+  $('#vSfx').value = Math.round(SET.sfx * 100);
+  $('#sTR').classList.toggle('on', LANG === 'tr');
+  $('#sEN').classList.toggle('on', LANG === 'en');
+  $('#sLow').classList.toggle('on', isLow());
+  $('#sHigh').classList.toggle('on', !isLow());
+  $('#sFull').classList.toggle('on', !!document.fullscreenElement);
+}
+// Low: no shadows, pixel ratio 1.0, fewer firework sparks. High: shadows, pixel ratio up to 1.5.
+function applyQuality() {
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isLow() ? 1 : 1.5));
+  renderer.setSize(window.innerWidth, window.innerHeight, false);
+  if (renderer.shadowMap.enabled !== !isLow()) {
+    renderer.shadowMap.enabled = !isLow();
+    scene.traverse((o) => { if (o.material) o.material.needsUpdate = true; });
+  }
+}
+function toggleFullscreen() {
+  try {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else document.documentElement.requestFullscreen().catch(() => {});
+  } catch (e) { /* fullscreen not allowed */ }
+}
+document.addEventListener('fullscreenchange', renderSettings);
+for (const [id, k] of [['vMaster', 'master'], ['vMusic', 'music'], ['vSfx', 'sfx']]) {
+  $('#' + id).addEventListener('input', (e) => {
+    SET[k] = clamp(+e.target.value / 100, 0, 1);
+    ensureAudio();
+    // moving a slider up also turns that channel back on
+    if (k === 'music' && SET.music > 0 && !AU.on.music) toggleMusic();
+    if (k === 'sfx' && SET.sfx > 0 && !AU.on.sfx) toggleSfx();
+    applyVolumes();
+    saveSettings();
+  });
+}
+const click = (id, fn) => $(id).addEventListener('click', (e) => { e.stopPropagation(); fn(); });
+click('#sTR', () => setLang('tr'));
+click('#sEN', () => setLang('en'));
+click('#sLow', () => { SET.quality = 'low'; saveSettings(); applyQuality(); renderSettings(); });
+click('#sHigh', () => { SET.quality = 'high'; saveSettings(); applyQuality(); renderSettings(); });
+click('#sFull', toggleFullscreen);
+click('#bSetBack', closeSettings);
+
 // ---------- main loop ----------
 let lastFrame = performance.now(), fpsAcc = 0, fpsN = 0;
 function renderFrame(now) {
@@ -1778,22 +2177,23 @@ function renderFrame(now) {
   lastFrame = now;
   if (document.hidden) return;
   if (S.state !== 'paused') frameLogic(dt);
-  else updateWaterOnly();
   fpsAcc += dt; fpsN++;
   if (fpsAcc > 0.5) { S.fps = fpsN / fpsAcc; fpsAcc = 0; fpsN = 0; }
   updateHud(dt);
   renderer.render(scene, camera);
   S.draws = renderer.info.render.calls;
-  updateDebug(dt);
+  updateDebug();
 }
 function loop(now) {
   requestAnimationFrame(loop);
   renderFrame(now);
 }
 
-// Pause while the tab is hidden.
+// Pause (and silence) while the tab is hidden.
 document.addEventListener('visibilitychange', () => {
   if (document.hidden && S.state === 'playing') togglePause();
+  if (document.hidden) audioPause(true);
+  else if (S.state !== 'paused') audioPause(false);
   lastFrame = performance.now();
 });
 
@@ -1805,19 +2205,25 @@ window.addEventListener('resize', () => {
 });
 
 // ---------- buttons ----------
-$('#bStart').addEventListener('click', (e) => { e.stopPropagation(); startRun(); });
-$('#bRetry').addEventListener('click', (e) => { e.stopPropagation(); startRun(); });
-$('#bResume').addEventListener('click', (e) => { e.stopPropagation(); togglePause(); });
-$('#bMenuP').addEventListener('click', (e) => { e.stopPropagation(); goMenu(); });
-$('#bMenuO').addEventListener('click', (e) => { e.stopPropagation(); goMenu(); });
-$('#bPause').addEventListener('click', (e) => { e.stopPropagation(); togglePause(); });
-$('#bMusic').addEventListener('click', (e) => { e.stopPropagation(); ensureAudio(); toggleMusic(); });
-$('#bSfx').addEventListener('click', (e) => { e.stopPropagation(); ensureAudio(); toggleSfx(); });
-$('#bLang').addEventListener('click', (e) => { e.stopPropagation(); setLang(LANG === 'tr' ? 'en' : 'tr'); });
+click('#bStart', () => { if (assetsReady) startRun(); });
+click('#bRetry', startRun);
+click('#bResume', togglePause);
+click('#bRestart', startRun);
+click('#bMenuP', goMenu);
+click('#bMenuO', goMenu);
+click('#bPause', togglePause);
+click('#bMusic', () => { ensureAudio(); toggleMusic(); });
+click('#bSfx', () => { ensureAudio(); toggleSfx(); });
+click('#bLang', () => setLang(LANG === 'tr' ? 'en' : 'tr'));
+click('#bLangT', () => setLang(LANG === 'tr' ? 'en' : 'tr'));
+click('#bSetT', openSettings);
+click('#bSetP', openSettings);
+click('#bSet', () => { if (S.state === 'playing') togglePause(); openSettings(); });
 function goMenu() {
   S.state = 'title';
   S.attract = true;
   S.overT = 0;
+  audioPause(false);
   setScreen('title');
   clearWorld();
   S.d = 0; S.t = 0; S.speed = 27;
@@ -1836,31 +2242,30 @@ window.martiSim = function martiSim(seconds) {
     if (S.state === 'over' && FLAG.auto) startRun();
   }
   simming = false;
+  PR.dirty = true;
   return { state: S.state, score: Math.round(S.score), dist: Math.round(S.d), t: +S.t.toFixed(1), runs: S.runs.length, lastRun: S.runs[S.runs.length - 1] || null };
 };
 
 // ---------- boot ----------
+$('#fatal').style.display = 'none'; // the module runs, so the CDN watchdog message (if shown) is wrong now
 missionsLoad();
 applyLang();
-renderToggles();
-renderHudLabels();
 renderLives();
 setScreen('title');
 if (FLAG.debug) { $('#dbg').classList.remove('hidden'); }
-{
-  // Start the world with a few bands so the title screen is never empty.
-  while (nextBandZ < LOOK) { spawnShoreBand(nextBandZ); nextBandZ += 40; }
-  while (nextPatZ < LOOK) { spawnPattern(nextPatZ); nextPatZ += patSpacing(); }
-  S.d = 0;
-}
-if (FLAG.run) startRun(); // ?run: start a run without the bot (manual test; keys still steer)
-if (SIM_SECONDS > 0) {
-  window.martiSim(SIM_SECONDS);
-} else if (FLAG.auto) {
-  S.autoT = 0;
-}
+spawnAhead(); // the title screen is never empty
+S.d = 0;
 updateVisuals(1 / 60);
 requestAnimationFrame((t) => { lastFrame = t; loop(t); });
+// Start is enabled once the models loaded (or failed, or after 10 s); the procedural look is the fallback.
+Promise.race([loadAssets(), new Promise((r) => setTimeout(r, 10000))]).then(() => {
+  applyAssets();
+  assetsReady = true;
+  renderStartButton();
+  if (S.state === 'title' && !simming) setTimeout(() => { if (S.state === 'title' && !settingsOpen) $('#bStart').focus({ preventScroll: true }); }, 60);
+  if (FLAG.run) startRun(); // ?run: start a run without the bot (manual test; keys still steer)
+  if (SIM_SECONDS > 0) window.martiSim(SIM_SECONDS);
+});
 </script>
 </body>
 </html>
