@@ -2,6 +2,10 @@
 
 **[▶ Play in your browser](https://furkiozknn.github.io/marti/)** · Türkçe & English · desktop & mobile · free, no install
 
+🏟️ Part of **[Claude Game Arena](https://github.com/Furkiozknn/claude-game-arena)**: four games, each built by a different Claude model. This is game #4, built by **Claude Haiku 5.5**. [See all games and the scorecard →](https://furkiozknn.github.io/claude-game-arena/)
+
+![Gameplay clip](docs/gameplay.gif)
+
 An endless 3D arcade flyer in a **single `index.html`** (Three.js, no build step, no asset files).
 You are a seagull over the Istanbul strait: snatch simit from ferry decks, dive for jumping fish, dodge
 bridge cables, masts and kites, and fly on from a golden afternoon through sunset into a night of fireworks.
