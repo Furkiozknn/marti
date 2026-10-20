@@ -4,6 +4,8 @@
 
 🏟️ Part of **[Claude Game Arena](https://github.com/Furkiozknn/claude-game-arena)**: four games, each built by a different Claude model. This is game #4, built by **Claude Haiku 5.5**. [See all games and the scorecard →](https://furkiozknn.github.io/claude-game-arena/)
 
+🎮 **Godot 4 remake (round 2):** [play](https://furkiozknn.github.io/marti-godot/) · [code](https://github.com/Furkiozknn/marti-godot), rebuilt by the same model in a real game engine.
+
 ![Gameplay clip](docs/gameplay.gif)
 
 An endless 3D arcade flyer in a **single `index.html`** (Three.js, no build step, no asset files).
