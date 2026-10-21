@@ -150,6 +150,15 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(-
   .two{grid-template-columns:1fr;gap:8px}
   .how{font-size:14px}
 }
+/* phones in landscape: a smaller crest and a two-column how-to, so Start is visible without scrolling the card */
+@media (max-height:500px) and (orientation:landscape){
+  #title .card{max-width:720px;padding:14px 18px 12px}
+  .card .crest{width:56px;height:56px;margin:0 auto}
+  .card .logo{font-size:34px}
+  .card .tag{margin:2px 0 8px;font-size:14px}
+  .how{grid-template-columns:1fr 1fr;gap:5px;margin-bottom:10px;font-size:13px}
+  .how li{padding:5px 10px}
+}
 </style>
 </head>
 <body>
@@ -194,7 +203,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(-
       <div><h4 data-i18n="highs">Yüksek skorlar</h4><ol id="highList"></ol></div>
     </div>
     <p class="hint" data-i18n="hint"></p>
-    <p class="foot"><a href="https://furkiozknn.github.io/claude-game-arena/" target="_blank" rel="noopener">Claude Game Arena · built by Claude Haiku 5.5 · assets remastered</a></p>
+    <p class="foot"><a href="https://furkiozknn.github.io/claude-game-arena/" target="_blank" rel="noopener" data-i18n="footer">Claude Game Arena · built by Claude Haiku 5.5 · assets remastered</a></p>
   </div>
 </div>
 
@@ -324,6 +333,7 @@ const I18N = {
     score: 'Skor', best: 'En iyi', dist: 'Mesafe', simit: 'Simit', combo: 'Kombo', stamina: 'Enerji',
     missions: 'Günlük görevler', highs: 'Yüksek skorlar',
     hint: 'P duraklat · M müzik · X ses · L English · F tam ekran',
+    footer: 'Claude Game Arena · Claude Haiku 5.5 yaptı · varlıklar yenilendi',
     newBest: 'Yeni rekor!', steal: 'Sürü simitini çaldı!', shield: 'Kalkan tüyü! Bir çarpmayı emer',
     shieldUsed: 'Kalkan çarpmayı emdi!', hit: 'Çarpıştın!', tail: 'Kuyruk rüzgârı! Hız ve skor x1.5',
     gold: 'Altın simit! Skor x2', missionDone: 'Görev tamam', crash: 'Üç kez çarptın', energy: 'Enerjin bitti',
@@ -346,6 +356,7 @@ const I18N = {
     score: 'Score', best: 'Best', dist: 'Distance', simit: 'Simit', combo: 'Combo', stamina: 'Stamina',
     missions: 'Daily missions', highs: 'High scores',
     hint: 'P pause · M music · X sound · L Türkçe · F fullscreen',
+    footer: 'Claude Game Arena · built by Claude Haiku 5.5 · assets remastered',
     newBest: 'New record!', steal: 'The flock stole your simit!', shield: 'Shield feather! Blocks one hit',
     shieldUsed: 'The shield absorbed a hit!', hit: 'Hit!', tail: 'Tailwind! Speed and score x1.5',
     gold: 'Golden simit! Score x2', missionDone: 'Mission complete', crash: 'Three hits', energy: 'Out of stamina',
@@ -1995,6 +2006,7 @@ function applyLang() {
   renderToggles();
   renderOverMissions();
   if (lastRun) $('#overReason').textContent = tx(lastRun.reason);
+  if (S.state === 'over') $('#newBest').textContent = S.newBest ? tx('newBest') : '';
   if (S.state === 'playing' || S.state === 'paused') renderChips();
 }
 function renderStartButton() {
