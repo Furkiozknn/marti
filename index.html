@@ -444,6 +444,7 @@ const M = {
   stars: new THREE.PointsMaterial({ color: 0xffffff, size: 2.4, sizeAttenuation: false, map: DOT, alphaTest: 0.05, transparent: true, opacity: 0, fog: false, depthWrite: false }),
   // fog:false so fireworks 140-240 units ahead are not fogged into the sky (fog starts at 110)
   fx: new THREE.PointsMaterial({ size: 0.8, vertexColors: true, sizeAttenuation: true, map: DOT, alphaTest: 0.05, transparent: true, depthWrite: false, fog: false }),
+  fw: new THREE.PointsMaterial({ size: 4, vertexColors: true, sizeAttenuation: true, map: DOT, alphaTest: 0.05, transparent: true, depthWrite: false, fog: false }),
 };
 
 // ---------- geometry helpers ----------
@@ -575,8 +576,8 @@ function boatGeo(type) {
     }
   } else if (type === 'fishing') {
     P.push(part(new THREE.BoxGeometry(3, 1.4, 6), '#92400E', [0, 0.7, 0]));
-    P.push(part(new THREE.BoxGeometry(1.8, 1.4, 1.8), '#FDE68A', [0, 2.1, -0.8]));
-    P.push(part(new THREE.BoxGeometry(0.15, 5, 0.15), '#3F3F46', [0, 3, 0.9]));
+    P.push(part(new THREE.BoxGeometry(2, 1.6, 2), '#FDE68A', [0, 2.2, -1.5]));
+    P.push(part(new THREE.BoxGeometry(0.15, 5.3, 0.15), '#3F3F46', [0, 2.85, 0.3]));
   } else if (type === 'tanker') {
     P.push(part(new THREE.BoxGeometry(9, 3.2, 36), '#1F2937', [0, 1.6, 0]));
     P.push(part(new THREE.BoxGeometry(8.6, 0.3, 34), '#E5E7EB', [0, 3.35, 0]));
@@ -595,7 +596,8 @@ for (const t of ['ferry', 'fishing', 'tanker', 'sail']) BOAT[t] = { geo: boatGeo
 const BOAT_BOXES = {
   // The ferry cabin top stays at 4.5: the deck simit at y 5.3 (minus the gull's half height 0.55) must stay reachable.
   ferry: [{ ox: 0, oz: 0, y0: 0, y1: 2.6, hw: 3, hd: 7.5 }, { ox: 0, oz: -1.5, y0: 2.6, y1: 4.5, hw: 2.65, hd: 4.15 }],
-  fishing: [{ ox: 0, oz: 0, y0: 0, y1: 1.8, hw: 1.6, hd: 3 }, { ox: 0, oz: 0.9, y0: 0, y1: 5.2, hw: 0.35, hd: 0.35 }, { ox: 0, oz: -0.8, y0: 1.4, y1: 2.8, hw: 0.9, hd: 0.9 }],
+  // Fishing: the model's wheelhouse spans z -2.5..-0.5 (top 3.2) and its mast stands at z -0.2..0.8 (top 5.8).
+  fishing: [{ ox: 0, oz: 0, y0: 0, y1: 1.8, hw: 1.6, hd: 3 }, { ox: 0, oz: 0.3, y0: 0, y1: 5.5, hw: 0.35, hd: 0.5 }, { ox: 0, oz: -1.5, y0: 1.4, y1: 3.0, hw: 1.0, hd: 1.0 }],
   tanker: [{ ox: 0, oz: 0, y0: 0, y1: 3.4, hw: 4.5, hd: 18 }, { ox: 0, oz: -13.5, y0: 3.4, y1: 10.5, hw: 1.1, hd: 1.2 }, { ox: 0, oz: -13, y0: 3.4, y1: 8.5, hw: 2, hd: 2.5 }],
   sail: [{ ox: 0, oz: 0, y0: 0, y1: 1.6, hw: 1.5, hd: 3.6 }, { ox: 0, oz: 0.5, y0: 0, y1: 23, hw: 0.4, hd: 0.4 }, { ox: 0.05, oz: -0.8, y0: 4, y1: 16, hw: 0.15, hd: 2 }],
 };
@@ -929,45 +931,52 @@ function applyAssets() {
   S.assets = Object.keys(A);
 }
 
-// ---------- particles (one Points object, ring buffer) ----------
-const FX_N = FLAG.low ? 260 : 520;
-const fxPos = new Float32Array(FX_N * 3), fxCol = new Float32Array(FX_N * 3);
-const fxVel = new Float32Array(FX_N * 3), fxLife = new Float32Array(FX_N), fxG = new Float32Array(FX_N);
-const fxGeo = new THREE.BufferGeometry();
-fxGeo.setAttribute('position', new THREE.BufferAttribute(fxPos, 3).setUsage(THREE.DynamicDrawUsage));
-fxGeo.setAttribute('color', new THREE.BufferAttribute(fxCol, 3).setUsage(THREE.DynamicDrawUsage));
-const fxPts = new THREE.Points(fxGeo, M.fx);
-fxPts.frustumCulled = false;
-scene.add(fxPts);
-let fxCursor = 0;
+// ---------- particles (Points ring buffers: one for bursts near the gull, one for the fireworks) ----------
 const _fc = new THREE.Color();
-function fxSpawn(x, y, z, vx, vy, vz, hex, life = 0.8, g = 9.8) {
-  const i = fxCursor; fxCursor = (fxCursor + 1) % FX_N;
-  fxPos[i * 3] = x; fxPos[i * 3 + 1] = y; fxPos[i * 3 + 2] = z;
-  fxVel[i * 3] = vx; fxVel[i * 3 + 1] = vy; fxVel[i * 3 + 2] = vz;
-  _fc.set(hex);
-  fxCol[i * 3] = _fc.r; fxCol[i * 3 + 1] = _fc.g; fxCol[i * 3 + 2] = _fc.b;
-  fxLife[i] = life; fxG[i] = g;
-}
-function fxBurst(x, y, z, hex, n, spd, life, g) {
-  for (let i = 0; i < n; i++) {
-    const a = rnd(0, TAU), s = rnd(0.3, 1) * spd;
-    fxSpawn(x, y, z, Math.cos(a) * s, rnd(0.2, 1) * spd, Math.sin(a) * s * 0.5, hex, life * rnd(0.6, 1), g);
+function makeFx(n, mat) {
+  const pos = new Float32Array(n * 3), col = new Float32Array(n * 3);
+  const vel = new Float32Array(n * 3), life = new Float32Array(n), grav = new Float32Array(n);
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3).setUsage(THREE.DynamicDrawUsage));
+  geo.setAttribute('color', new THREE.BufferAttribute(col, 3).setUsage(THREE.DynamicDrawUsage));
+  const pts = new THREE.Points(geo, mat);
+  pts.frustumCulled = false;
+  scene.add(pts);
+  let cursor = 0;
+  function spawn(x, y, z, vx, vy, vz, hex, lf = 0.8, g = 9.8) {
+    const i = cursor; cursor = (cursor + 1) % n;
+    pos[i * 3] = x; pos[i * 3 + 1] = y; pos[i * 3 + 2] = z;
+    vel[i * 3] = vx; vel[i * 3 + 1] = vy; vel[i * 3 + 2] = vz;
+    _fc.set(hex);
+    col[i * 3] = _fc.r; col[i * 3 + 1] = _fc.g; col[i * 3 + 2] = _fc.b;
+    life[i] = lf; grav[i] = g;
   }
-}
-function fxUpdate(dt) {
-  for (let i = 0; i < FX_N; i++) {
-    if (fxLife[i] <= 0) { fxPos[i * 3 + 1] = -999; continue; }
-    fxLife[i] -= dt;
-    fxVel[i * 3 + 1] -= fxG[i] * dt;
-    fxPos[i * 3] += fxVel[i * 3] * dt;
-    fxPos[i * 3 + 1] += fxVel[i * 3 + 1] * dt;
-    fxPos[i * 3 + 2] += fxVel[i * 3 + 2] * dt;
-    if (fxPos[i * 3 + 1] < 0.2 && fxVel[i * 3 + 1] < 0) { fxPos[i * 3 + 1] = 0.2; fxVel[i * 3 + 1] = 0; fxVel[i * 3] *= 0.6; fxVel[i * 3 + 2] *= 0.6; }
+  function burst(x, y, z, hex, k, spd, lf, g) {
+    for (let i = 0; i < k; i++) {
+      const a = rnd(0, TAU), s = rnd(0.3, 1) * spd;
+      spawn(x, y, z, Math.cos(a) * s, rnd(0.2, 1) * spd, Math.sin(a) * s * 0.5, hex, lf * rnd(0.6, 1), g);
+    }
   }
-  fxGeo.attributes.position.needsUpdate = true;
-  fxGeo.attributes.color.needsUpdate = true;
+  function update(dt) {
+    for (let i = 0; i < n; i++) {
+      if (life[i] <= 0) { pos[i * 3 + 1] = -999; continue; }
+      life[i] -= dt;
+      vel[i * 3 + 1] -= grav[i] * dt;
+      pos[i * 3] += vel[i * 3] * dt;
+      pos[i * 3 + 1] += vel[i * 3 + 1] * dt;
+      pos[i * 3 + 2] += vel[i * 3 + 2] * dt;
+      if (pos[i * 3 + 1] < 0.2 && vel[i * 3 + 1] < 0) { pos[i * 3 + 1] = 0.2; vel[i * 3 + 1] = 0; vel[i * 3] *= 0.6; vel[i * 3 + 2] *= 0.6; }
+    }
+    geo.attributes.position.needsUpdate = true;
+    geo.attributes.color.needsUpdate = true;
+  }
+  return { spawn, burst, update };
 }
+const FX = makeFx(FLAG.low ? 260 : 520, M.fx);
+// Fireworks burst 140-240 units ahead: at the near-effect sprite size (0.8) a spark would be about 1 px.
+const FW = makeFx(FLAG.low ? 120 : 240, M.fw);
+const fxSpawn = FX.spawn, fxBurst = FX.burst;
+function fxUpdate(dt) { FX.update(dt); FW.update(dt); }
 
 // ---------- game state (also exposed as window.marti) ----------
 const G = { x: 0, y: 12, bank: 0, flap: 0, vx: 0, vy: 0 };
@@ -1540,7 +1549,7 @@ function fireworkBurst() {
   const x = rnd(-50, 50), y = rnd(40, 70), z = S.d + rnd(140, 240);
   const cols = ['#FDE68A', '#F87171', '#60A5FA', '#34D399', '#F472B6', '#FFFFFF'];
   const c = pick(cols);
-  fxBurst(x, y, z, c, isLow() ? 14 : 30, 14, 1.6, 9);
+  FW.burst(x, y, z, c, isLow() ? 14 : 30, 14, 1.6, 9);
   sfxBoom();
 }
 
