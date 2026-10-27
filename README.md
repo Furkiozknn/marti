@@ -1,155 +1,164 @@
-# 🕊️ Martı · Seagull Run
+<p align="center">
+  <a href="https://furkiozknn.github.io/marti/"><img src="docs/banner.svg" width="100%" alt="Martı: fly a seagull over the Istanbul strait, snatch simit from ferries and dodge the bridge. Click to play in your browser."></a>
+</p>
 
-**[▶ Play in your browser](https://furkiozknn.github.io/marti/)** · Türkçe & English · desktop & mobile · free, no install
+<p align="center">
+  <a href="https://furkiozknn.github.io/marti/"><img src="https://img.shields.io/badge/%E2%96%B6_Play_now-in_your_browser-F59E0B?style=for-the-badge&labelColor=0F172A" alt="Play now in your browser"></a>
+  <img src="https://img.shields.io/badge/Three.js-r170-FDE68A?style=for-the-badge&logo=threedotjs&logoColor=white&labelColor=0F172A" alt="Three.js r170">
+  <img src="https://img.shields.io/badge/built_by-Claude_Haiku_5.5-F87171?style=for-the-badge&logo=claude&logoColor=white&labelColor=0F172A" alt="Built by Claude Haiku 5.5">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/licence-MIT-34D399?style=for-the-badge&labelColor=0F172A" alt="MIT licence"></a>
+  <img src="https://img.shields.io/badge/no_install-desktop_%C2%B7_phone-FFFFFF?style=for-the-badge&labelColor=0F172A" alt="No install, desktop and phone">
+</p>
 
-🏟️ Part of **[Claude Game Arena](https://furkiozknn.github.io/)**: four games, each built by a different Claude model. This is game #4, built by **Claude Haiku 5.5**. [See all games and the scorecard →](https://furkiozknn.github.io/)
+<p align="center"><b>An endless 3D arcade flyer over the Istanbul strait: as a seagull, snatch simit from ferry decks, dive for jumping fish, dodge bridges, masts and kites, and fly on from a golden afternoon through sunset into a night of fireworks.</b></p>
 
-🎮 **Godot 4 remake (round 2):** [play](https://furkiozknn.github.io/marti-godot/) · [code](https://github.com/Furkiozknn/marti-godot), rebuilt by the same model in a real game engine.
+<p align="center">
+  <img src="docs/gameplay.gif" width="640" alt="Martı gameplay: the seagull flies low over the strait">
+</p>
 
-![Gameplay clip](docs/gameplay.gif)
+<p align="center"><b>Play online: <a href="https://furkiozknn.github.io/marti/">https://furkiozknn.github.io/marti/</a></b> (desktop and phone, no install)</p>
 
-An endless 3D arcade flyer in a **single `index.html`** (Three.js, no build step) with a small set of generated
-3D models in `assets/` (the game falls back to its procedural models when they cannot load).
-You are a seagull over the Istanbul strait: snatch simit from ferry decks, dive for jumping fish, dodge
-bridge decks, cables, masts and kites, and fly on from a golden afternoon through sunset into a night of fireworks.
+## Highlights
 
-![Flying under the suspension bridge](docs/bridge.png)
+- **An endless run that speeds up.** Steer inside the corridor over the water; the first 30 seconds are forgiving, then
+  the run gets faster and busier.
+- **Stamina and three feathers.** Stamina drains faster and faster and only simit and fish refill it; every crash costs
+  one of three feathers.
+- **Obstacles with their own rules.** Bridge decks and cables, ships' hulls, cabins, masts and sails, kites on long
+  strings, storm clouds that push you and a rival gull flock that steals your simit.
+- **Power-ups and combos.** Tailwind (speed and score x1.5), golden simit (score x2) and a shield feather that blocks
+  one hit; a combo multiplier climbs up to x5.
+- **Day to night over Istanbul.** Mosques with domes and minarets, the Galata tower, the Maiden's tower on its islet,
+  yalı mansions and city ferries, from afternoon gold through sunset to a starry night with lit windows and fireworks.
+- **Daily missions and high scores.** Three missions a day and a local top-5 table, saved in your browser.
+- **Generated music and sound.** A beat with layers that build as you speed up, wing flaps, gull calls and ferry horns,
+  all made with Web Audio; pausing or hiding the tab silences everything.
 
-## Features
+## How to play
 
-- **Endless run that speeds up:** steer inside the corridor over the water; the first 30 seconds are forgiving.
-- **Stamina and lives:** simit and fish refill stamina, which drains faster over time. Three feathers (hits) per run.
-- **Obstacles:** bridge decks and cables (the red towers stand just outside the flying corridor and mark the gate),
-  ships' hulls, cabins, masts, sails and funnels, kites on long strings, storm clouds that push you, and a rival gull
-  flock that steals your food.
-- **Power-ups:** tailwind (speed + score ×1.5), golden simit (score ×2), shield feather. Combo multiplier up to ×5.
-- **Daily missions** and a local top-5 high score table, saved in your browser.
-- **Day to night:** the sky moves from afternoon gold through sunset to a starry night with lit windows and fireworks.
-- **Istanbul landmarks:** mosques with domes and minarets, the Galata tower, the Maiden's tower on its islet, yalı
-  mansions facing the water, city ferries (vapur) with simit on deck.
-- **Generated music and sound:** a beat with layers that build as you speed up, wing flaps, gull calls, ferry horns,
-  a game-over jingle, all made with Web Audio. Pausing (or hiding the tab) silences everything.
-- **Settings:** master, music and effects volume, language (Türkçe / English), quality (Low / High) and fullscreen,
-  saved in your browser. The language follows your browser the first time.
+> [!TIP]
+> **Goal:** fly as far and score as high as you can. The run is over when your stamina runs out or you lose all three
+> feathers.
 
-| | |
-|---|---|
-| ![Sunset](docs/sunset.png) | ![Night with power-ups active](docs/night.png) |
-| ![Daylight run](docs/day.png) | ![Game over](docs/gameover.png) |
-| ![Title screen](docs/title.png) | ![Phone layout](docs/phone_run.png) |
+Steer the gull with the mouse, a finger or the arrow keys, and keep it in the corridor over the water. Fly through simit
+on ferry decks and in the air to refill stamina and build a combo; dive (hold `Space`, hold the mouse button or tap) to
+catch jumping fish.
 
-## Controls
+<details>
+<summary><b>More rules</b></summary>
 
-| Action | Keyboard | Mouse | Touch |
-|---|---|---|---|
-| Steer | Arrows or `WASD` | Move the mouse (the gull follows the pointer) | Drag anywhere (relative to where the finger went down) |
-| Dive (for fish) | `Space` | Hold click | Tap |
-| Pause (Resume, Restart, Settings, Main menu) | `P` or `Esc` | Pause button | Pause button |
-| Music / sound / language | `M` / `X` / `L` | Top bar | Top bar |
-| Fullscreen | `F` | Settings | Settings |
-| Settings | — | Gear button, title card | Gear button, title card |
+- Stamina starts full and drains a little faster every second, and faster still while you dive.
+- Every pickup in a row raises the combo; every fourth one adds 1 to the score multiplier, up to x5. A pause in pickups
+  resets it.
+- The rival flock steals your simit: it costs stamina and resets the combo.
+- Hitting a bridge deck, a cable, a hull, a mast or a kite costs a feather, unless a shield feather absorbs the hit.
+- Every day brings three missions (for example a 10 combo in one run or a distance to fly); the top 5 runs are kept.
 
-Every button can be reached with `Tab` (visible focus ring) and is 44 px tall on touch screens.
+</details>
 
-## Run it locally
+### Controls
 
-Download the repo and double-click `index.html` (it needs internet the first time, to load Three.js and the font from a CDN),
-or serve the folder with `python -m http.server 8766` and open http://127.0.0.1:8766/.
+| Action | Mouse / touch | Keyboard |
+|---|---|---|
+| Steer | move the mouse / drag (relative to where the finger went down) | arrows / `WASD` |
+| Dive (for fish) | hold the mouse button / tap | hold `Space` |
+| Start / play again | Start button | `Space` / `Enter` |
+| Pause menu (Resume, Restart, Settings, Main menu) | pause button | `P` / `Esc` |
+| Music / effects / language | top bar | `M` / `X` / `L` |
+| Fullscreen | settings | `F` |
 
-### URL flags
+Settings (master, music and effects volume, TR / EN, Low / High quality, fullscreen) are saved in `localStorage` under
+`arena.marti.settings`; the top 5 scores under `arena.marti.best` and the daily missions under `arena.marti.save`. The
+first visit follows the browser language.
+
+<details>
+<summary><b>URL flags for testing</b></summary>
 
 | Flag | Effect |
 |---|---|
-| `?low` | Low quality (no shadows, pixel ratio 1.0, half the particles), whatever the setting says |
-| `?lang=en` / `?lang=tr` | Interface language |
-| `?auto` | The game plays itself (self-test bot) |
-| `?debug` | FPS, draw calls, state, loaded assets and any JS errors on screen; `window.martiSim(seconds)` fast-forwards the game |
-| `?sim=N` | Fast-forwards N seconds once the assets are ready |
-| `?noassets` | Skips the generated models (procedural look, as from `file://`) |
-| `?run` | Starts a run straight away (manual test) |
-| `?t0=N` | Starts each run N seconds into the day (`?t0=150` = night) |
+| `?auto` | the game plays itself (self-test bot) |
+| `?debug` | fps, draw calls, state, loaded assets and JS errors on screen; `window.martiSim(seconds)` fast-forwards the game |
+| `?sim=N` | fast-forward N seconds once the assets are ready |
+| `?low` | no shadows, pixel ratio 1, half the particles |
+| `?noassets` | skip the generated models (procedural look) |
+| `?lang=en` / `?lang=tr` | language |
+| `?run` | start a run straight away |
+| `?t0=N` | start each run N seconds into the day (`?t0=150` is night) |
 
-Saved data (`localStorage`): `arena.marti.settings`, `arena.marti.best` (top 5) and `arena.marti.save` (daily
-missions). The round-1 keys (`marti.*`) are read once and kept.
+</details>
 
-## Assets
+## Screenshots
 
-Generated with **Higgsfield**: Tripo text-to-3D for the simit, fish, shield feather, ferry, fishing boat,
-sailboat, mosque, Galata tower, Maiden's tower and yalı, GPT Image for the crest/logo and favicon. Processed with
-glTF-Transform (`claude-game-arena/tools/assets/fit.mjs`: rotate, fit to the game size, pivot, WebP textures).
-About 0.88 MB in total. The gull itself is procedural (a generated gull was tried and rejected: lumpy body, stick-like
-wings): tapered two-layer wing panels (grey tops, white undersides, black tips with a white spot), a grey mantle and a
-fan tail, posed so the chase camera sees the back and wing tops. When the page is opened from `file://` (or with `?noassets`, or if a file fails), the game
-uses its original procedural models. The HUD icons are hand-drawn inline SVG. Details, prompts and sizes:
-[docs/assets.md](docs/assets.md).
+<table>
+  <tr>
+    <td width="33%"><img src="docs/title.png" alt="Title screen with the daily missions"><br><sub>Title screen and daily missions</sub></td>
+    <td width="33%"><img src="docs/day.png" alt="Afternoon run past a mosque"><br><sub>Afternoon over the strait</sub></td>
+    <td width="33%"><img src="docs/bridge.png" alt="Flying under the suspension bridge"><br><sub>Under the bridge</sub></td>
+  </tr>
+  <tr>
+    <td><img src="docs/sunset.png" alt="Sunset with the Galata tower"><br><sub>Sunset and the Galata tower</sub></td>
+    <td><img src="docs/night.png" alt="Night with a golden simit active"><br><sub>Night, golden simit active</sub></td>
+    <td><img src="docs/gameover.png" alt="Run over with a new record"><br><sub>Run over, new record</sub></td>
+  </tr>
+</table>
 
-![The gull up close](docs/close.png)
+<details>
+<summary><b>The gull up close, settings and the phone layout</b></summary>
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/close.png" alt="The procedural seagull up close"><br><sub>The gull up close</sub></td>
+    <td width="50%"><img src="docs/remaster-settings.png" alt="Settings"><br><sub>Settings</sub></td>
+  </tr>
+</table>
+
+<p align="center"><img src="docs/phone_run.png" width="300" alt="Martı on a phone"><br><sub>On a phone</sub></p>
+
+</details>
+
+## Running locally
+
+Serve the folder over HTTP (opened from `file://`, the browser blocks the model files and the game uses its procedural
+models):
+
+```
+python -m http.server 8000
+```
+
+then open <http://localhost:8000/>.
 
 ## How it was made
 
-Game #4 of a series in which **every game is built by a different AI model**, to compare which one makes the better game.
-This one was built by **Claude Haiku 5.5** (`claude-haiku-5-5`) with [Claude Code](https://claude.com/claude-code), on its own,
-from one prompt: [`prompts/marti.md`](prompts/marti.md). Every model gets the same prompt structure, quality bar and
-self-test rule, and none of them sees the other games' code. The orchestrating session (Claude Opus 5.5) wrote the prompt,
-re-tested the result independently and published it.
+Built by **Claude Haiku 5.5** with Claude Code from one prompt: [prompts/marti.md](prompts/marti.md). The first version
+was fully procedural: the strait, the shores, the boats, the landmarks and the gull are low-poly primitives with vertex
+colours, and the music and sounds are synthesised with the Web Audio API. Before release, an independent bot run in a
+real browser flew 796 seconds before running out of stamina, with 0 JS errors.
 
-Verification before release: an independent bot run in a real browser flew 796 seconds before running out of stamina, with zero
-JS errors and about 20-30 draw calls. Review found three issues (the gull looked like a plane, white square particles, and the wings
-covering the view near the shore), which the builder fixed in one review round.
+The assets were remastered by the orchestrator, **Claude Opus 5.5**, with generated models: Tripo text-to-3D (through
+Higgsfield) for the simit (also the golden simit), the fish, the shield feather, the ferry, the fishing boat, the
+sailboat, the mosque, the Galata tower, the Maiden's tower and the yalı, and GPT Image for the crest and the favicon.
+They were fitted with glTF-Transform (about 0.88 MB in `assets/`), and every procedural model stays as the fallback. A
+generated gull was tried and rejected, so the gull is a redesigned procedural one with grey wing tops, white undersides
+and black tips. Prompts, sizes and the rejected models: [docs/assets.md](docs/assets.md). A Godot 4 remake was made in
+round 2.
 
-| # | Game | Genre | Model |
-|---|---|---|---|
-| 1 | [Hisar](https://github.com/Furkiozknn/kale-savunmasi) | Tower defense, 3D | Claude Opus 5.5 |
-| 2 | [Çay Ocağı](https://github.com/Furkiozknn/cay-ocagi) | Time management, 3D | Claude Sonnet 5.5 |
-| 3 | [Çini Ustası](https://github.com/Furkiozknn/cini-ustasi) | Puzzle, 3D | Claude Fable 5.1 |
-| 4 | **Martı** | Arcade flyer, 3D | Claude Haiku 5.5 |
+Martı is part of the **Claude Game Arena** series, where each game is built by a Claude model from one prompt. The other
+games: [Hisar](https://furkiozknn.github.io/kale-savunmasi/) · [Çay Ocağı](https://furkiozknn.github.io/cay-ocagi/) ·
+[Çini Ustası](https://furkiozknn.github.io/cini-ustasi/) · [Kervan](https://furkiozknn.github.io/kervan/) ·
+[Dolmuş](https://furkiozknn.github.io/dolmus/) · [Peri Golf](https://furkiozknn.github.io/peri-golf/) ·
+[Mehter](https://furkiozknn.github.io/mehter/) · [Boğaz Vapuru](https://furkiozknn.github.io/bogaz-vapuru/) ·
+[Simit Fırını](https://furkiozknn.github.io/simit-firini/) · [Karagöz](https://furkiozknn.github.io/karagoz/) ·
+[Lale Bahçesi](https://furkiozknn.github.io/lale-bahcesi/)
 
-## Tech
+## Türkçe
 
-Three.js r170 (ES module from jsDelivr, with GLTFLoader), Web Audio API, one Google Font (Fredoka). About 2,300 lines of plain
-JavaScript, HTML and CSS in one file. If the CDN cannot be reached, the page says so after 10 seconds instead of showing a
-dead Start button.
+**Martı**, İstanbul Boğazı üzerinde geçen sonsuz bir 3D arcade uçuş oyunu. Bir martı olarak vapurların güvertesinden
+simit kap, sıçrayan balıklar için dal; köprülerden, direklerden ve uçurtmalardan kaç. Altın bir öğleden sonradan gün
+batımına, oradan havai fişekli bir geceye uç; her gün üç yeni görev var. Kurulum yok; masaüstünde ve telefonda tarayıcıda
+oynanır. Claude Haiku 5.5 tarafından Claude Code ile tek bir prompt'tan yapıldı.
 
-## Changelog
-
-### 2026-10-21 overnight pass (assets remastered by Claude Opus 5.5, orchestrator)
-
-**Fixes**
-- Steering was mirrored: Right/D and the right half of the screen sent the gull to the screen-left (the camera looks
-  along +z, so screen-right is world -x). Keys, mouse and touch now steer the way you press. The bank follows.
-- Touch: a tap to dive no longer teleports the steering target; dragging steers relative to where the finger went down.
-- Ferry cabin, tanker bridge block, fishing-boat wheelhouse and the sail are now solid (they were fly-through).
-  The ferry cabin top stays at 4.5, so the deck simit are still reachable.
-- Fireworks are no longer fogged into the sky; only the windows glow at night, not the whole house.
-- Music no longer plays a burst of missed notes after a hidden tab, and it stops while paused.
-- No more dead Start button when the CDN fails (message after 10 s); Start shows "Loading… n/N" until the models are in.
-- Roofs line up with their houses; mosques have a body and their minarets stand on their own ground; balloons have a
-  basket; fish pitch along their leap; the rival flock flaps and flies in a proper V; the yalı faces the water on both
-  shores; the sun light comes from the visible sun; light colours blend at dusk instead of jumping.
-- The title screen no longer drifts into night; a held Space/Enter no longer restarts a run; nothing changes the score
-  after a run ended; daily missions reset correctly after midnight; the distance mission shows "1234/3000 m".
-- The game-over card shows why the run ended, with a short jingle.
-
-**New**
-- Settings (volumes, language, quality, fullscreen), a Pause menu with Restart and Settings, SVG icon buttons with
-  labels in both languages, a crest logo and favicon, a best-score line and the arena footer on the title card, the
-  `F` key, keyboard focus rings, 44 px touch targets, the browser language by default, new save keys with migration.
-- A new procedural gull that reads as a seagull from behind (wing panels with grey tops and black tips, mantle, fan
-  tail, wings pitched leading-edge-up, slight dihedral, calmer flap); the rival flock uses the same shape.
-- Passed pickups and kites are hidden once behind the gull, so they no longer fill the screen in front of the camera.
-- Generated models: simit (also the golden simit), fish, shield feather, ferry, fishing boat, sailboat, mosque,
-  Galata tower, Maiden's tower on its islet, yalı.
-- Test hooks: `?noassets`, `?t0=`.
-
-**Removed / faster**
-- Terrain is rebuilt only when its window moves, static shore props are only rewritten when they change, per-frame
-  arrays are reused, the high-score list is cached, and `martiSim` skips rendering work (1,500 simulated seconds take
-  about 2 s instead of 73 s).
-- Dead code: the paused water rebuild, unused state fields and translation keys, duplicate spawn loops and splash
-  spawners, no-op bot code, the hard-coded start toast.
-
-**Known:** the gameplay GIF at the top is from round 1 (old look).
+**Oyna:** https://furkiozknn.github.io/marti/
 
 ## License
 
-Code: [MIT](LICENSE).
+MIT, see [LICENSE](LICENSE).
