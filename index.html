@@ -7,7 +7,9 @@
 <meta name="description" content="Fly a seagull over the Istanbul strait: snatch simit, dodge bridges and ships. · Boğaz üzerinde bir martı: simit kap, köprü ve gemilerden kaç.">
 <meta property="og:title" content="Martı · Seagull Run">
 <meta property="og:description" content="An endless 3D seagull run over the Istanbul strait: snatch simit from ferries, dodge bridge cables and kites, fly from sunset into a night of fireworks.">
-<meta property="og:image" content="https://furkiozknn.github.io/marti/docs/bridge.png">
+<meta property="og:image" content="https://furkiozknn.github.io/marti/docs/card.jpg">
+<meta property="og:image:width" content="960">
+<meta property="og:image:height" content="540">
 <meta property="og:url" content="https://furkiozknn.github.io/marti/">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/png" href="assets/ui/favicon.png">
@@ -73,6 +75,13 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(-
 .setopen #title .card,.setopen #pause .card{visibility:hidden}
 #pause{backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
 .simit-i{display:inline-block;width:14px;height:14px;vertical-align:-2px}
+#carry{position:absolute;right:6px;top:-18px;display:flex;gap:2px;pointer-events:none}
+#carry .simit-i{width:14px;height:14px}
+.nestcard{display:flex;align-items:center;justify-content:center;gap:12px;margin:0 auto 12px;font-size:14px;opacity:.95}
+.nestcard svg{width:76px;height:56px;flex:none}
+.fact{margin:12px 0 0;font-size:14px;line-height:1.35;opacity:.92}
+.fact b{color:var(--accent2)}
+.mascot{position:absolute;right:12px;top:12px;width:84px;height:auto;pointer-events:none}
 @media (pointer:coarse){
   .ibtn{width:44px;height:44px}
   .btn,.segb{min-height:44px}
@@ -97,7 +106,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(-
 @keyframes floatUp{from{opacity:1;margin-top:0}to{opacity:0;margin-top:-46px}}
 .overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:14px;z-index:5;
   background:radial-gradient(ellipse at 50% 35%,rgba(15,23,42,.05),rgba(15,23,42,.5))}
-.card{width:100%;max-width:480px;max-height:100%;overflow:auto;padding:22px 22px 18px;border-radius:24px;background:rgba(15,23,42,.66);
+.card{position:relative;width:100%;max-width:480px;max-height:100%;overflow:auto;padding:22px 22px 18px;border-radius:24px;background:rgba(15,23,42,.66);
   backdrop-filter:blur(16px) saturate(1.2);-webkit-backdrop-filter:blur(16px) saturate(1.2);border:1px solid rgba(255,255,255,.18);
   box-shadow:0 24px 60px rgba(0,0,0,.45);text-align:center;animation:cardIn .35s ease-out both}
 @keyframes cardIn{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
@@ -149,6 +158,8 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(-
   .btn{font-size:18px;padding:10px 24px}
   .two{grid-template-columns:1fr;gap:8px}
   .how{font-size:14px}
+  .mascot{width:60px;right:8px;top:8px}
+  .nestcard svg{width:64px;height:48px}
 }
 /* phones in landscape: a smaller crest and a two-column how-to, so Start is visible without scrolling the card */
 @media (max-height:500px) and (orientation:landscape){
@@ -158,6 +169,23 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(-
   .card .tag{margin:2px 0 8px;font-size:14px}
   .how{grid-template-columns:1fr 1fr;gap:5px;margin-bottom:10px;font-size:13px}
   .how li{padding:5px 10px}
+}
+/* short desktop windows (1280x720): the whole title card, fact line included, fits without scrolling */
+@media (min-width:621px) and (max-height:820px){
+  #title .card{padding:14px 20px 12px}
+  #title .crest{width:64px;height:64px;margin:-2px auto 0}
+  #title .logo{font-size:40px;margin:0 0 2px}
+  #title .tag{margin:2px 0 8px;font-size:15px}
+  #title .nestcard{margin-bottom:8px}
+  #title .nestcard svg{width:60px;height:44px}
+  #title .how{margin-bottom:10px;gap:5px;font-size:14px}
+  #title .how li{padding:5px 10px}
+  #title .bestline{margin-top:8px}
+  #title .two{margin:10px 0 4px;gap:14px}
+  #title .two li{padding:4px 8px}
+  #title .fact{margin-top:8px;font-size:13px}
+  #title .hint{margin-top:4px}
+  #title .foot{margin-top:6px}
 }
 </style>
 </head>
@@ -175,13 +203,14 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(-
     <div id="lives"></div>
     <div class="icons">
       <button class="ibtn" id="bPause" data-icon="pause"></button>
+      <button class="ibtn" id="bMute" data-icon="sound"></button>
       <button class="ibtn" id="bMusic" data-icon="music"></button>
       <button class="ibtn" id="bSfx" data-icon="sound"></button>
       <button class="ibtn" id="bLang" data-icon="globe"></button>
       <button class="ibtn" id="bSet" data-icon="gear"></button>
     </div>
   </div>
-  <div id="stamina" class="glass"><span id="stLabel" data-i18n="stamina">Enerji</span><div id="stBar"></div></div>
+  <div id="stamina" class="glass"><span id="stLabel" data-i18n="stamina">Enerji</span><span id="carry"></span><div id="stBar"></div></div>
   <div id="chips"></div>
   <div id="toasts"></div>
 </div>
@@ -191,6 +220,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(-
     <img class="crest" src="assets/ui/logo.png" alt="" onerror="this.remove()">
     <div class="logo">Martı<i>.</i></div>
     <p class="tag" data-i18n="tagline"></p>
+    <div class="nestcard" id="nestCard"></div>
     <ul class="how" id="how"></ul>
     <div class="row">
       <button class="btn" id="bStart" disabled>Loading…</button>
@@ -202,6 +232,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(-
       <div><h4 data-i18n="missions">Görevler</h4><ul id="missList"></ul></div>
       <div><h4 data-i18n="highs">Yüksek skorlar</h4><ol id="highList"></ol></div>
     </div>
+    <p class="fact"><b data-i18n="didYou">Biliyor muydun?</b> <span id="titleFact"></span></p>
     <p class="hint" data-i18n="hint"></p>
     <p class="foot"><a href="https://furkiozknn.github.io/" target="_blank" rel="noopener" data-i18n="footer">Claude Game Arena · built by Claude Haiku 5.5 · assets remastered</a></p>
   </div>
@@ -237,6 +268,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(-
 
 <div id="over" class="overlay hidden">
   <div class="card">
+    <img class="mascot" src="assets/mascot/kedi-sessiz.png" alt="" onerror="this.remove()">
     <div class="logo" style="font-size:40px" data-i18n="over">Koşu bitti</div>
     <p class="tag" id="overReason"></p>
     <div class="newbest" id="newBest"></div>
@@ -251,6 +283,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(-
       <button class="btn ghost" id="bMenuO" data-i18n="menu">Ana menü</button>
     </div>
     <p class="hint" id="overMissions"></p>
+    <p class="fact"><b data-i18n="didYou">Biliyor muydun?</b> <span id="oFact"></span></p>
   </div>
 </div>
 
@@ -332,7 +365,7 @@ const I18N = {
     paused: 'Duraklatıldı', over: 'Koşu bitti', loading: 'Yükleniyor… {n}/{m}', bestLine: 'En iyi skor: {n}',
     score: 'Skor', best: 'En iyi', dist: 'Mesafe', simit: 'Simit', combo: 'Kombo', stamina: 'Enerji',
     missions: 'Günlük görevler', highs: 'Yüksek skorlar',
-    hint: 'P duraklat · M müzik · X ses · L English · F tam ekran',
+    hint: 'P duraklat · N sessiz · M müzik · X ses · L English · F tam ekran',
     footer: 'Claude Game Arena · Claude Haiku 5.5 yaptı · varlıklar yenilendi',
     newBest: 'Yeni rekor!', steal: 'Sürü simitini çaldı!', shield: 'Kalkan tüyü! Bir çarpmayı emer',
     shieldUsed: 'Kalkan çarpmayı emdi!', hit: 'Çarpıştın!', tail: 'Kuyruk rüzgârı! Hız ve skor x1.5',
@@ -342,6 +375,11 @@ const I18N = {
     low: 'Düşük', high: 'Yüksek', fullscreen: 'Tam ekran', toggleFs: 'Aç / kapat', back: 'Geri',
     aPause: 'Duraklat (P)', aMusic: 'Müzik (M)', aSound: 'Ses efektleri (X)', aLang: 'Dil: English (L)', aSet: 'Ayarlar',
     tailChip: 'Kuyruk rüzgârı', goldChip: 'Altın simit x2', shieldChip: 'Kalkan hazır',
+    hSteer: 'Yön: fare, parmak ya da ok tuşları', hDive: 'Balık için Boşluk’u basılı tut ya da dokun',
+    hStamina: 'Enerji azalıyor: simit ye, enerjin dolsun', nestNeed: 'Yavruya simit lazım: önce bir simit taşı',
+    fed: 'Yavru beslendi! +1 tüy', mateHit: 'Yavru martı kanadıyla çarpmayı emdi!', pier: 'Balık sandığı! Enerji +35',
+    gust: 'Rüzgâr geliyor', gustChip: 'Rüzgâr', didYou: 'Biliyor muydun?', chickLine: 'Yavru: {s} · {n} besleme',
+    stages: ['Yumurta', 'Civciv', 'Tüylü yavru', 'Genç martı'], aMute: 'Sessiz (N)',
   },
   en: {
     tagline: 'A seagull run over the Bosphorus, hunting simit',
@@ -355,7 +393,7 @@ const I18N = {
     paused: 'Paused', over: 'Run over', loading: 'Loading… {n}/{m}', bestLine: 'Best score: {n}',
     score: 'Score', best: 'Best', dist: 'Distance', simit: 'Simit', combo: 'Combo', stamina: 'Stamina',
     missions: 'Daily missions', highs: 'High scores',
-    hint: 'P pause · M music · X sound · L Türkçe · F fullscreen',
+    hint: 'P pause · N mute · M music · X sound · L Türkçe · F fullscreen',
     footer: 'Claude Game Arena · built by Claude Haiku 5.5 · assets remastered',
     newBest: 'New record!', steal: 'The flock stole your simit!', shield: 'Shield feather! Blocks one hit',
     shieldUsed: 'The shield absorbed a hit!', hit: 'Hit!', tail: 'Tailwind! Speed and score x1.5',
@@ -365,8 +403,30 @@ const I18N = {
     low: 'Low', high: 'High', fullscreen: 'Fullscreen', toggleFs: 'On / off', back: 'Back',
     aPause: 'Pause (P)', aMusic: 'Music (M)', aSound: 'Sound effects (X)', aLang: 'Language: Türkçe (L)', aSet: 'Settings',
     tailChip: 'Tailwind', goldChip: 'Golden x2', shieldChip: 'Shield ready',
+    hSteer: 'Steer: mouse, finger or arrow keys', hDive: 'Hold Space or tap to dive for fish',
+    hStamina: 'Stamina is dropping: eat simit to refill it', nestNeed: 'The chick needs simit: carry one first',
+    fed: 'Chick fed! +1 feather', mateHit: 'The young gull took the hit on its wing!', pier: 'Fish crate! Stamina +35',
+    gust: 'Gust coming', gustChip: 'Gust', didYou: 'Did you know?', chickLine: 'Chick: {s} · {n} fed',
+    stages: ['Egg', 'Hatchling', 'Fluffy chick', 'Young gull'], aMute: 'Mute (N)',
   },
 };
+// Facts for the game-over card and the title line, shown in turn. Sources are in the comments (research pool, 2026-10-28).
+const FACTS = [
+  // https://doaj.org/article/5a69f0727604460889f1a554982883d6
+  { tr: 'İstanbul kıyılarında en yaygın tür sarıbacaklı martıdır (Larus michahellis).', en: 'The most common gull on Istanbul’s coasts is the yellow-legged gull (Larus michahellis).' },
+  // https://www.gzt.com/hayat/istanbulda-artan-marti-sesleri-uzmanlar-yavru-beslenme-donemine-dikkat-cekiyor-guncel-haberler-4239807
+  { tr: 'Martılar normalde ada ve kayalıklarda ürer; artık bina çatılarını da yuva alanı yapıyor.', en: 'Gulls normally breed on islands and rocks, but they now also nest on building roofs.' },
+  // https://www.gzt.com/hayat/istanbulda-artan-marti-sesleri-uzmanlar-yavru-beslenme-donemine-dikkat-cekiyor-guncel-haberler-4239807
+  { tr: 'Yumurtlama nisan-mayıs aylarındadır; kuluçka yaklaşık 28-30 gün sürer, yavru 40-50 günde uçar.', en: 'Eggs are laid in April and May; incubation lasts about 28-30 days and the chick flies after 40-50 days.' },
+  // https://www.gzt.com/hayat/istanbulda-artan-marti-sesleri-uzmanlar-yavru-beslenme-donemine-dikkat-cekiyor-guncel-haberler-4239807
+  { tr: 'Martıların beslenmesi balıktan çöpe ve sokağa bırakılan kedi-köpek mamasına kaymış; kolay yiyecek üreme başarısını artırıyor.', en: 'Gulls’ diet has shifted from fish to rubbish and street cat and dog food; easy food raises breeding success.' },
+  // https://en.wikipedia.org/wiki/Simit
+  { tr: '1593’te Üsküdar’da simidin ağırlığı ve fiyatı standartlaştırıldı.', en: 'In 1593 the weight and price of simit were standardised in Üsküdar.' },
+  // https://en.wikipedia.org/wiki/Simit
+  { tr: 'Evliya Çelebi 1630’larda İstanbul’da 70 simit fırını saydı.', en: 'In the 1630s Evliya Çelebi counted 70 simit bakeries in Istanbul.' },
+];
+const factText = (i) => FACTS[((i % FACTS.length) + FACTS.length) % FACTS.length][LANG];
+
 // ---------- settings and saves (arena.marti.*; old marti.* keys are read once and kept) ----------
 const KEY = { settings: 'arena.marti.settings', best: 'arena.marti.best', save: 'arena.marti.save' };
 const browserLang = (navigator.language || 'en').toLowerCase().startsWith('tr') ? 'tr' : 'en';
@@ -382,6 +442,8 @@ const SET = Object.assign({ master: 0.8, music: 0.6, sfx: 0.8, lang: browserLang
   })());
 if (LS.get(KEY.best, null) === null && LS.get('marti.highs', null)) LS.set(KEY.best, LS.get('marti.highs', []));
 if (LS.get(KEY.save, null) === null && LS.get('marti.missions', null)) LS.set(KEY.save, LS.get('marti.missions', null));
+// One save record: the daily missions (date, p, done) and what lasts across runs (chick feeds, hints seen, fact index).
+const META = Object.assign({ chick: 0, hints: {}, factIdx: 0 }, LS.get(KEY.save, null) || {});
 const saveSettings = () => LS.set(KEY.settings, SET);
 saveSettings();
 let LANG = Q.get('lang') === 'en' ? 'en' : Q.get('lang') === 'tr' ? 'tr' : SET.lang;
@@ -456,6 +518,8 @@ const M = {
   // fog:false so fireworks 140-240 units ahead are not fogged into the sky (fog starts at 110)
   fx: new THREE.PointsMaterial({ size: 0.8, vertexColors: true, sizeAttenuation: true, map: DOT, alphaTest: 0.05, transparent: true, depthWrite: false, fog: false }),
   fw: new THREE.PointsMaterial({ size: 4, vertexColors: true, sizeAttenuation: true, map: DOT, alphaTest: 0.05, transparent: true, depthWrite: false, fog: false }),
+  // soft white disc behind pickups (a billboard facing the camera, which looks along +z)
+  glow: new THREE.MeshBasicMaterial({ color: 0xffffff, map: DOT, transparent: true, opacity: 0.6, depthWrite: false, side: THREE.DoubleSide, fog: false }),
 };
 
 // ---------- geometry helpers ----------
@@ -528,9 +592,12 @@ const PWR_GEO = {
   tail: merge([part(new THREE.TorusGeometry(1.2, 0.16, 8, 24), '#34D399'), part(new THREE.SphereGeometry(0.4, 8, 6), '#D1FAE5')]),
   gold: merge([part(new THREE.TorusGeometry(1.1, 0.32, 8, 24), '#F59E0B'), part(new THREE.SphereGeometry(0.55, 8, 6), '#FDE68A')]),
   shield: merge([part(new THREE.ConeGeometry(0.45, 2.2, 6), '#E0F2FE', [0, 0, 0], [0, 0, 0]), part(new THREE.SphereGeometry(0.4, 8, 6), '#60A5FA', [0, -1.1, 0])]),
+  // Fish crate of the pier snack: a wooden box, a lid strip and two fish on top.
+  crate: merge([part(new THREE.BoxGeometry(1.5, 1.1, 1.5), '#92400E'), part(new THREE.BoxGeometry(1.6, 0.16, 1.6), '#FDE68A', [0, 0.6, 0]),
+    part(new THREE.SphereGeometry(0.3, 6, 4), '#9ED8EA', [-0.3, 0.9, 0], [0, 0, 0], [1, 0.6, 1.8]), part(new THREE.SphereGeometry(0.3, 6, 4), '#9ED8EA', [0.35, 0.9, 0.1], [0, 0, 0], [1, 0.6, 1.8])]),
 };
 // Power-up meshes (replaced by the generated models when they load).
-const PWR = { tail: { geo: PWR_GEO.tail, mat: M.vc }, gold: { geo: PWR_GEO.gold, mat: M.vc }, shield: { geo: PWR_GEO.shield, mat: M.vc } };
+const PWR = { tail: { geo: PWR_GEO.tail, mat: M.vc }, gold: { geo: PWR_GEO.gold, mat: M.vc }, shield: { geo: PWR_GEO.shield, mat: M.vc }, crate: { geo: PWR_GEO.crate, mat: M.vc } };
 const kiteGeo = new THREE.OctahedronGeometry(1, 0).scale(1.5, 1.5, 0.15);
 const stringGeo = new THREE.BoxGeometry(0.12, 1, 0.12).translate(0, 0.5, 0);
 // Hot-air balloon: envelope, four ropes and a basket (the instance colour tints all of it).
@@ -559,6 +626,14 @@ const minaretGeo = merge([
   part(new THREE.CylinderGeometry(0.42, 0.42, 0.4, 8), '#E9C46A', [0, 7.6, 0]),
   part(new THREE.ConeGeometry(0.4, 1.4, 8), '#2563EB', [0, 8.7, 0]),
 ]);
+// Rooftop nest with a chick (on a waterfront house), jetty post, and the soft disc behind pickups.
+const nestGeo = merge([
+  part(new THREE.TorusGeometry(0.55, 0.17, 6, 12), '#8B5A2B', [0, 0.12, 0], [Math.PI / 2, 0, 0]),
+  part(new THREE.SphereGeometry(0.27, 8, 6), '#F8FAFC', [0, 0.42, 0], [0, 0, 0], [1, 0.8, 1]),
+  part(new THREE.ConeGeometry(0.09, 0.26, 5), '#FACC15', [0, 0.44, 0.27], [Math.PI / 2, 0, 0]),
+]);
+const haloGeo = new THREE.PlaneGeometry(3.4, 3.4);
+const ringGeo = new THREE.RingGeometry(2.4, 2.9, 32);
 const cloudGeo = merge([
   part(new THREE.SphereGeometry(1.3, 8, 6), '#FFFFFF'),
   part(new THREE.SphereGeometry(1.0, 8, 6), '#FFFFFF', [1.4, 0.2, 0.2]),
@@ -694,7 +769,7 @@ function setInst(mesh, arr, n = arr.length, noColor = false) {
 }
 
 // Reused per-frame instance lists (no new arrays or objects per frame).
-const TMP = { kite: [], str: [], flock: [], simit: [], fish: [] };
+const TMP = { kite: [], str: [], flock: [], simit: [], fish: [], halo: [], mate: [] };
 const slot = (arr, i) => arr[i] || (arr[i] = { x: 0, y: 0, z: 0, r: 0 });
 
 const HOUSE_COLS = ['#F4A261', '#E76F51', '#2A9D8F', '#E9C46A', '#F5F5DC', '#E63946', '#8ECAE6', '#F1FAEE', '#FFB4A2', '#B5E48C'];
@@ -725,7 +800,17 @@ const IM = {
   flock: makeInst(rivalGeo, M.flock, 80),
   simit: makeInst(simitGeo, M.vc, 160),
   fish: makeInst(fishGeo, M.vc, 40),
+  halo: makeInst(haloGeo, M.glow, 200),
+  nest: makeInst(nestGeo, M.vc, 16),
+  post: makeInst(houseGeo, M.white, 80),
+  // the young gull that flies beside you from chick stage 4 (the rival flock shader, so it flaps)
+  mate: makeInst(rivalGeo, M.flock, 1),
 };
+// Tutorial ring around the first simit pattern of a player's first run.
+const tutMesh = new THREE.Mesh(ringGeo, new THREE.MeshBasicMaterial({ color: 0xFFFFFF, transparent: true, opacity: 0.85, side: THREE.DoubleSide, depthWrite: false, fog: false }));
+tutMesh.visible = false;
+scene.add(tutMesh);
+let tutRing = null;
 const flockPhase = new THREE.InstancedBufferAttribute(new Float32Array(80), 1).setUsage(THREE.DynamicDrawUsage);
 IM.flock.geometry.setAttribute('instPhase', flockPhase);
 
@@ -997,9 +1082,10 @@ const S = {
   tailT: 0, goldT: 0, shieldOn: false, inv: 0, simit: 0, fish: 0, powers: 0, steals: 0,
   tx: 0, tyBase: 12, diveHold: false, diveOff: 0, diveTimer: 0, gustX: 0, gustY: 0, shake: 0,
   overT: 0, cullT: 0, newBest: false, runs: [], draws: 0, fps: 0, assets: [],
+  carried: 0, feeds: 0, nearMiss: 0, nearCd: 0, piers: 0, mate: false, mateUsed: false,
+  gustAt: 0, gustWarned: false, gustDir: 1,
 };
 window.marti = S;
-if (FLAG.debug) window.martiDebug = { THREE, scene, camera, gull, G }; // for screenshot tests (camera placement while paused)
 S.G = G;
 let WT = 0;             // ambient clock for waves and animation (runs in every state)
 let simming = false;
@@ -1007,14 +1093,16 @@ let simming = false;
 // ---------- entities ----------
 let obsBoats = [], obsKites = [], obsBridges = [], obsStorms = [], flocks = [];
 let simits = [], fishes = [], powers = [];
-const PR_KEYS = ['house', 'roof', 'tree', 'dome', 'minaret', 'mbody', 'mosque', 'balloon', 'sky'];
+const PR_KEYS = ['house', 'roof', 'tree', 'dome', 'minaret', 'mbody', 'mosque', 'balloon', 'sky', 'nest', 'post'];
 const PR = { dirty: true };
 for (const k of PR_KEYS) PR[k] = [];
 let specials = [];
-let nextBandZ = 0, nextPatZ = 90, nextBridgeZ = 900;
+let nextBandZ = 0, nextPatZ = 90, nextBridgeZ = 900, nextNestZ = 700;
 
 function baseSpeed(t) { return 27 + 31 * (1 - Math.exp(-t / 70)); }
 function diffK() { return clamp((S.t - 30) / 150, 0, 1); }
+// Late-run ramp: 0 until 180 s, 1 at 420 s (storm clouds, kite pairs, faster hostile flocks, gust warnings).
+function lateK() { return clamp((S.t - 180) / 240, 0, 1); }
 function scoreMult() { return (S.tailT > 0 ? 1.5 : 1) * (S.goldT > 0 ? 2 : 1); }
 function comboMult() { return 1 + Math.min(4, Math.floor(S.combo / 4)); }
 
@@ -1079,6 +1167,8 @@ function patSpacing() { return lerp(52, 24, diffK()) * rnd(0.8, 1.25); }
 function spawnPattern(z) {
   const early = S.t < 30;
   const r = Math.random();
+  if (!early && Math.random() < 0.1) return pierPattern(z);
+  if (lateK() > 0 && Math.random() < 0.15 * lateK()) return stormPattern(z);
   if (r < 0.26) return simitPattern(z);
   if (r < 0.34) return fishPattern(z);
   if (r < 0.60) return shipPattern(z);
@@ -1095,6 +1185,27 @@ function simitPattern(z) {
   } else {
     for (let i = 0; i < 5; i++) simits.push({ x, y: rnd(4.5, 6), z: z + i * 3.6, ph: rnd(0, TAU) });
   }
+  // The first simit pattern of a player's first run gets a pulsing ring (see updateVisuals).
+  if (!tutRing && !META.hints.ring && S.state === 'playing' && !S.attract && !FLAG.auto && !simming) {
+    META.hints.ring = 1; msDirty = true;
+    tutRing = { x, y: simits[simits.length - 1].y, z: z + 8 };
+  }
+}
+// Pier snacks: a row of simit and a fish crate over the water beside a jetty post. Hugging the edge low into a post costs
+// a feather; the crate refills stamina by 35 in total.
+function pierPattern(z) {
+  const side = Math.random() < 0.5 ? -1 : 1, x = side * 19;
+  for (let i = 0; i < 4; i++) simits.push({ x, y: 8.5, z: z + i * 3.4, ph: rnd(0, TAU) });
+  powers.push({ type: 'crate', x, y: 9.6, z: z + 15.5, ph: rnd(0, TAU), mesh: null, dead: false });
+  for (const dz of [-1, 13]) PR.post.push({ x: side * 20.8, y: 0, z: z + dz, sx: 0.9, sy: 4.2, sz: 0.9, c: '#7C2D12' });
+  S.piers++; PR.dirty = true;
+}
+// Rooftop nest on a waterfront house at the corridor edge (the gull reaches it from the air, see checkNests).
+function spawnNest(z) {
+  const side = Math.random() < 0.5 ? -1 : 1, x = side * rnd(31, 33), y = terrH(x, z);
+  PR.house.push({ x, y, z, sx: 3, sy: 3.2, sz: 3, c: pick(HOUSE_COLS) });
+  PR.nest.push({ x, y: y + 3.2, z, sx: 1, sy: 1, sz: 1, c: '#FFFFFF', fed: false, told: false });
+  PR.dirty = true;
 }
 function fishPattern(z) {
   const n = 2 + ((Math.random() * 2) | 0);
@@ -1123,7 +1234,7 @@ function shipPattern(z) {
 }
 function kitePattern(z) {
   const side = Math.random() < 0.5 ? -1 : 1;
-  const n = 1 + ((Math.random() * 2) | 0);
+  const n = lateK() > 0 ? 2 : 1 + ((Math.random() * 2) | 0); // late run: kites in pairs
   for (let i = 0; i < n; i++) {
     obsKites.push({ x: side * rnd(14, 21), cx: 0, y: rnd(14, 28), z: z + i * rnd(12, 30), ph: rnd(0, TAU), c: pick(KITE_COLS) });
   }
@@ -1132,7 +1243,7 @@ function flockPattern(z) {
   const hostile = Math.random() < 0.6;
   const back = hostile ? 1 : -1; // followers trail behind the leader, against the flight direction
   flocks.push({
-    x: rnd(-12, 12), y: rnd(6, 22), z: hostile ? z + 40 : z - 20, vz: hostile ? -9 : 9, hostile, ph: rnd(0, TAU),
+    x: rnd(-12, 12), y: rnd(6, 22), z: hostile ? z + 40 : z - 20, vz: hostile ? -9 * (1 + 0.2 * lateK()) : 9, hostile, ph: rnd(0, TAU),
     members: [{ ox: 0, oy: 0, oz: 0 }, { ox: -2.2, oy: 1, oz: 2.5 * back }, { ox: 2.2, oy: 1, oz: 2.5 * back }, { ox: -4.4, oy: 2, oz: 5 * back }],
   });
 }
@@ -1171,7 +1282,8 @@ function clearWorld() {
   obsBoats = []; obsKites = []; obsBridges = []; obsStorms = []; flocks = []; simits = []; fishes = []; powers = []; specials = [];
   for (const k of PR_KEYS) PR[k] = [];
   PR.dirty = true;
-  nextBandZ = 0; nextPatZ = 90; nextBridgeZ = 900;
+  nextBandZ = 0; nextPatZ = 90; nextBridgeZ = 900; nextNestZ = 700;
+  tutRing = null;
 }
 
 // ---------- collisions ----------
@@ -1189,6 +1301,10 @@ function checkHits() {
   for (const o of obsBoats) {
     if (Math.abs(d - o.z) > 25) continue;
     for (const b of BOAT_BOXES[o.type]) if (hitBox(o.x + b.ox, b.y0, b.y1, o.z + b.oz, b.hw, b.hd)) return hitPlayer();
+  }
+  for (const p of PR.post) {
+    if (Math.abs(d - p.z) > 4) continue;
+    if (hitBox(p.x, p.y, p.y + p.sy, p.z, 0.45, 0.45)) return hitPlayer();
   }
   for (const k of obsKites) {
     if (Math.abs(d - k.z) > 4) continue;
@@ -1214,9 +1330,38 @@ function checkHits() {
       if (Math.random() < 0.5) fxSpawn(G.x + rnd(-6, 6), G.y + rnd(2, 8), S.d + rnd(-2, 4), 0, -18, 0, '#93C5FD', 0.5, 4);
     }
   }
+  nearMissCheck(); // reached only when nothing above hit the gull
+}
+// Near miss: the gull passes a hull, a mast, a kite or a cable within 1.5 units without touching it. Cooldown 1 s.
+function nearBox(bx, y0, y1, bz, hw, hd) {
+  return Math.abs(G.x - bx) < hw + GX + 1.5 && G.y + GY > y0 - 1.5 && G.y - GY < y1 + 1.5 && Math.abs(S.d - bz) < hd + GZ + 1.5;
+}
+function nearMissCheck() {
+  if (S.state !== 'playing' || S.nearCd > 0) return;
+  const d = S.d;
+  let near = false;
+  for (const o of obsBoats) {
+    if (near || Math.abs(d - o.z) > 25) continue;
+    for (const b of BOAT_BOXES[o.type]) if (nearBox(o.x + b.ox, b.y0, b.y1, o.z + b.oz, b.hw, b.hd)) { near = true; break; }
+  }
+  for (const k of obsKites) if (!near && Math.abs(d - k.z) < 4 && nearBox(k.cx, k.y - 1.6, k.y + 1.6, k.z, 1.6, 1.4)) near = true;
+  for (const b of obsBridges) {
+    if (!near && Math.abs(d - b.z) < 3.1 + GZ + 1.5 && Math.abs(G.x) <= BR.towerX && Math.abs(G.y - cableY(G.x)) < 1.5 + GY + 1.5) near = true;
+  }
+  if (!near) return;
+  S.nearMiss++; S.nearCd = 1; S.score += 25; S.shake = Math.max(S.shake, 0.35);
+  sfxWhoosh();
+  floatText(G.x, G.y + 2, d, '+25');
 }
 function hitPlayer() {
   if (S.attract || S.inv > 0) return;
+  if (S.mate && !S.mateUsed) { // the young gull takes one hit per run
+    S.mateUsed = true; S.inv = 1.2;
+    toast(tx('mateHit'), 'good');
+    fxBurst(G.x - Math.sign(G.x || 1) * 3, G.y, S.d, '#FFFFFF', 18, 5, 1.4, 3); // feathers falling from its wing
+    sfxHit(0.3);
+    return;
+  }
   if (S.shieldOn) {
     S.shieldOn = false; S.inv = 1.2;
     toast(tx('shieldUsed'), 'good');
@@ -1232,7 +1377,9 @@ function hitPlayer() {
   if (S.lives <= 0) gameOver('crash');
 }
 function stealFood(x, y, z) {
-  S.stamina -= 18; S.combo = 0; S.comboT = 0; S.steals++;
+  // A carried simit goes first; with none in the beak, the flock takes stamina.
+  if (S.carried > 0) S.carried--; else S.stamina -= 18;
+  S.combo = 0; S.comboT = 0; S.steals++;
   fxBurst(x, y, z, '#F59E0B', 12, 6, 0.7, 6);
   toast(tx('steal'), 'bad');
   sfxSteal();
@@ -1263,6 +1410,31 @@ function checkPickups() {
     }
   }
 }
+// Feeding: fly low past a rooftop nest with a simit in the beak. Without one, the chick asks for simit once.
+function checkNests() {
+  for (const n of PR.nest) {
+    if (n.fed || Math.abs(n.z - S.d) > 4.5 || Math.abs(G.x - n.x) > 14 || G.y > n.y + 7) continue;
+    if (S.carried === 0) {
+      if (!n.told) { n.told = true; toast(tx('nestNeed'), 'info'); }
+      continue;
+    }
+    n.fed = true; n.c = '#FFF3C4'; PR.dirty = true;
+    S.carried--; S.feeds++; S.score += 150; S.lives = Math.min(3, S.lives + 1);
+    META.chick++; msDirty = true;
+    missionsFlush(); // the chick count is saved at once: the run may end before the next game-over flush
+    sfxChirp();
+    fxBurst(n.x, n.y + 0.6, n.z, '#FDE68A', 14, 6, 0.8, 5);
+    floatText(n.x, n.y + 2, n.z, '+150');
+    toast(tx('fed'), 'good');
+  }
+}
+// Chick stage from the feeds saved over all runs: 1 egg, 2 hatchling (5 feeds), 3 fluffy (15), 4 young gull (30).
+// ?chick=N forces a stage for screenshot tests (?chick=4 brings the young gull along).
+function chickStage() {
+  if (Q.has('chick')) return clamp(+Q.get('chick') || 1, 1, 4);
+  const c = META.chick;
+  return c >= 30 ? 4 : c >= 15 ? 3 : c >= 5 ? 2 : 1;
+}
 function fishY(f, u) {
   return u <= 1 ? f.peak * Math.sin((u * Math.PI) / 2) : f.peak * Math.cos(((u - 1) * Math.PI) / 2);
 }
@@ -1274,6 +1446,8 @@ function bumpCombo() {
 function collectSimit(x, y, z) {
   bumpCombo();
   S.simit++;
+  S.carried = Math.min(2, S.carried + 1); // one simit stays in the beak for a chick
+  if (tutRing && Math.abs(z - tutRing.z) < 14) tutRing = null;
   const pts = Math.round(10 * comboMult() * scoreMult());
   S.score += pts;
   S.stamina = Math.min(100, S.stamina + 6);
@@ -1301,6 +1475,7 @@ function collectPower(p) {
   if (p.type === 'tail') { S.tailT = 8; toast(tx('tail'), 'good'); }
   if (p.type === 'gold') { S.goldT = 12; S.score += 50; toast(tx('gold'), 'good'); }
   if (p.type === 'shield') { S.shieldOn = true; toast(tx('shield'), 'good'); }
+  if (p.type === 'crate') { S.stamina = Math.min(100, S.stamina + 25); toast(tx('pier'), 'good'); } // +10 above, +35 in all
   fxBurst(p.x, p.y, p.z, p.type === 'shield' ? '#E0F2FE' : p.type === 'gold' ? '#FBBF24' : '#6EE7B7', 26, 10, 0.9, 4);
   sfxWhoosh();
   if (p.mesh) scene.remove(p.mesh);
@@ -1325,6 +1500,7 @@ function simStep(dt) {
   // Controls: keyboard and pointer when playing, the bot in attract mode and with ?auto.
   if (A || (FLAG.auto && !FLAG.run)) botThink(dt);
   else keyControls(dt);
+  S.nearCd = Math.max(0, S.nearCd - dt);
 
   // Gull steering: target follows the pointer or keys; diving pushes the target down.
   const diving = S.diveHold || S.diveTimer > 0;
@@ -1368,8 +1544,13 @@ function simStep(dt) {
     checkHits();
     if (S.state !== 'playing') return; // a hit or a steal ended the run: nothing may change the saved score
     checkPickups();
+    checkNests();
+    if (lateK() > 0) gustTick();
+    if (S.t >= 1 && !META.hints.steer) hintOnce('steer', tx('hSteer'));
+    if (!META.hints.dive && fishes.some((f) => !f.dead && (S.d - f.zs) / f.D > 0.05 && (S.d - f.zs) / f.D < 1)) hintOnce('dive', tx('hDive'));
     if (S.stamina > 0) {
       S.stamina -= (2.2 + S.t * 0.01) * dt * (diving ? 1.3 : 1);
+      if (S.stamina < 45 && !META.hints.stamina) hintOnce('stamina', tx('hStamina'));
       if (S.stamina <= 0) { S.stamina = 0; gameOver('energy'); }
     }
     if (S.state === 'playing' && Math.random() < dt * 0.1) sfxCall();
@@ -1418,6 +1599,8 @@ function updateVisuals(dt) {
       setInst(IM.minaret, PR.minaret);
     }
     setInst(IM.sky, PR.sky);
+    setInst(IM.nest, PR.nest);
+    setInst(IM.post, PR.post);
   }
   for (const b of PR.balloon) b.y = b.y0 + Math.sin(WT * 0.7 + b.ph) * 0.6;
   setInst(IM.balloon, PR.balloon);
@@ -1461,6 +1644,7 @@ function updateVisuals(dt) {
   const behind = S.d - 3;
   for (const s of simits) { if (s.dead || s.z < behind) continue; const o = slot(TMP.simit, n++); o.x = s.x; o.y = s.y + Math.sin(WT * 3 + s.ph) * 0.3; o.z = s.z; o.r = WT * 1.6 + s.ph; }
   setInst(IM.simit, TMP.simit, n);
+  const nSimit = n;
   n = 0;
   for (const f of fishes) {
     const u = (S.d - f.zs) / f.D;
@@ -1470,8 +1654,12 @@ function updateVisuals(dt) {
     o.rx = -0.9 * Math.cos((clamp(u, 0, 2) * Math.PI) / 2); // nose up while rising, down while falling
   }
   setInst(IM.fish, TMP.fish, n);
+  const nFish = n;
 
   // Powers: create meshes on demand, spin them.
+  let h = 0; // halos: one disc behind each visible simit, fish and power-up, pulsing a little
+  for (let i = 0; i < nSimit; i++) { const s = TMP.simit[i], o = slot(TMP.halo, h++); o.x = s.x; o.y = s.y; o.z = s.z - 0.3; o.sx = o.sy = 1.1 + 0.1 * Math.sin(WT * 4 + i); }
+  for (let i = 0; i < nFish; i++) { const f = TMP.fish[i], o = slot(TMP.halo, h++); o.x = f.x; o.y = f.y; o.z = f.z - 0.3; o.sx = o.sy = 1.2; }
   for (const p2 of powers) {
     if (!p2.mesh && !p2.dead) {
       p2.mesh = new THREE.Mesh(PWR[p2.type].geo, PWR[p2.type].mat);
@@ -1482,8 +1670,20 @@ function updateVisuals(dt) {
       p2.mesh.position.set(p2.x, p2.y + Math.sin(WT * 2.2 + p2.ph) * 0.4, p2.z);
       p2.mesh.visible = p2.z > behind;
       p2.mesh.rotation.y = WT * 2 + p2.ph;
+      if (p2.mesh.visible && !p2.dead) { const o = slot(TMP.halo, h++); o.x = p2.x; o.y = p2.y; o.z = p2.z - 0.3; o.sx = o.sy = 1.4; }
     }
   }
+  setInst(IM.halo, TMP.halo, h, true);
+
+  // The young gull (chick stage 4) flies beside the gull, flapping like the flock.
+  const mate = TMP.mate[0] || (TMP.mate[0] = { x: 0, y: 0, z: 0, c: '#FFF4D6' });
+  mate.x = G.x - Math.sign(G.x || 1) * 3; mate.y = G.y + 0.8; mate.z = S.d - 1.2;
+  setInst(IM.mate, TMP.mate, S.mate && S.state === 'playing' ? 1 : 0);
+
+  // The first-run ring pulses around the first simit pattern, until it is passed or a simit is taken.
+  if (tutRing && S.d > tutRing.z + 8) tutRing = null;
+  tutMesh.visible = !!tutRing;
+  if (tutRing) { tutMesh.position.set(tutRing.x, tutRing.y, tutRing.z); tutMesh.scale.setScalar(1 + 0.12 * Math.sin(WT * 6)); }
   // Storms: create meshes on demand.
   for (const s of obsStorms) {
     if (!s.mesh) { s.mesh = new THREE.Mesh(stormGeo, M.vc); scene.add(s.mesh); }
@@ -1581,6 +1781,7 @@ window.addEventListener('keydown', (e) => {
   }
   if (e.code === 'Enter' && !onButton && ((S.state === 'title' && assetsReady) || S.state === 'over')) { startRun(); return; }
   if (e.code === 'KeyP' || e.code === 'Escape') togglePause();
+  if (e.code === 'KeyN') toggleMute();
   if (e.code === 'KeyM') toggleMusic();
   if (e.code === 'KeyX') toggleSfx();
   if (e.code === 'KeyL') setLang(LANG === 'tr' ? 'en' : 'tr');
@@ -1654,6 +1855,7 @@ function botThink(dt) {
   for (const b of obsBridges) for (const bx of BRIDGE_BOXES) boxes.push({ x: bx.x, y0: bx.y0, y1: bx.y1, z: b.z, hw: bx.hw, hd: bx.hd });
   for (const b of obsBridges) boxes.push({ x: 0, y0: 25.5, y1: 29, z: b.z, hw: BR.towerX, hd: 3.1 });
   for (const k of obsKites) boxes.push({ x: k.cx, y0: k.y - 1.6, y1: k.y + 1.6, z: k.z, hw: 1.6, hd: 1.4 });
+  for (const p of PR.post) boxes.push({ x: p.x, y0: p.y, y1: p.y + p.sy, z: p.z, hw: 0.45, hd: 0.45 });
   for (const f of flocks) if (f.hostile) for (const m of f.members) boxes.push({ x: f.x + m.ox, y0: f.y + m.oy - 1.5, y1: f.y + m.oy + 1.5, z: f.z + m.oz, hw: 2.2, hd: 2.2 });
   const picks = [];
   for (const s of simits) if (!s.dead && s.z - d > -2 && s.z - d < 90) picks.push({ x: s.x, y: s.y, w: -22 });
@@ -1661,13 +1863,21 @@ function botThink(dt) {
   for (const p of powers) if (!p.dead && p.z - d > -2 && p.z - d < 90) picks.push({ x: p.x, y: p.y, w: -35 });
   const ysExtra = picks.map((p) => clamp(p.y, YMIN, YMAX));
   const ys = CAND_Y.concat(ysExtra);
-  for (const x of CAND_X) {
+  // Tight lanes: the near-miss band is 0.5-1.5 units outside a hull, and the even CAND_X grid skips it.
+  // A small bonus makes the bot take a tight lane past a nearby hull when it costs about as much as an open one.
+  const lanes = CAND_X.map((x) => ({ x, r: 0 }));
+  for (const b of boxes) {
+    const ahead = b.z - d;
+    if (ahead < -2 || ahead > 25 || b.hw < 1) continue;
+    for (const sx of [-1, 1]) lanes.push({ x: clamp(b.x + sx * (b.hw + GX + 0.75), -CORR, CORR), r: -3 });
+  }
+  for (const { x, r } of lanes) {
     for (const y of ys) {
-      let cost = 0;
+      let cost = r;
       for (const b of boxes) {
         const ahead = b.z - d;
         if (ahead < -4 || ahead > 70) continue;
-        if (Math.abs(x - b.x) < b.hw + 2.6 && y + 1.6 > b.y0 && y - 1.6 < b.y1) cost += 1000 / (1 + Math.max(0, ahead) / 12);
+        if (Math.abs(x - b.x) < b.hw + GX + 0.5 && y + 1.6 > b.y0 && y - 1.6 < b.y1) cost += 1000 / (1 + Math.max(0, ahead) / 12);
       }
       for (const p of picks) {
         if (Math.abs(x - p.x) < 3 && Math.abs(y - p.y) < 3) cost += p.w;
@@ -1691,6 +1901,9 @@ function startRun() {
   S.tailT = 0; S.goldT = 0; S.shieldOn = false; S.inv = 0; S.simit = 0; S.fish = 0; S.powers = 0; S.steals = 0;
   S.tx = 0; S.tyBase = 12; S.diveHold = false; S.diveOff = 0; S.diveTimer = 0; S.gustX = 0; S.gustY = 0; S.shake = 0;
   S.overT = 0; S.cullT = 0; S.newBest = false; S.autoT = 0;
+  S.carried = 0; S.feeds = 0; S.nearMiss = 0; S.nearCd = 0; S.piers = 0; S.mateUsed = false;
+  S.mate = chickStage() === 4; // from chick stage 4 the young gull flies along in every run
+  S.gustAt = 0; S.gustWarned = false;
   if (Q.has('t0')) S.t = +Q.get('t0') || 0; // test hook: start later in the day (e.g. ?t0=150 for night)
   G.x = 0; G.y = 12; G.bank = 0;
   S.state = 'playing';
@@ -1706,6 +1919,7 @@ function spawnAhead() {
   while (nextBandZ < S.d + LOOK) { spawnShoreBand(nextBandZ); nextBandZ += 40; }
   while (nextPatZ < S.d + LOOK) { spawnPattern(nextPatZ); nextPatZ += patSpacing(); }
   while (nextBridgeZ < S.d + LOOK) { spawnBridge(nextBridgeZ); nextBridgeZ += rnd(520, 780); }
+  while (nextNestZ < S.d + LOOK) { spawnNest(nextNestZ); nextNestZ += rnd(700, 900); }
 }
 function gameOver(reason) {
   if (S.state !== 'playing') return;
@@ -1713,7 +1927,8 @@ function gameOver(reason) {
   S.attract = true;
   S.overT = 0;
   S.combo = 0;
-  const run = { score: Math.round(S.score), dist: Math.round(S.d), simit: S.simit, fish: S.fish, combo: S.runCombo, t: +S.t.toFixed(1), reason };
+  const run = { score: Math.round(S.score), dist: Math.round(S.d), simit: S.simit, fish: S.fish, combo: S.runCombo, t: +S.t.toFixed(1), reason, fact: META.factIdx % FACTS.length };
+  META.factIdx++; // the next game-over card shows the next fact
   S.runs.push(run);
   if (S.runs.length > 50) S.runs.shift();
   const best = bestScore();
@@ -1755,8 +1970,7 @@ function dailyIds() {
 }
 let MS = null;
 function missionsLoad() {
-  const saved = LS.get(KEY.save, null);
-  if (saved && saved.date === dayKey()) MS = saved;
+  if (META.date === dayKey() && META.p) MS = { date: META.date, p: META.p, done: META.done || {} };
   else MS = { date: dayKey(), p: {}, done: {} };
 }
 let msDirty = false;
@@ -1784,7 +1998,10 @@ function missionCheck(id) {
   }
   msDirty = true;
 }
-function missionsFlush() { if (MS) LS.set(KEY.save, MS); msDirty = false; }
+function missionsFlush() {
+  if (MS) Object.assign(META, { date: MS.date, p: MS.p, done: MS.done });
+  LS.set(KEY.save, META); msDirty = false;
+}
 
 // ---------- audio (Web Audio: synthesized music and sound effects) ----------
 const AU = { ctx: null, bus: null, mus: null, sfx: null, noise: null, step: 0, next: 0, timer: null, intensity: 0 };
@@ -1897,6 +2114,12 @@ function sfxCall() {
   tone('triangle', 900, 1500, 0.12, 0.18, t);
   tone('triangle', 1500, 1100, 0.2, 0.16, t + 0.13);
 }
+function sfxChirp() {
+  if (!AU.ctx || !AU.on.sfx) return;
+  const t = AU.ctx.currentTime;
+  tone('triangle', 1800, 2600, 0.08, 0.14, t);
+  tone('triangle', 2400, 1900, 0.1, 0.12, t + 0.1);
+}
 function sfxHorn() {
   if (!AU.ctx || !AU.on.sfx) return;
   const t = AU.ctx.currentTime;
@@ -1949,6 +2172,15 @@ function toggleMusic() {
   applyVolumes();
   renderToggles();
 }
+// Master speaker (N): drops the master volume to 0 and brings back the level it had.
+function toggleMute() {
+  ensureAudio();
+  if (SET.master > 0) { SET.unmuteTo = SET.master; SET.master = 0; }
+  else SET.master = SET.unmuteTo || 0.8;
+  applyVolumes();
+  saveSettings();
+  renderToggles();
+}
 function toggleSfx() {
   AU.on.sfx = !AU.on.sfx;
   SET.sfxOn = AU.on.sfx; saveSettings();
@@ -1967,11 +2199,14 @@ const ICON = {
   gear: svg('<circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v2.6M12 18.6v2.6M2.8 12h2.6M18.6 12h2.6M5.5 5.5l1.8 1.8M16.7 16.7l1.8 1.8M5.5 18.5l1.8-1.8M16.7 7.3l1.8-1.8"/>'),
   check: '<svg class="simit-i" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#34D399" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"/></svg> ',
 };
+// Gust arrow for the chip: the same arrow glyph, mirrored for the direction.
+const ARROW = (dir) => '<svg class="simit-i" viewBox="0 0 24 24" aria-hidden="true" style="transform:scaleX(' + dir + ')" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16M14 6l6 6-6 6"/></svg> ';
 // Simit: a gold ring with sesame dots.
 const SIMIT_SVG = '<svg class="simit-i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7.5" fill="none" stroke="#D08A3A" stroke-width="5"/><g fill="#FFF3D6"><circle cx="12" cy="5" r="1"/><circle cx="18" cy="9" r="1"/><circle cx="17.5" cy="16" r="1"/><circle cx="11" cy="19" r="1"/><circle cx="5.5" cy="15" r="1"/><circle cx="6" cy="8" r="1"/></g></svg>';
 const FEATHER = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#FDE68A" d="M20.5 3.5c-5.6 0-11.2 3.8-12.6 9.1L6 17.5l-2.5 3 1 .6 3.1-1.4c4.5-.5 8-4.8 8-9.7 0-2.3-.3-4.5 1.3-6.5z"/></svg>';
 for (const b of document.querySelectorAll('[data-icon]')) b.innerHTML = ICON[b.dataset.icon];
 $('#bLang').insertAdjacentHTML('beforeend', '<span class="code"></span>');
+$('#bMute').insertAdjacentHTML('beforeend', '<span class="code">N</span>');
 
 function renderLives() {
   const el = $('#lives');
@@ -1983,9 +2218,10 @@ function renderLives() {
 function renderToggles() {
   $('#bMusic').classList.toggle('off', !AU.on.music);
   $('#bSfx').classList.toggle('off', !AU.on.sfx);
+  $('#bMute').classList.toggle('off', SET.master === 0);
   $('#bLang .code').textContent = LANG === 'tr' ? 'EN' : 'TR';
   $('#bLangT').textContent = LANG === 'tr' ? 'English' : 'Türkçe';
-  const aria = { bPause: 'aPause', bMusic: 'aMusic', bSfx: 'aSound', bLang: 'aLang', bSet: 'aSet' };
+  const aria = { bPause: 'aPause', bMute: 'aMute', bMusic: 'aMusic', bSfx: 'aSound', bLang: 'aLang', bSet: 'aSet' };
   for (const id in aria) { const b = $('#' + id); b.setAttribute('aria-label', tx(aria[id])); b.title = tx(aria[id]); }
   $('#bMusic').setAttribute('aria-pressed', String(AU.on.music));
   $('#bSfx').setAttribute('aria-pressed', String(AU.on.sfx));
@@ -2005,7 +2241,8 @@ function applyLang() {
   renderHighList();
   renderToggles();
   renderOverMissions();
-  if (lastRun) $('#overReason').textContent = tx(lastRun.reason);
+  if (lastRun) { $('#overReason').textContent = tx(lastRun.reason); $('#oFact').textContent = factText(lastRun.fact); }
+  renderTitle();
   if (S.state === 'over') $('#newBest').textContent = S.newBest ? tx('newBest') : '';
   if (S.state === 'playing' || S.state === 'paused') renderChips();
 }
@@ -2040,6 +2277,7 @@ function renderChips() {
   if (S.goldT > 0) chips.push(['on', tx('goldChip') + ' ' + Math.ceil(S.goldT) + 's']);
   if (S.shieldOn) chips.push(['on', tx('shieldChip')]);
   if (S.combo >= 4) chips.push(['', 'x' + comboMult() + ' · ' + S.combo]);
+  if (S.gustWarned && S.t < S.gustAt) chips.push(['on', ARROW(-S.gustDir) + tx('gustChip')]);
   const el = $('#chips');
   const sig = chips.map((c) => c[1]).join('|');
   if (el.dataset.sig !== sig) {
@@ -2057,6 +2295,24 @@ function toast(text, kind) {
   box.appendChild(el);
   while (box.children.length > 3) box.firstElementChild.remove();
   setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 480); }, 2200);
+}
+// First-run prompts: each shows once and is remembered in META.hints. The bot (?auto) and the sim never use up a prompt.
+function hintOnce(key, text) {
+  if (simming || FLAG.auto || META.hints[key]) return;
+  META.hints[key] = 1; msDirty = true;
+  toast(text, 'info');
+}
+// Late-run gusts: a warning chip and a toast 2 s ahead, then a sideways push (S.gustX, see checkHits for storms).
+function gustTick() {
+  if (!S.gustAt) S.gustAt = S.t + 12;
+  if (!S.gustWarned && S.t >= S.gustAt - 2) {
+    S.gustWarned = true; S.gustDir = Math.random() < 0.5 ? -1 : 1;
+    toast(tx('gust'), 'info');
+  }
+  if (S.t >= S.gustAt) {
+    S.gustX += S.gustDir * 9;
+    S.gustAt = S.t + rnd(10, 14); S.gustWarned = false;
+  }
 }
 // "+points" text at the pickup's world position, projected to the screen.
 function floatText(x, y, z, text) {
@@ -2079,7 +2335,7 @@ function setScreen(mode, run, isNew) {
   $('#pause').classList.toggle('hidden', mode !== 'paused');
   $('#over').classList.toggle('hidden', mode !== 'over');
   hud.classList.toggle('hidden', mode === 'title' || mode === 'over');
-  if (mode === 'title') { renderMissionList(); renderHighList(); $('#chips').innerHTML = ''; $('#toasts').innerHTML = ''; }
+  if (mode === 'title') { renderMissionList(); renderHighList(); renderTitle(); $('#chips').innerHTML = ''; $('#toasts').innerHTML = ''; }
   if (mode === 'over' && run) {
     lastRun = run;
     $('#overReason').textContent = tx(run.reason);
@@ -2088,6 +2344,7 @@ function setScreen(mode, run, isNew) {
     $('#oDist').textContent = fmtDist(run.dist);
     $('#oSimit').textContent = run.simit;
     $('#newBest').textContent = isNew ? tx('newBest') : '';
+    $('#oFact').textContent = factText(run.fact);
     renderOverMissions();
     renderHighList();
   }
@@ -2100,6 +2357,22 @@ function setScreen(mode, run, isNew) {
   }
 }
 function fmtDist(m) { return m >= 1000 ? (m / 1000).toFixed(2) + ' ' + tx('km') : Math.round(m) + ' ' + tx('m'); }
+// Title: the chick's nest for its current stage, and the next "did you know" fact.
+const NEST_SVG = [
+  // 1 egg, speckled
+  '<ellipse cx="38" cy="47" rx="27" ry="7" fill="#8B5A2B"/><ellipse cx="38" cy="36" rx="12" ry="15" fill="#F5F0E1" stroke="#CBBBA0" stroke-width="1.5"/><circle cx="34" cy="31" r="1.6" fill="#B7A27A"/><circle cx="41" cy="40" r="1.8" fill="#B7A27A"/>',
+  // 2 hatchling: wet and small, eyes shut
+  '<ellipse cx="38" cy="47" rx="27" ry="7" fill="#8B5A2B"/><circle cx="38" cy="40" r="10" fill="#E9D9A6"/><path d="M33 39h4M40 39h4" stroke="#7C5A2B" stroke-width="1.6" stroke-linecap="round"/><path d="M46 41l5 2-5 2z" fill="#FACC15"/>',
+  // 3 fluffy chick: grey down
+  '<ellipse cx="38" cy="47" rx="27" ry="7" fill="#8B5A2B"/><circle cx="38" cy="36" r="14" fill="#CBD5E1"/><circle cx="31" cy="42" r="6" fill="#E2E8F0"/><circle cx="45" cy="42" r="6" fill="#E2E8F0"/><circle cx="41" cy="29" r="3" fill="#111827"/><path d="M50 33l5 2-5 2z" fill="#FACC15"/>',
+  // 4 young gull: white with grey wing tips and a yellow beak
+  '<ellipse cx="38" cy="48" rx="27" ry="6" fill="#8B5A2B"/><ellipse cx="38" cy="37" rx="13" ry="9" fill="#F8FAFC"/><path d="M27 34l-12-4 10 10z" fill="#9AA6B2"/><path d="M49 34l12-4-10 10z" fill="#9AA6B2"/><circle cx="46" cy="29" r="5" fill="#F8FAFC"/><circle cx="47.5" cy="28" r="1.2" fill="#111827"/><path d="M51 29l6 2-6 2z" fill="#FACC15"/>',
+];
+function renderTitle() {
+  const st = chickStage();
+  $('#titleFact').textContent = factText(META.factIdx);
+  $('#nestCard').innerHTML = '<svg viewBox="0 0 76 56" aria-hidden="true">' + NEST_SVG[st - 1] + '</svg><span>' + tx('chickLine', { s: I18N[LANG].stages[st - 1], n: META.chick }) + '</span>';
+}
 let hudT = 0;
 function updateHud(dt) {
   hudT -= dt;
@@ -2114,6 +2387,7 @@ function updateHud(dt) {
   const st = $('#stamina');
   st.classList.toggle('low', S.stamina < 25);
   $('#stBar').style.transform = 'scaleX(' + clamp(S.stamina / 100, 0, 1).toFixed(3) + ')';
+  if ($('#carry').dataset.k !== String(S.carried)) { $('#carry').dataset.k = String(S.carried); $('#carry').innerHTML = SIMIT_SVG.repeat(S.carried); }
   if (playing) renderChips();
   if (msDirty && S.state === 'playing' && Math.random() < 0.5) missionsFlush();
 }
@@ -2126,6 +2400,7 @@ function updateDebug() {
     'tail ' + S.tailT.toFixed(1) + '  gold ' + S.goldT.toFixed(1) + '  shield ' + S.shieldOn + '  runs ' + S.runs.length,
     'runs: ' + S.runs.slice(-8).map((r) => r.score + ' / ' + r.dist + 'm / ' + r.t + 's ' + r.reason).join('  |  '),
     'gull x ' + G.x.toFixed(1) + ' y ' + G.y.toFixed(1) + ' z ' + gull.position.z.toFixed(1) + ' vis ' + gull.visible + '  cam ' + camera.position.x.toFixed(1) + ',' + camera.position.y.toFixed(1) + ',' + camera.position.z.toFixed(1),
+    'carried ' + S.carried + '  feeds ' + S.feeds + '  nests ' + PR.nest.length + '  piers ' + S.piers + ' posts ' + PR.post.length + '  near ' + S.nearMiss + '  chick ' + META.chick + ' stage ' + chickStage() + (S.mate ? ' mate' : '') + '  late ' + lateK().toFixed(2),
   ];
   $('#dbgL').textContent = lines.join('\n') + '\n';
 }
@@ -2233,6 +2508,7 @@ click('#bRestart', startRun);
 click('#bMenuP', goMenu);
 click('#bMenuO', goMenu);
 click('#bPause', togglePause);
+click('#bMute', toggleMute);
 click('#bMusic', () => { ensureAudio(); toggleMusic(); });
 click('#bSfx', () => { ensureAudio(); toggleSfx(); });
 click('#bLang', () => setLang(LANG === 'tr' ? 'en' : 'tr'));
@@ -2274,6 +2550,9 @@ applyLang();
 renderLives();
 setScreen('title');
 if (FLAG.debug) { $('#dbg').classList.remove('hidden'); }
+if (Q.has('noassets')) document.querySelectorAll('.mascot').forEach((el) => el.remove()); // the mascot is an asset too
+// for screenshot tests (camera placement while paused) and the nest test (feeding)
+if (FLAG.debug) window.martiDebug = { THREE, scene, camera, gull, G, PR, boats: () => obsBoats, boxes: BOAT_BOXES };
 spawnAhead(); // the title screen is never empty
 S.d = 0;
 updateVisuals(1 / 60);
@@ -2288,5 +2567,6 @@ Promise.race([loadAssets(), new Promise((r) => setTimeout(r, 10000))]).then(() =
   if (SIM_SECONDS > 0) window.martiSim(SIM_SECONDS);
 });
 </script>
+<script data-goatcounter="https://furkiozknn.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </body>
 </html>

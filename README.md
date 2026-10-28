@@ -13,7 +13,7 @@
 <p align="center"><b>An endless 3D arcade flyer over the Istanbul strait: as a seagull, snatch simit from ferry decks, dive for jumping fish, dodge bridges, masts and kites, and fly on from a golden afternoon through sunset into a night of fireworks.</b></p>
 
 <p align="center">
-  <img src="docs/gameplay.gif" width="640" alt="Martı gameplay: the seagull flies low over the strait">
+  <img src="docs/gameplay.gif" width="640" alt="Martı gameplay: the seagull and its grown chick fly low over the strait past ferries, under the bridge and through simit pickups">
 </p>
 
 <p align="center"><b>Play online: <a href="https://furkiozknn.github.io/marti/">https://furkiozknn.github.io/marti/</a></b> (desktop and phone, no install)</p>
@@ -31,6 +31,14 @@
 - **Day to night over Istanbul.** Mosques with domes and minarets, the Galata tower, the Maiden's tower on its islet,
   yalı mansions and city ferries, from afternoon gold through sunset to a starry night with lit windows and fireworks.
 - **Daily missions and high scores.** Three missions a day and a local top-5 table, saved in your browser.
+- **A chick to feed (v2).** Carry up to two simit to a rooftop nest on the shore and fly low past it: the chick chirps,
+  you get +150 and a feather back. Feeds add up over all runs; at 5, 15 and 30 feeds the chick grows, and from the
+  last stage a young gull flies beside you and takes one hit per run.
+- **Pier snacks and near misses (v2).** Rows of simit and a fish crate beside the jetty posts at the edge of the
+  corridor (a low hit on a post costs a feather). Passing a hull, a mast, a kite or a cable closely scores +25.
+- **A late-run ramp (v2).** After three minutes storm clouds come more often, kites fly in pairs, hostile flocks are 20%
+  faster, and a gust is announced two seconds before it pushes the gull.
+- **Did you know (v2).** Facts about the gulls of Istanbul and about simit, on the title and the game-over card.
 - **Generated music and sound.** A beat with layers that build as you speed up, wing flaps, gull calls and ferry horns,
   all made with Web Audio; pausing or hiding the tab silences everything.
 
@@ -64,6 +72,7 @@ catch jumping fish.
 | Dive (for fish) | hold the mouse button / tap | hold `Space` |
 | Start / play again | Start button | `Space` / `Enter` |
 | Pause menu (Resume, Restart, Settings, Main menu) | pause button | `P` / `Esc` |
+| Mute all sound (restores the level) | speaker button in the top bar | `N` |
 | Music / effects / language | top bar | `M` / `X` / `L` |
 | Fullscreen | settings | `F` |
 
@@ -84,6 +93,7 @@ first visit follows the browser language.
 | `?lang=en` / `?lang=tr` | language |
 | `?run` | start a run straight away |
 | `?t0=N` | start each run N seconds into the day (`?t0=150` is night) |
+| `?chick=N` | show chick stage N (1 to 4) regardless of the saved feeds; `?chick=4` brings the young gull |
 
 </details>
 
@@ -112,9 +122,19 @@ first visit follows the browser language.
   </tr>
 </table>
 
-<p align="center"><img src="docs/phone_run.png" width="300" alt="Martı on a phone"><br><sub>On a phone</sub></p>
+<p align="center"><img src="docs/phone_gameplay.png" width="300" alt="Martı gameplay on a 500x900 phone screen"><br><sub>On a phone</sub></p>
 
 </details>
+
+## v2 update
+
+Upgraded by **Claude Haiku 5.5** with Claude Code from [prompts/marti-v2.md](prompts/marti-v2.md). The v2 pass adds the
+first-run prompts (steer, dive, stamina; each shown once and then remembered), the mute key, the rooftop nests and the
+chick that grows across runs, pier snacks with jetty posts, near-miss bonuses, the late-run ramp with gust warnings, a
+soft halo behind simit, fish and power-ups, and the "Did you know" facts (sourced in comments in `index.html`). The
+saved data keeps its keys (`arena.marti.settings`, `arena.marti.best`, `arena.marti.save`); the save record gains the
+fields `chick`, `hints` and `factIdx`. Mascot: a small Turkish Van kitten on the game-over card, see
+[CREDITS.md](CREDITS.md).
 
 ## Running locally
 
@@ -170,3 +190,5 @@ oynanır. Claude Haiku 5.5 tarafından Claude Code ile tek bir prompt'tan yapıl
 ## License
 
 MIT, see [LICENSE](LICENSE).
+
+Like the game? You can support new rounds on [Buy Me a Coffee](https://buymeacoffee.com/furkiozkann). The game stays free.
