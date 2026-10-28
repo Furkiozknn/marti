@@ -18,6 +18,10 @@
 
 <p align="center"><b>Play online: <a href="https://furkiozknn.github.io/marti/">https://furkiozknn.github.io/marti/</a></b> (desktop and phone, no install)</p>
 
+<!-- portals:start -->
+<p align="center">Also on: <a href="https://furkiozknn.itch.io/marti">itch.io</a></p>
+<!-- portals:end -->
+
 ## Highlights
 
 - **An endless run that speeds up.** Steer inside the corridor over the water; the first 30 seconds are forgiving, then

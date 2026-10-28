@@ -17,7 +17,7 @@
     "Higgsfield (Tripo text-to-3D, GPT Image)",
     "glTF-Transform"
   ],
-  "version": null,
+  "version": "2.0.0",
   "license": "MIT",
   "topics": [
     "browser-game",
@@ -27,24 +27,26 @@
     "claude-code",
     "claude-game-arena"
   ],
-  "summary": "Endless 3D seagull run over the Istanbul strait, built by Claude Haiku 5.5 · İstanbul Boğazı üstünde sonsuz 3D martı uçuşu, Claude Haiku 5.5 yaptı",
+  "summary": "Endless 3D seagull run over the Istanbul strait, v2 with a chick to raise across runs, pier snacks and a late-game ramp, built by Claude Haiku 5.5 · İstanbul Boğazı üstünde sonsuz 3D martı uçuşu, v2'de koşudan koşuya büyüyen yavru, iskele atıştırmalıkları ve oyun sonu hızlanması, Claude Haiku 5.5 yaptı",
   "key_features": [
     "Endless run that speeds up after the first 30 seconds; stamina refilled only by simit and fish, three feathers per run",
-    "Bridge decks and cables, ships, kites, storm clouds and a rival gull flock that steals your simit",
-    "Tailwind (x1.5), golden simit (x2) and shield feather power-ups; combo multiplier up to x5",
-    "Afternoon to sunset to a night of fireworks past mosques, the Galata tower, the Maiden's tower and yalı mansions",
-    "Three daily missions and a local top-5 score table; generated models with a procedural fallback"
+    "v2: carry simit to rooftop nests to feed a chick that grows across runs, from egg to a young gull that flies beside you",
+    "v2: pier snacks, a late-game ramp, a near-miss counter, halos on pickups, fact cards and the kitten on the game-over card",
+    "Bridge decks and cables, ships, kites, storm clouds and a rival gull flock; tailwind, golden simit and shield feather power-ups",
+    "Afternoon to sunset to a night of fireworks past mosques, the Galata tower and the Maiden's tower; ?auto runs with 0 errors at 60 fps"
   ],
   "media": {
     "hero": "docs/card.jpg",
     "screenshots": [
       "docs/card.jpg",
+      "docs/title.png",
       "docs/bridge.png",
       "docs/day.png",
       "docs/sunset.png",
       "docs/night.png",
       "docs/close.png",
-      "docs/phone_run.png"
+      "docs/gameover.png",
+      "docs/phone_gameplay.png"
     ],
     "gifs": [
       "docs/gameplay.gif"
@@ -76,8 +78,9 @@
     "primary_link": "https://furkiozknn.github.io/marti/"
   },
   "provenance": {
-    "generated_at": "2026-10-27",
+    "generated_at": "2026-10-28",
     "generator": "hand-written",
-    "rule": "mechanical fields read from the repository; editorial fields hand-written from the README, index.html and docs/assets.md; no field is generated from a guess"
+    "rule": "mechanical fields read from the repository; editorial fields hand-written from the README, index.html and docs/assets.md; no field is generated from a guess",
+    "note": "v2 upgrade 2026-10-28"
   }
 }
