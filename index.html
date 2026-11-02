@@ -104,6 +104,13 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(-
 .float{position:fixed;transform:translate(-50%,-50%);font-weight:700;font-size:20px;color:var(--accent2);text-shadow:0 2px 0 rgba(0,0,0,.35);
   pointer-events:none;animation:floatUp .9s ease-out forwards;white-space:nowrap;z-index:3}
 @keyframes floatUp{from{opacity:1;margin-top:0}to{opacity:0;margin-top:-46px}}
+/* combo badge: pops in with an overshoot, holds, then fades out (see popCombo) */
+#combo{position:absolute;left:0;right:0;top:34%;display:flex;justify-content:center;pointer-events:none}
+.cb{display:inline-block;font-weight:700;font-size:34px;line-height:1.1;color:#1E1B2E;background:#FDE047;border:4px solid #1E1B2E;
+  border-radius:18px;padding:4px 16px 6px;box-shadow:0 6px 0 #1E1B2E;animation:cbPop .5s cubic-bezier(.2,1.5,.4,1) both}
+.cb.out{animation:cbOut .3s ease-in forwards}
+@keyframes cbPop{0%{opacity:0;transform:scale(.3) rotate(-7deg)}100%{opacity:1;transform:none}}
+@keyframes cbOut{to{opacity:0;transform:translateY(-12px)}}
 .overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:14px;z-index:5;
   background:radial-gradient(ellipse at 50% 35%,rgba(15,23,42,.05),rgba(15,23,42,.5))}
 .card{position:relative;width:100%;max-width:480px;max-height:100%;overflow:auto;padding:22px 22px 18px;border-radius:24px;background:rgba(15,23,42,.66);
@@ -213,6 +220,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(-
   <div id="stamina" class="glass"><span id="stLabel" data-i18n="stamina">Enerji</span><span id="carry"></span><div id="stBar"></div></div>
   <div id="chips"></div>
   <div id="toasts"></div>
+  <div id="combo" aria-live="polite"></div>
 </div>
 
 <div id="title" class="overlay">
@@ -379,7 +387,7 @@ const I18N = {
     hStamina: 'Enerji azalıyor: simit ye, enerjin dolsun', nestNeed: 'Yavruya simit lazım: önce bir simit taşı',
     fed: 'Yavru beslendi! +1 tüy', mateHit: 'Yavru martı kanadıyla çarpmayı emdi!', pier: 'Balık sandığı! Enerji +35',
     gust: 'Rüzgâr geliyor', gustChip: 'Rüzgâr', didYou: 'Biliyor muydun?', chickLine: 'Yavru: {s} · {n} besleme',
-    stages: ['Yumurta', 'Civciv', 'Tüylü yavru', 'Genç martı'], aMute: 'Sessiz (N)',
+    stages: ['Yumurta', 'Civciv', 'Tüylü yavru', 'Genç martı'], aMute: 'Sessiz (N)', comboUp: 'Kombo x{m}!',
   },
   en: {
     tagline: 'A seagull run over the Bosphorus, hunting simit',
@@ -407,7 +415,7 @@ const I18N = {
     hStamina: 'Stamina is dropping: eat simit to refill it', nestNeed: 'The chick needs simit: carry one first',
     fed: 'Chick fed! +1 feather', mateHit: 'The young gull took the hit on its wing!', pier: 'Fish crate! Stamina +35',
     gust: 'Gust coming', gustChip: 'Gust', didYou: 'Did you know?', chickLine: 'Chick: {s} · {n} fed',
-    stages: ['Egg', 'Hatchling', 'Fluffy chick', 'Young gull'], aMute: 'Mute (N)',
+    stages: ['Egg', 'Hatchling', 'Fluffy chick', 'Young gull'], aMute: 'Mute (N)', comboUp: 'Combo x{m}!',
   },
 };
 // Facts for the game-over card and the title line, shown in turn. Sources are in the comments (research pool, 2026-10-28).
@@ -1145,6 +1153,24 @@ const FW = makeFx(FLAG.low ? 120 : 240, M.fw);
 const fxSpawn = FX.spawn, fxBurst = FX.burst;
 function fxUpdate(dt) { FX.update(dt); FW.update(dt); }
 
+// Speed lines: short streaks beside the gull that rush past the camera as the run speeds up. They are static in the
+// world and recycled once the camera has passed them; they stay off the gull's column so the bird is never hidden.
+const STREAKS = 36;
+const streakPos = new Float32Array(STREAKS * 6);
+const streakGeo = new THREE.BufferGeometry();
+streakGeo.setAttribute('position', new THREE.BufferAttribute(streakPos, 3).setUsage(THREE.DynamicDrawUsage));
+const streakMat = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0, depthWrite: false, fog: false });
+const streaks = new THREE.LineSegments(streakGeo, streakMat);
+streaks.frustumCulled = false;
+scene.add(streaks);
+const STREAK = Array.from({ length: STREAKS }, () => ({ x: 0, y: 0, z: -999, len: 0 }));
+function respawnStreak(s) {
+  s.x = G.x + (Math.random() < 0.5 ? -1 : 1) * rnd(7, 30);
+  s.y = G.y + rnd(-14, 14);
+  s.z = S.d + rnd(25, 140);
+  s.len = rnd(5, 11);
+}
+
 // ---------- game state (also exposed as window.marti) ----------
 const G = { x: 0, y: 12, bank: 0, flap: 0, vx: 0, vy: 0 };
 const S = {
@@ -1510,7 +1536,9 @@ function fishY(f, u) {
   return u <= 1 ? f.peak * Math.sin((u * Math.PI) / 2) : f.peak * Math.cos(((u - 1) * Math.PI) / 2);
 }
 function bumpCombo() {
+  const before = S.mult;
   S.combo++; S.comboT = 3.2; S.mult = comboMult();
+  if (S.mult > before) popCombo(S.mult);
   if (S.combo > S.runCombo) S.runCombo = S.combo;
   missionSet('combo', S.runCombo);
 }
@@ -1796,6 +1824,21 @@ function updateVisuals(dt) {
   const fovWant = 58 + portrait + Math.max(0, S.speed - 30) * 0.25 + (S.tailT > 0 ? 6 : 0);
   if (Math.abs(camera.fov - fovWant) > 0.05) { camera.fov += (fovWant - camera.fov) * Math.min(1, dt * 3); camera.updateProjectionMatrix(); }
 
+  // Speed lines: fade in above speed 32 (none on the title screen); each streak is a line stretched towards the camera.
+  const sp = A ? 0 : clamp((S.speed - 32) / 20, 0, 1);
+  streakMat.opacity = 0.5 * sp;
+  streaks.visible = sp > 0.01;
+  if (streaks.visible) {
+    for (let i = 0; i < STREAKS; i++) {
+      const s = STREAK[i];
+      if (s.z < S.d - 14) respawnStreak(s);
+      const L = s.len * (0.6 + sp * 1.4), o = i * 6;
+      streakPos[o] = s.x; streakPos[o + 1] = s.y; streakPos[o + 2] = s.z;
+      streakPos[o + 3] = s.x; streakPos[o + 4] = s.y; streakPos[o + 5] = s.z - L;
+    }
+    streakGeo.attributes.position.needsUpdate = true;
+  }
+
   // Sun, moon, stars and light.
   const elev = clamp(1 - p * 1.6, -0.3, 1);
   sunMesh.position.set(G.x * 0.3 + 40, 20 + 110 * elev, S.d + 420);
@@ -1975,6 +2018,8 @@ function startRun() {
   S.carried = 0; S.feeds = 0; S.nearMiss = 0; S.nearCd = 0; S.piers = 0; S.mateUsed = false;
   S.mate = chickStage() === 4; // from chick stage 4 the young gull flies along in every run
   S.gustAt = 0; S.gustWarned = false;
+  for (const s of STREAK) s.z = -999; // recycle the speed lines from the start of the run
+  $('#combo').innerHTML = '';
   if (Q.has('t0')) S.t = +Q.get('t0') || 0; // test hook: start later in the day (e.g. ?t0=150 for night)
   G.x = 0; G.y = 12; G.bank = 0;
   S.state = 'playing';
@@ -2384,6 +2429,19 @@ function gustTick() {
     S.gustX += S.gustDir * 9;
     S.gustAt = S.t + rnd(10, 14); S.gustWarned = false;
   }
+}
+// Combo badge: a chunky "Combo x2!" that pops in each time the multiplier goes up. A new element restarts the animation.
+let popT = 0;
+function popCombo(m) {
+  if (simming) return;
+  const el = $('#combo');
+  el.innerHTML = '<span class="cb">' + tx('comboUp', { m }) + '</span>';
+  clearTimeout(popT);
+  popT = setTimeout(() => {
+    const b = el.querySelector('.cb');
+    if (b) b.classList.add('out');
+    popT = setTimeout(() => { el.innerHTML = ''; }, 320);
+  }, 1000);
 }
 // "+points" text at the pickup's world position, projected to the screen.
 function floatText(x, y, z, text) {
