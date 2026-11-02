@@ -520,6 +520,7 @@ const M = {
   fw: new THREE.PointsMaterial({ size: 4, vertexColors: true, sizeAttenuation: true, map: DOT, alphaTest: 0.05, transparent: true, depthWrite: false, fog: false }),
   // soft white disc behind pickups (a billboard facing the camera, which looks along +z)
   glow: new THREE.MeshBasicMaterial({ color: 0xffffff, map: DOT, transparent: true, opacity: 0.6, depthWrite: false, side: THREE.DoubleSide, fog: false }),
+  silh: new THREE.MeshBasicMaterial({ vertexColors: true, fog: false }),
 };
 
 // ---------- geometry helpers ----------
@@ -634,11 +635,40 @@ const nestGeo = merge([
 ]);
 const haloGeo = new THREE.PlaneGeometry(3.4, 3.4);
 const ringGeo = new THREE.RingGeometry(2.4, 2.9, 32);
-const cloudGeo = merge([
-  part(new THREE.SphereGeometry(1.3, 8, 6), '#FFFFFF'),
-  part(new THREE.SphereGeometry(1.0, 8, 6), '#FFFFFF', [1.4, 0.2, 0.2]),
-  part(new THREE.SphereGeometry(1.1, 8, 6), '#FFFFFF', [-1.2, 0.1, -0.2]),
-]);
+// Soft cloud sprite: overlapping radial puffs on a canvas, drawn as a billboard (see M.cloud).
+const CLOUD_TEX = (() => {
+  const c = document.createElement('canvas');
+  c.width = 256; c.height = 128;
+  const g = c.getContext('2d');
+  for (const [x, y, r] of [[80, 74, 44], [128, 56, 58], [176, 72, 46], [116, 84, 40], [150, 88, 36]]) {
+    const gr = g.createRadialGradient(x, y, 0, x, y, r);
+    gr.addColorStop(0, 'rgba(255,255,255,0.95)');
+    gr.addColorStop(0.55, 'rgba(255,255,255,0.7)');
+    gr.addColorStop(1, 'rgba(255,255,255,0)');
+    g.fillStyle = gr;
+    g.fillRect(x - r, y - r, r * 2, r * 2);
+  }
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+})();
+const cloudGeo = new THREE.PlaneGeometry(26, 13);
+// Far Bosphorus bridge silhouette on the horizon: two tall towers, a deck and catenary cables. It rides along with the
+// run at a fixed distance (see updateVisuals), so it stays a backdrop and never comes closer.
+const SIL_GEO = (() => {
+  const P = [];
+  for (const sx of [-1, 1]) P.push(part(new THREE.BoxGeometry(5, 80, 9), '#FFFFFF', [sx * 110, 40, 0]));
+  P.push(part(new THREE.BoxGeometry(260, 2.6, 4), '#FFFFFF', [0, 26, 0]));
+  const N = 22, step = 220 / N;
+  for (let i = 0; i < N; i++) {
+    const xa = -110 + i * step, xb = xa + step;
+    const ya = 26 + 54 * (xa / 110) ** 2, yb = 26 + 54 * (xb / 110) ** 2;
+    const ang = Math.atan2(yb - ya, step);
+    P.push(part(new THREE.BoxGeometry(step * 1.04 / Math.cos(ang), 0.9, 1.4), '#FFFFFF', [(xa + xb) / 2, (ya + yb) / 2, 0], [0, 0, ang]));
+  }
+  return merge(P);
+})();
+M.cloud = new THREE.MeshBasicMaterial({ map: CLOUD_TEX, transparent: true, opacity: 0.94, depthWrite: false, side: THREE.DoubleSide, fog: false });
 const stormGeo = merge([
   part(new THREE.SphereGeometry(5, 10, 8), '#94A3B8', [0, 0, 0], [0, 0, 0], [1.6, 0.8, 1.2]),
   part(new THREE.SphereGeometry(4, 10, 8), '#64748B', [-6, -1, 1], [0, 0, 0], [1.2, 0.7, 1]),
@@ -794,7 +824,7 @@ const IM = {
   dome: makeInst(domeGeo, M.white, 40),
   minaret: makeInst(minaretGeo, M.vc, 60),
   balloon: makeInst(balloonGeo, M.vc, 20),
-  sky: makeInst(cloudGeo, M.vc, 24),
+  sky: makeInst(cloudGeo, M.cloud, 24),
   kite: makeInst(kiteGeo, M.white, 16),
   kiteStr: makeInst(stringGeo, M.white, 16),
   flock: makeInst(rivalGeo, M.flock, 80),
@@ -858,6 +888,10 @@ const skyMesh = new THREE.Mesh(skyGeo, new THREE.MeshBasicMaterial({ vertexColor
 skyMesh.renderOrder = -1;
 skyMesh.frustumCulled = false;
 scene.add(skyMesh);
+// The bridge silhouette (placed in updateVisuals); its colour is a darker tone of the sky, set in updateSky.
+const silMesh = new THREE.Mesh(SIL_GEO, M.silh);
+silMesh.frustumCulled = false;
+scene.add(silMesh);
 let skyKey = -1;
 // Recolours the dome (and the fog) for the day phase p; skipped while p barely changes.
 function updateSky(p) {
@@ -873,10 +907,11 @@ function updateSky(p) {
   skyGeo.attributes.color.needsUpdate = true;
   scene.fog.color.copy(_skH);
   scene.background.copy(_skH);
+  M.silh.color.copy(_skH).lerp(_skT, 0.35).multiplyScalar(0.5);
 }
 
 // ---------- terrain and water ----------
-const DEEP = new THREE.Color('#1E6091'), CREST = new THREE.Color('#6CBDE3');
+const DEEP = new THREE.Color('#1E6091'), CREST = new THREE.Color('#6CBDE3'), FOAM = new THREE.Color('#F4FBFF');
 const SAND = new THREE.Color('#E9D7A3'), GRASS = new THREE.Color('#8DBF6A'), HILL = new THREE.Color('#4F8F4E');
 function waveH(x, z, t) {
   return 0.45 * Math.sin(x * 0.21 + t * 1.1) + 0.35 * Math.sin(z * 0.17 - t * 1.6 + x * 0.05) + 0.18 * Math.sin(x * 0.6 + z * 0.45 + t * 2.4);
@@ -961,7 +996,9 @@ function updateWater() {
       const x = -WATER_X + c * WSTEP, h = waveH(x, z, WT);
       const i = (r * WCOLS + c) * 3;
       wPos[i] = x; wPos[i + 1] = h; wPos[i + 2] = z;
-      _cw.lerpColors(DEEP, CREST, clamp((h + 1) / 2.2, 0, 1));
+      // Foam: the highest crests, broken up by a second wave term so the white is not in neat rows.
+      const foam = smooth(0.4, 0.85, h + 0.1 * Math.sin(x * 0.9 + z * 1.3 + WT * 3));
+      _cw.lerpColors(DEEP, CREST, clamp((h + 1) / 2.2, 0, 1)).lerp(FOAM, foam);
       wCol[i] = _cw.r; wCol[i + 1] = _cw.g; wCol[i + 2] = _cw.b;
     }
   }
@@ -1167,7 +1204,7 @@ function spawnShoreBand(z0) {
       PR.balloon.push({ x, y0: rnd(26, 40), y: 30, z, ph: rnd(0, TAU), sx: 1, sy: 1.2, sz: 1, c: pick(BAL_COLS) });
     }
     if (Math.random() < 0.5) {
-      PR.sky.push({ x: rnd(-150, 150), y: rnd(44, 66), z: z0 + rnd(0, 40), sx: rnd(1.2, 2.2), sy: 1, sz: 1, r: rnd(0, TAU) });
+      PR.sky.push({ x: rnd(-150, 150), y: rnd(44, 66), z: z0 + rnd(0, 40), sx: rnd(1.2, 2.2), sy: rnd(0.8, 1.2), sz: 1, r: rnd(-0.15, 0.15) });
     }
     if (Math.random() < 0.06) addSpecial('mansion', side * rnd(40, 46), z0 + rnd(5, 30), side);
     else if (Math.random() < 0.035) addSpecial('tower', side * rnd(60, 74), z0 + rnd(5, 30), side);
@@ -1766,6 +1803,7 @@ function updateVisuals(dt) {
   M.stars.opacity = smooth(0.62, 0.8, p);
   updateSky(p);
   skyMesh.position.copy(camera.position);
+  silMesh.position.set(0, 0, S.d + 430);
   hemi.intensity = lerp(0.9, 0.42, smooth(0.45, 0.8, p));
   const dusk = smooth(0.45, 0.7, p); // light colours blend instead of jumping at p = 0.5
   hemi.color.lerpColors(HEMI_DAY, HEMI_NIGHT, dusk);
