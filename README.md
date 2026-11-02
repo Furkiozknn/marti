@@ -130,6 +130,27 @@ first visit follows the browser language.
 
 </details>
 
+## Redesign (2026-11)
+
+Art direction: a stylised 3D arcade flight, day to dusk over the strait. Sky from `#7DB8F5` at the zenith to a `#FFD6A5`
+horizon at sunset, sea `#1E6091` with foam crests, white and red ferries, sun-yellow and navy arcade panels.
+
+![Before and after, the same camera behind the gull](docs/redesign-before-after.png)
+
+- **Sky and light:** a gradient dome from day through sunset to night (the horizon colour is also the fog), soft
+  canvas cloud sprites, and a dark Bosphorus bridge silhouette on the horizon.
+- **Sea:** wave crests turn to foam; the foam is sparse so it reads as crests, not a white sheet.
+- **Ferries:** red and white livery (white hull and cabin, red waterline band and roof, a blue window band, a red funnel).
+- **Motion:** speed lines fade in above speed 32 and rush past the camera; a "Combo xN!" badge pops in whenever the
+  multiplier goes up.
+- **UI:** navy and cream arcade panels with a dark outline and a solid shadow, chunky outlined numbers, sun-yellow focus
+  rings, striped stamina bar (red when low), and 44 px touch targets on phones.
+
+Measured on the redesign branch with `?debug` at 1280x720 (headless Chrome on the UHD 620 laptop; the reported 60 fps
+is the headless frame rate, not a visible-window test): 31 draw calls (was 29), 47k triangles (was 51k: the procedural
+ferry is lighter than the generated model). `?auto` for 120 simulated seconds with zero JS errors, with assets and with
+`?noassets`. The gameplay, controls, flags, keys, saved data and the counts (three missions a day, chick stages, feathers) are unchanged.
+
 ## v2 update
 
 Upgraded by **Claude Haiku 5.5** with Claude Code from [prompts/marti-v2.md](prompts/marti-v2.md). The v2 pass adds the
