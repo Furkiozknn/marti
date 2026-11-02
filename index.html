@@ -831,9 +831,11 @@ const starsPts = new THREE.Points(starGeo, M.stars);
 starsPts.frustumCulled = false;
 scene.add(sunMesh, moonMesh, starsPts);
 
-// Colour keyframes: day phase (0..1) -> sky colour
-const SKY_STOPS = [[0, 0xf8d68f], [0.42, 0xf7c26b], [0.56, 0xf2784b], [0.68, 0x6b3fa0], [0.8, 0x1b1f4b], [1, 0x0a1030]];
-const _cA = new THREE.Color(), _cB = new THREE.Color(), _cS = new THREE.Color();
+// Colour keyframes: day phase (0..1) -> zenith (top) and horizon colours. The sky is a dome with a gradient from
+// the zenith to the horizon, so it reads as a sky from day through sunset to night; the horizon colour is also the fog.
+const SKY_TOP = [[0, '#7DB8F5'], [0.42, '#6AAEF0'], [0.56, '#5865C8'], [0.68, '#2B2A7A'], [0.8, '#131C4A'], [1, '#070C24']];
+const SKY_HOR = [[0, '#D4ECFF'], [0.42, '#FFD6A5'], [0.56, '#FF9E6B'], [0.68, '#B4508C'], [0.8, '#2A2C6B'], [1, '#101A40']];
+const _cA = new THREE.Color(), _cB = new THREE.Color(), _skT = new THREE.Color(), _skH = new THREE.Color(), _skC = new THREE.Color();
 const HEMI_DAY = new THREE.Color(0xfff1d0), HEMI_NIGHT = new THREE.Color(0xb8c8ff), SUN_DAY = new THREE.Color(0xffffff), SUN_NIGHT = new THREE.Color(0xbfd0ff);
 function rampColor(stops, p, out) {
   for (let i = 1; i < stops.length; i++) {
@@ -844,9 +846,37 @@ function rampColor(stops, p, out) {
   }
   return out.set(stops[stops.length - 1][1]);
 }
+// Sky dome: a big inverted sphere, vertex-coloured from the zenith (top) to the horizon. It follows the camera and is
+// drawn first (renderOrder -1), so the stars, sun and moon sit in front of it.
+const SKY_R = 700;
+const skyGeo = new THREE.SphereGeometry(SKY_R, 24, 12);
+const skyCol = new Float32Array(skyGeo.attributes.position.count * 3);
+skyGeo.setAttribute('color', new THREE.BufferAttribute(skyCol, 3));
+const skyUp = new Float32Array(skyGeo.attributes.position.count); // 0 at the horizon, 1 at the zenith
+for (let i = 0; i < skyUp.length; i++) skyUp[i] = smooth(0, 0.5, skyGeo.attributes.position.getY(i) / SKY_R);
+const skyMesh = new THREE.Mesh(skyGeo, new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.BackSide, depthWrite: false, fog: false }));
+skyMesh.renderOrder = -1;
+skyMesh.frustumCulled = false;
+scene.add(skyMesh);
+let skyKey = -1;
+// Recolours the dome (and the fog) for the day phase p; skipped while p barely changes.
+function updateSky(p) {
+  const k = Math.round(p * 400);
+  if (k === skyKey) return;
+  skyKey = k;
+  rampColor(SKY_TOP, p, _skT);
+  rampColor(SKY_HOR, p, _skH);
+  for (let i = 0; i < skyUp.length; i++) {
+    _skC.copy(_skH).lerp(_skT, skyUp[i]);
+    skyCol[i * 3] = _skC.r; skyCol[i * 3 + 1] = _skC.g; skyCol[i * 3 + 2] = _skC.b;
+  }
+  skyGeo.attributes.color.needsUpdate = true;
+  scene.fog.color.copy(_skH);
+  scene.background.copy(_skH);
+}
 
 // ---------- terrain and water ----------
-const DEEP = new THREE.Color('#1B6F9B'), CREST = new THREE.Color('#67C4E4');
+const DEEP = new THREE.Color('#1E6091'), CREST = new THREE.Color('#6CBDE3');
 const SAND = new THREE.Color('#E9D7A3'), GRASS = new THREE.Color('#8DBF6A'), HILL = new THREE.Color('#4F8F4E');
 function waveH(x, z, t) {
   return 0.45 * Math.sin(x * 0.21 + t * 1.1) + 0.35 * Math.sin(z * 0.17 - t * 1.6 + x * 0.05) + 0.18 * Math.sin(x * 0.6 + z * 0.45 + t * 2.4);
@@ -1734,9 +1764,8 @@ function updateVisuals(dt) {
   moonMesh.visible = moonElev > 0.02;
   starsPts.position.set(G.x, 0, S.d);
   M.stars.opacity = smooth(0.62, 0.8, p);
-  rampColor(SKY_STOPS, p, _cS);
-  scene.background.copy(_cS);
-  scene.fog.color.copy(_cS);
+  updateSky(p);
+  skyMesh.position.copy(camera.position);
   hemi.intensity = lerp(0.9, 0.42, smooth(0.45, 0.8, p));
   const dusk = smooth(0.45, 0.7, p); // light colours blend instead of jumping at p = 0.5
   hemi.color.lerpColors(HEMI_DAY, HEMI_NIGHT, dusk);
