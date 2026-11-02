@@ -1075,7 +1075,8 @@ scene.add(gull);
 // Models in assets/models replace the procedural meshes once they have loaded. Every procedural builder stays as the
 // fallback: from file:// (Chrome blocks fetch there), with ?noassets, or when a file fails, the original look stays.
 // All files are already normalised (tools/assets/fit.mjs): +Y up, +Z forward, metres, base or centre pivot.
-const MODEL_FILES = ['simit', 'fish', 'feather', 'ferry', 'fishing', 'sail', 'mosque', 'galata', 'maiden', 'yali'];
+// The ferry is procedural: its red and white livery is part of the look (the generated ferry model has a plain texture).
+const MODEL_FILES = ['simit', 'fish', 'feather', 'fishing', 'sail', 'mosque', 'galata', 'maiden', 'yali'];
 const ASSET = {};
 let assetsReady = false, assetsLoaded = 0;
 function loadAssets() {
@@ -1113,7 +1114,7 @@ function applyAssets() {
   }
   if (A.fish) { IM.fish.geometry = A.fish.geo; IM.fish.material = A.fish.mat; }
   if (A.feather) PWR.shield = A.feather;
-  for (const t of ['ferry', 'fishing', 'sail']) if (A[t]) BOAT[t] = A[t];
+  for (const t of ['fishing', 'sail']) if (A[t]) BOAT[t] = A[t];
   if (A.mosque) {
     IM.mosque = makeInst(A.mosque.geo, A.mosque.mat, 40);
     IM.mosque.castShadow = false;
