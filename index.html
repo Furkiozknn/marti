@@ -177,6 +177,13 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:4px solid var(-
   .how{font-size:14px}
   .mascot{width:60px;right:8px;top:8px}
   .nestcard svg{width:64px;height:48px}
+  /* phones: every touch target at least 44 px, body copy at least 14 px */
+  .ibtn{width:44px;height:44px}
+  .btn.ghost{min-height:44px;font-size:17px}
+  .btn,.segb{min-height:44px}
+  .foot,.hint,.fact{font-size:14px}
+  .toast{font-size:16px}
+  .cb{font-size:28px}
 }
 /* phones in landscape: a smaller crest and a two-column how-to, so Start is visible without scrolling the card */
 @media (max-height:500px) and (orientation:landscape){
@@ -184,7 +191,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:4px solid var(-
   .card .crest{width:56px;height:56px;margin:0 auto}
   .card .logo{font-size:34px}
   .card .tag{margin:2px 0 8px;font-size:14px}
-  .how{grid-template-columns:1fr 1fr;gap:5px;margin-bottom:10px;font-size:13px}
+  .how{grid-template-columns:1fr 1fr;gap:5px;margin-bottom:10px;font-size:14px}
   .how li{padding:5px 10px}
 }
 /* short desktop windows (1280x720): the whole title card, fact line included, fits without scrolling */
