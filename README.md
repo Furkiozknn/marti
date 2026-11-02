@@ -19,7 +19,7 @@
 <p align="center"><b>Play online: <a href="https://furkiozknn.github.io/marti/">https://furkiozknn.github.io/marti/</a></b> (desktop and phone, no install)</p>
 
 <!-- portals:start -->
-<p align="center">Also on: <a href="https://furkiozknn.itch.io/marti">itch.io</a></p>
+<p align="center">Also on: <a href="https://furkiozknn.itch.io/marti">itch.io</a> &middot; <a href="https://playgama.ai/play/5cyz2362utmnwl">Playgama</a></p>
 <!-- portals:end -->
 
 ## Highlights
