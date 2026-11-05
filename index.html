@@ -351,7 +351,8 @@ const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
 const lerp = (a, b, t) => a + (b - a) * t;
 const rnd = (a, b) => a + Math.random() * (b - a);
 const pick = (a) => a[(Math.random() * a.length) | 0];
-const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+// Guard a === b to avoid division by zero / NaN
+const smooth = (a, b, x) => { const t = a === b ? 0 : clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
 const TAU = Math.PI * 2;
 
 const LS = {
@@ -1891,11 +1892,11 @@ function updateVisuals(dt) {
   if (S.state === 'playing' && p > 0.7 && night > 0.2 && Math.random() < dt * 0.9) fireworkBurst();
 }
 
-// Fireworks are over the water, a long way ahead.
+// Fireworks are over the water, a long way ahead (palette constant hoisted to avoid per-burst allocation).
+const FW_COLS = ['#FDE68A', '#F87171', '#60A5FA', '#34D399', '#F472B6', '#FFFFFF'];
 function fireworkBurst() {
   const x = rnd(-50, 50), y = rnd(40, 70), z = S.d + rnd(140, 240);
-  const cols = ['#FDE68A', '#F87171', '#60A5FA', '#34D399', '#F472B6', '#FFFFFF'];
-  const c = pick(cols);
+  const c = pick(FW_COLS);
   FW.burst(x, y, z, c, isLow() ? 14 : 30, 14, 1.6, 9);
   sfxBoom();
 }
@@ -1971,9 +1972,11 @@ window.addEventListener('pointermove', (e) => {
   if (isUI(e.target)) return;
   pointerSteer(e);
 });
-window.addEventListener('pointerup', () => {
+window.addEventListener('pointerup', (e) => {
+  // Prevent touch dive when releasing over UI buttons and clear ptrStart
+  if (isUI(e.target)) { ptrDown = false; S.diveHold = false; ptrStart = null; return; }
   if (ptrType === 'touch' && ptrStart && S.state === 'playing' && ptrMoved < 12 && performance.now() - ptrStart.t < 350) S.diveTimer = 0.8;
-  ptrDown = false; S.diveHold = false;
+  ptrDown = false; S.diveHold = false; ptrStart = null;
 });
 
 // ---------- bot (used for the title attract mode and ?auto) ----------
