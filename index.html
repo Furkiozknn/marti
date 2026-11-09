@@ -2677,24 +2677,25 @@ function hitBox(bx, y0, y1, bz, hw, hd) {
 }
 function checkHits() {
   const d = S.d;
+  if (G.y <= 1.8) return gameOver('water');
   for (const b of obsBridges) {
     if (Math.abs(d - b.z) > 9) continue;
-    for (const bx of BRIDGE_BOXES) if (hitBox(bx.x, bx.y0, bx.y1, b.z, bx.hw, bx.hd)) return hitPlayer();
-    if (Math.abs(G.x) <= BR.towerX && Math.abs(d - b.z) < 3.1 + GZ && Math.abs(G.y - cableY(G.x)) < 1.5 + GY) return hitPlayer();
+    for (const bx of BRIDGE_BOXES) if (hitBox(bx.x, bx.y0, bx.y1, b.z, bx.hw, bx.hd)) return hitPlayer('cable');
+    if (Math.abs(G.x) <= BR.towerX && Math.abs(d - b.z) < 3.1 + GZ && Math.abs(G.y - cableY(G.x)) < 1.5 + GY) return hitPlayer('cable');
   }
   for (const o of obsBoats) {
     if (Math.abs(d - o.z) > 25) continue;
-    for (const b of BOAT_BOXES[o.type]) if (hitBox(o.x + b.ox, b.y0, b.y1, o.z + b.oz, b.hw, b.hd)) return hitPlayer();
+    for (const b of BOAT_BOXES[o.type]) if (hitBox(o.x + b.ox, b.y0, b.y1, o.z + b.oz, b.hw, b.hd)) return hitPlayer('ship');
   }
   for (const p of PR.post) {
     if (Math.abs(d - p.z) > 4) continue;
-    if (hitBox(p.x, p.y, p.y + p.sy, p.z, 0.45, 0.45)) return hitPlayer();
+    if (hitBox(p.x, p.y, p.y + p.sy, p.z, 0.45, 0.45)) return hitPlayer('obstacle');
   }
   for (const k of obsKites) {
     if (k.cut || Math.abs(d - k.z) > 4) continue;
     if (hitBox(k.cx, k.y - 1.6, k.y + 1.6, k.z, 1.6, 1.4)) {
       if (S.flock >= FLOCK.BREAK) { cutKite(k); continue; } // a big flock snaps the line instead
-      return hitPlayer();
+      return hitPlayer('kite');
     }
   }
   // Rival flock: members steal simit (not a life, but costs stamina and the combo). A big flock of your own
@@ -2742,7 +2743,7 @@ function nearMissCheck() {
   sfxWhoosh();
   floatText(G.x, G.y + 2, d, '+25');
 }
-function hitPlayer() {
+function hitPlayer(cause = 'crash') {
   if (S.attract || S.inv > 0) return;
   if (S.mate && !S.mateUsed) { // the young gull takes one hit per run
     S.mateUsed = true; S.inv = 1.2;
@@ -2764,7 +2765,7 @@ function hitPlayer() {
   toast(tx('hit'), 'bad');
   flockScatter(); // part of your flock scatters as well
   sfxHit(1);
-  if (S.lives <= 0) gameOver('crash');
+  if (S.lives <= 0) gameOver(cause);
 }
 function stealFood(x, y, z) {
   // A carried simit goes first; with none in the beak, the flock takes stamina.
@@ -2948,7 +2949,7 @@ function simStep(dt) {
     if (S.stamina > 0) {
       S.stamina -= (2.2 + S.t * 0.01) * dt * (diving ? 1.3 : 1);
       if (S.stamina < 45 && !META.hints.stamina) hintOnce('stamina', tx('hStamina'));
-      if (S.stamina <= 0) { S.stamina = 0; gameOver('energy'); }
+      if (S.stamina <= 0) { S.stamina = 0; S.deathCause = 'stamina'; gameOver('stamina'); }
     }
     if (S.state === 'playing' && Math.random() < dt * 0.1) sfxCall();
     // Splash when diving near the water.
@@ -3363,12 +3364,24 @@ function spawnAhead() {
   while (nextBridgeZ < S.d + LOOK) { spawnBridge(nextBridgeZ); nextBridgeZ += srnd(520, 780); }
   while (nextNestZ < S.d + LOOK) { spawnNest(nextNestZ); nextNestZ += srnd(700, 900); }
 }
+const DEATH_TIPS = {
+  cable: { tr: 'İpucu: Köprü kablolarından ve kulelerden kaçınmak için orta koridoru kullan.', en: 'Tip: Use the middle corridor to avoid bridge cables and towers.' },
+  ship: { tr: 'İpucu: Gemilerin direklerine çarpmamak için daha yüksekte uç.', en: 'Tip: Fly higher to avoid ship masts.' },
+  kite: { tr: 'İpucu: Uçurtma iplerine dikkat et veya sürünle kes.', en: 'Tip: Watch out for kite strings or cut them with your flock.' },
+  stamina: { tr: 'İpucu: Enerjini doldurmak için simit ve balık topla.', en: 'Tip: Collect simit and fish to refill your stamina.' },
+  water: { tr: 'İpucu: Su yüzeyine çok fazla yaklaşma.', en: 'Tip: Do not get too close to the water surface.' },
+  obstacle: { tr: 'İpucu: İskele ve sahil engellerine karşı dikkatli ol.', en: 'Tip: Watch out for piers and shore obstacles.' },
+  crash: { tr: 'İpucu: Engellerin etrafından dolaşmak için erken hareket et.', en: 'Tip: Move early to maneuver around obstacles.' },
+  energy: { tr: 'İpucu: Aç kalmamak için sürekli simit ye.', en: 'Tip: Keep eating simit so you don’t run out of energy.' }
+};
+
 function gameOver(reason) {
   if (S.state !== 'playing') return;
   S.state = 'over';
   S.attract = true;
   S.overT = 0;
   S.combo = 0;
+  S.deathCause = reason;
   const run = { score: Math.round(S.score), dist: Math.round(S.d), simit: S.simit, fish: S.fish, combo: S.runCombo, flock: S.flockMax, t: +S.t.toFixed(1), reason, fact: META.factIdx % FACTS.length };
   META.factIdx++; // the next game-over card shows the next fact
   S.runs.push(run);
@@ -3805,7 +3818,8 @@ function setScreen(mode, run, isNew) {
   if (mode === 'title') { renderMissionList(); renderHighList(); renderTitle(); $('#chips').innerHTML = ''; $('#toasts').innerHTML = ''; }
   if (mode === 'over' && run) {
     lastRun = run;
-    $('#overReason').textContent = tx(run.reason);
+    const tipObj = DEATH_TIPS[run.reason] || DEATH_TIPS.crash;
+    $('#overReason').textContent = tx(run.reason) + ' — ' + tipObj[LANG];
     $('#oScore').textContent = run.score;
     $('#oBest').textContent = Math.max(bestScore(), run.score);
     $('#oDist').textContent = fmtDist(run.dist);
