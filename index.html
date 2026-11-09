@@ -13,6 +13,7 @@
 <meta property="og:image:height" content="540">
 <meta property="og:url" content="https://furkiozknn.github.io/marti/">
 <meta name="twitter:card" content="summary_large_image">
+<link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" href="assets/ui/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -4065,5 +4066,34 @@ Promise.race([loadAssets(), new Promise((r) => setTimeout(r, 10000))]).then(() =
 });
 </script>
 <script data-goatcounter="https://furkiozknn.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  });
+}
+</script>
+<script>
+// Minimal inline service worker script created via Blob for self-contained single-file compliance
+if ('serviceWorker' in navigator && !window.__swInlined) {
+  window.__swInlined = true;
+  const swCode = `
+    const CACHE_NAME = 'marti-v1';
+    const ASSETS = ['./', './index.html', './manifest.webmanifest', './assets/ui/favicon.png', './assets/ui/logo.png'];
+    self.addEventListener('install', e => {
+      e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting()));
+    });
+    self.addEventListener('activate', e => {
+      e.waitUntil(caches.keys().then(keys => Promise.all(keys.map(k => k !== CACHE_NAME && caches.delete(k)))).then(() => self.clients.claim()));
+    });
+    self.addEventListener('fetch', e => {
+      e.respondWith(caches.match(e.request).then(cached => cached || fetch(e.request).catch(() => caches.match('./index.html'))));
+    });
+  `;
+  const swBlob = new Blob([swCode], { type: 'text/javascript' });
+  const swUrl = URL.createObjectURL(swBlob);
+  navigator.serviceWorker.register(swUrl).catch(() => {});
+}
+</script>
 </body>
 </html>
