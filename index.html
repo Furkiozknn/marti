@@ -1173,6 +1173,9 @@ const I18N = {
     fed: 'Yavru beslendi! +1 tüy', mateHit: 'Yavru martı kanadıyla çarpmayı emdi!', pier: 'Balık sandığı! Enerji +35',
     gust: 'Rüzgâr geliyor', gustChip: 'Rüzgâr', didYou: 'Biliyor muydun?', chickLine: 'Yavru: {s} · {n} besleme',
     stages: ['Yumurta', 'Civciv', 'Tüylü yavru', 'Genç martı'], aMute: 'Sessiz (N)', comboUp: 'Kombo x{m}!',
+    flockJoin: 'Sürüne bir martı katıldı! ({n})', flockBig: 'Sürü büyüdü: uçurtma iplerini koparır, rakipleri kovar',
+    flockKite: 'Sürü uçurtma ipini kopardı!', flockScare: 'Sürün rakip martıları kovaladı!', flockLost: 'Sürüden {n} martı dağıldı',
+    flockChip: 'Sürü {n} · x{m}',
   },
   en: {
     tagline: 'A seagull run over the Bosphorus, hunting simit',
@@ -1201,6 +1204,9 @@ const I18N = {
     fed: 'Chick fed! +1 feather', mateHit: 'The young gull took the hit on its wing!', pier: 'Fish crate! Stamina +35',
     gust: 'Gust coming', gustChip: 'Gust', didYou: 'Did you know?', chickLine: 'Chick: {s} · {n} fed',
     stages: ['Egg', 'Hatchling', 'Fluffy chick', 'Young gull'], aMute: 'Mute (N)', comboUp: 'Combo x{m}!',
+    flockJoin: 'A gull joined your flock! ({n})', flockBig: 'Big flock: it snaps kite lines and chases rivals off',
+    flockKite: 'Your flock snapped a kite line!', flockScare: 'Your flock chased the rivals off!', flockLost: '{n} gulls scattered from your flock',
+    flockChip: 'Flock {n} · x{m}',
   },
 };
 // Facts for the game-over card and the title line, shown in turn. Sources are in the comments (research pool, 2026-10-28).
@@ -1373,6 +1379,15 @@ function wingOuterGeo(side, ox = 0, oy = 0, oz = 0) {
 }
 // Rival flock: the same gull with the wings spread flat (instanced; the shader flaps them).
 const rivalGeo = merge([gullBodyGeo,
+  wingInnerGeo(1, 0.45, 0.15, 0.25), wingInnerGeo(-1, -0.45, 0.15, 0.25),
+  wingOuterGeo(1, 1.95, 0.15, 0.25), wingOuterGeo(-1, -1.95, 0.15, 0.25)]);
+// Your own flock (Sürü): a low-poly gull with the same spread-wing outline (few segments per sphere, no tail or
+// legs), drawn small and instanced, so a dozen of them stay one cheap draw call.
+const wingmanGeo = merge([
+  part(new THREE.SphereGeometry(0.62, 6, 4), GULL_WHITE, [0, 0, 0], [0, 0, 0], [0.9, 0.78, 1.55]),
+  part(new THREE.SphereGeometry(0.6, 6, 4), GULL_GREY, [0, 0.2, -0.15], [0, 0, 0], [0.82, 0.45, 1.2]),
+  part(new THREE.SphereGeometry(0.42, 5, 3), GULL_WHITE, [0, 0.34, 1.0]),
+  part(new THREE.ConeGeometry(0.11, 0.55, 4), '#FACC15', [0, 0.28, 1.6], [Math.PI / 2, 0, 0]),
   wingInnerGeo(1, 0.45, 0.15, 0.25), wingInnerGeo(-1, -0.45, 0.15, 0.25),
   wingOuterGeo(1, 1.95, 0.15, 0.25), wingOuterGeo(-1, -1.95, 0.15, 0.25)]);
 
@@ -1596,7 +1611,7 @@ function setInst(mesh, arr, n = arr.length, noColor = false) {
 }
 
 // Reused per-frame instance lists (no new arrays or objects per frame).
-const TMP = { kite: [], str: [], flock: [], simit: [], fish: [], halo: [], mate: [] };
+const TMP = { kite: [], str: [], flock: [], simit: [], fish: [], halo: [], mate: [], wing: [] };
 const slot = (arr, i) => arr[i] || (arr[i] = { x: 0, y: 0, z: 0, r: 0 });
 
 const HOUSE_COLS = ['#F4A261', '#E76F51', '#2A9D8F', '#E9C46A', '#F5F5DC', '#E63946', '#8ECAE6', '#F1FAEE', '#FFB4A2', '#B5E48C'];
@@ -1632,7 +1647,11 @@ const IM = {
   post: makeInst(houseGeo, M.white, 80),
   // the young gull that flies beside you from chick stage 4 (the rival flock shader, so it flaps)
   mate: makeInst(rivalGeo, M.flock, 1),
+  // your flock (Sürü): members in formation plus the ones scattering after a hit (see updateWingmen)
+  wing: makeInst(wingmanGeo, M.flock, 24),
 };
+const wingPhase = new THREE.InstancedBufferAttribute(new Float32Array(24), 1).setUsage(THREE.DynamicDrawUsage);
+IM.wing.geometry.setAttribute('instPhase', wingPhase);
 // Tutorial ring around the first simit pattern of a player's first run.
 const tutMesh = new THREE.Mesh(ringGeo, new THREE.MeshBasicMaterial({ color: 0xFFFFFF, transparent: true, opacity: 0.85, side: THREE.DoubleSide, depthWrite: false, fog: false }));
 tutMesh.visible = false;
@@ -1967,6 +1986,7 @@ const S = {
   overT: 0, cullT: 0, newBest: false, runs: [], draws: 0, fps: 0, assets: [],
   carried: 0, feeds: 0, nearMiss: 0, nearCd: 0, piers: 0, mate: false, mateUsed: false,
   gustAt: 0, gustWarned: false, gustDir: 1,
+  flock: 0, flockFeed: 0, flockMax: 0, flockLost: 0, flockBigTold: false, kitesCut: 0, rivalsScared: 0,
 };
 window.marti = S;
 S.G = G;
@@ -1986,7 +2006,107 @@ function baseSpeed(t) { return 27 + 31 * (1 - Math.exp(-t / 70)); }
 function diffK() { return clamp((S.t - 30) / 150, 0, 1); }
 // Late-run ramp: 0 until 180 s, 1 at 420 s (storm clouds, kite pairs, faster hostile flocks, gust warnings).
 function lateK() { return clamp((S.t - 180) / 240, 0, 1); }
-function scoreMult() { return (S.tailT > 0 ? 1.5 : 1) * (S.goldT > 0 ? 2 : 1); }
+function scoreMult() { return (S.tailT > 0 ? 1.5 : 1) * (S.goldT > 0 ? 2 : 1) * flockMult(); }
+
+// ---------- your flock (Sürü) ----------
+// Every PER simit a gull joins (up to CAP). Each member adds 2.5% to the score multiplier (x1.30 at 12). From BREAK
+// members the flock snaps kite lines the gull flies into and chases hostile rival flocks off before they steal.
+// A real hit (not one the shield or the young gull takes) scatters 40% of the flock (at least one gull).
+// WM is a fixed pool (no allocation per frame): st 0 free, 1 in formation, 2 scattering. x and y are world
+// coordinates, z is relative to the gull (S.d), since the whole flock flies at the run speed.
+const FLOCK = { PER: 5, CAP: 12, BREAK: 6, STEP: 0.025 };
+const WM = Array.from({ length: 24 }, () => ({ st: 0, x: 0, y: 0, z: 0, vx: 0, vy: 0, vz: 0, ph: 0, t: 0 }));
+function flockMult() { return 1 + FLOCK.STEP * S.flock; }
+function flockReset() { for (const b of WM) b.st = 0; S.flock = 0; S.flockFeed = 0; S.flockMax = 0; S.flockLost = 0; S.flockBigTold = false; S.kitesCut = 0; S.rivalsScared = 0; }
+function flockJoin() {
+  if (S.flock >= FLOCK.CAP) return;
+  // a free slot, else the scattering gull that is furthest gone
+  let b = null;
+  for (const w of WM) if (w.st === 0) { b = w; break; }
+  if (!b) for (const w of WM) if (w.st === 2 && (!b || w.t < b.t)) b = w;
+  const side = S.flock % 2 ? 1 : -1;
+  b.st = 1; b.x = G.x + side * 12; b.y = G.y + 6; b.z = 10; b.vx = -side * 6; b.vy = -2; b.vz = 0; b.ph = rnd(0, TAU); b.t = 0;
+  S.flock++; S.flockMax = Math.max(S.flockMax, S.flock);
+  toast(tx('flockJoin', { n: S.flock }), 'good');
+  if (S.flock >= FLOCK.BREAK && !S.flockBigTold) { S.flockBigTold = true; toast(tx('flockBig'), 'good'); }
+}
+function flockScatter() {
+  if (S.flock <= 0) return 0;
+  const lose = Math.max(1, Math.ceil(S.flock * 0.4));
+  let n = 0;
+  for (let i = WM.length - 1; i >= 0 && n < lose; i--) {
+    const b = WM[i];
+    if (b.st !== 1) continue;
+    const side = b.x >= G.x ? 1 : -1;
+    b.st = 2; b.t = 1.4; b.vx = side * rnd(8, 16); b.vy = rnd(3, 10); b.vz = rnd(-16, -6);
+    fxBurst(b.x, b.y, S.d + b.z, '#FFFFFF', 5, 4, 0.9, 3);
+    n++;
+  }
+  S.flock -= n; S.flockLost += n;
+  toast(tx('flockLost', { n }), 'bad');
+  return n;
+}
+function cutKite(k) {
+  k.cut = true; k.fall = 0; S.kitesCut++;
+  const pts = Math.round(40 * scoreMult());
+  S.score += pts;
+  fxBurst(k.cx, k.y, k.z, k.c, 14, 7, 0.8, 6);
+  floatText(k.cx, k.y + 1.5, k.z, '+' + pts);
+  toast(tx('flockKite'), 'good');
+  sfxWhoosh();
+}
+function scareRivals(f) {
+  f.hostile = false; f.scared = true; f.flee = f.x >= G.x ? 1 : -1; S.rivalsScared++;
+  const pts = Math.round(15 * f.members.length * scoreMult());
+  S.score += pts;
+  fxBurst(f.x, f.y, f.z, '#E5E7EB', 12, 6, 0.7, 4);
+  floatText(f.x, f.y + 2, f.z, '+' + pts);
+  toast(tx('flockScare'), 'good');
+  sfxChirp();
+}
+// Boids, relative to the gull: steer to a V slot behind it, plus cohesion, alignment and separation. Visual only
+// (the rules above use the count), so martiSim skips it.
+function updateWingmen(dt) {
+  let cx = 0, cy = 0, cz = 0, ax = 0, ay = 0, az = 0, n = 0;
+  for (const b of WM) if (b.st === 1) { cx += b.x; cy += b.y; cz += b.z; ax += b.vx; ay += b.vy; az += b.vz; n++; }
+  if (n) { cx /= n; cy /= n; cz /= n; ax /= n; ay /= n; az /= n; }
+  let rank = 0, m = 0;
+  const k = Math.min(1, dt);
+  for (const b of WM) {
+    if (b.st === 0) continue;
+    if (b.st === 2) {
+      b.t -= dt;
+      if (b.t <= 0) { b.st = 0; continue; }
+      b.vy -= 4 * dt;
+      b.x += b.vx * dt; b.y += b.vy * dt; b.z += b.vz * dt;
+    } else {
+      // V slots beside and a little behind the gull, alternating rows a little higher, so the 19-unit chase camera
+      // sees the flock around the gull rather than through it
+      const side = rank % 2 ? 1 : -1, row = rank >> 1;
+      rank++;
+      const tx0 = G.x + side * (2.6 + 1.3 * row), ty0 = G.y + 0.8 + (row % 2) * 1.3 + 0.2 * row, tz0 = -0.6 - 0.8 * row;
+      let fx = (tx0 - b.x) * 16 + (cx - b.x) * 0.6 + (ax - b.vx) * 0.8 - b.vx * 5;
+      let fy = (ty0 - b.y) * 16 + (cy - b.y) * 0.6 + (ay - b.vy) * 0.8 - b.vy * 5;
+      let fz = (tz0 - b.z) * 16 + (cz - b.z) * 0.6 + (az - b.vz) * 0.8 - b.vz * 5;
+      for (const o of WM) {
+        if (o === b || o.st !== 1) continue;
+        const dx = b.x - o.x, dy = b.y - o.y, dz = b.z - o.z, d2 = dx * dx + dy * dy + dz * dz;
+        if (d2 < 2.25 && d2 > 1e-4) { fx += (dx / d2) * 30; fy += (dy / d2) * 30; fz += (dz / d2) * 30; }
+      }
+      b.vx += fx * k; b.vy += fy * k; b.vz += fz * k;
+      const sp = Math.hypot(b.vx, b.vy, b.vz);
+      if (sp > 45) { const s = 45 / sp; b.vx *= s; b.vy *= s; b.vz *= s; }
+      b.x = clamp(b.x + b.vx * dt, -CORR - 8, CORR + 8); b.y = clamp(b.y + b.vy * dt, YMIN - 1, YMAX + 3); b.z += b.vz * dt;
+    }
+    const o = slot(TMP.wing, m);
+    const sc = b.st === 2 ? 0.45 * clamp(b.t / 1.4, 0.15, 1) : 0.45;
+    o.x = b.x; o.y = b.y; o.z = S.d + b.z; o.r = clamp(b.vx * 0.03, -0.5, 0.5); o.sx = o.sy = o.sz = sc;
+    wingPhase.array[m] = b.ph;
+    m++;
+  }
+  setInst(IM.wing, TMP.wing, S.state === 'playing' || S.state === 'paused' ? m : 0, true);
+  wingPhase.needsUpdate = true;
+}
 function comboMult() { return 1 + Math.min(4, Math.floor(S.combo / 4)); }
 
 // Shore band: houses, trees, mosques, balloons and specials on both shores, for a 40-unit stretch.
@@ -2155,7 +2275,7 @@ function cull() {
   obsBridges = obsBridges.filter((o) => { if (o.z > lim) return true; scene.remove(o.mesh); return false; });
   obsStorms = obsStorms.filter((o) => { if (o.z > lim) return true; if (o.mesh) scene.remove(o.mesh); return false; });
   powers = powers.filter((o) => { if (o.z > lim && !o.dead) return true; if (o.mesh) scene.remove(o.mesh); return false; });
-  obsKites = obsKites.filter((o) => o.z > lim);
+  obsKites = obsKites.filter((o) => o.z > lim && o.y > -3);
   flocks = flocks.filter((o) => o.z > lim - 60 && o.members.length > 0);
   simits = simits.filter((o) => o.z > lim && !o.dead);
   fishes = fishes.filter((o) => o.zf > lim && !o.dead);
@@ -2190,12 +2310,17 @@ function checkHits() {
     if (hitBox(p.x, p.y, p.y + p.sy, p.z, 0.45, 0.45)) return hitPlayer();
   }
   for (const k of obsKites) {
-    if (Math.abs(d - k.z) > 4) continue;
-    if (hitBox(k.cx, k.y - 1.6, k.y + 1.6, k.z, 1.6, 1.4)) return hitPlayer();
+    if (k.cut || Math.abs(d - k.z) > 4) continue;
+    if (hitBox(k.cx, k.y - 1.6, k.y + 1.6, k.z, 1.6, 1.4)) {
+      if (S.flock >= FLOCK.BREAK) { cutKite(k); continue; } // a big flock snaps the line instead
+      return hitPlayer();
+    }
   }
-  // Rival flock: members steal simit (not a life, but costs stamina and the combo).
+  // Rival flock: members steal simit (not a life, but costs stamina and the combo). A big flock of your own
+  // chases a hostile flock off when it comes close (within 14 units ahead), before any member can steal.
   for (const f of flocks) {
     if (!f.hostile) continue;
+    if (S.flock >= FLOCK.BREAK && f.z - d < 14 && f.z - d > -3 && Math.abs(f.x - G.x) < 9 && Math.abs(f.y - G.y) < 9) { scareRivals(f); continue; }
     for (let i = f.members.length - 1; i >= 0; i--) {
       const m = f.members[i];
       const mx = f.x + m.ox, my = f.y + m.oy, mz = f.z + m.oz;
@@ -2227,7 +2352,7 @@ function nearMissCheck() {
     if (near || Math.abs(d - o.z) > 25) continue;
     for (const b of BOAT_BOXES[o.type]) if (nearBox(o.x + b.ox, b.y0, b.y1, o.z + b.oz, b.hw, b.hd)) { near = true; break; }
   }
-  for (const k of obsKites) if (!near && Math.abs(d - k.z) < 4 && nearBox(k.cx, k.y - 1.6, k.y + 1.6, k.z, 1.6, 1.4)) near = true;
+  for (const k of obsKites) if (!near && !k.cut && Math.abs(d - k.z) < 4 && nearBox(k.cx, k.y - 1.6, k.y + 1.6, k.z, 1.6, 1.4)) near = true;
   for (const b of obsBridges) {
     if (!near && Math.abs(d - b.z) < 3.1 + GZ + 1.5 && Math.abs(G.x) <= BR.towerX && Math.abs(G.y - cableY(G.x)) < 1.5 + GY + 1.5) near = true;
   }
@@ -2256,6 +2381,7 @@ function hitPlayer() {
   S.tx = clamp(S.tx + (G.x > 0 ? -5 : 5), -CORR, CORR);
   fxBurst(G.x, G.y, S.d, '#FFFFFF', 22, 9, 1.1, 9);
   toast(tx('hit'), 'bad');
+  flockScatter(); // part of your flock scatters as well
   sfxHit(1);
   if (S.lives <= 0) gameOver('crash');
 }
@@ -2337,6 +2463,7 @@ function collectSimit(x, y, z) {
   S.score += pts;
   S.stamina = Math.min(100, S.stamina + 6);
   missionAdd('simit', 1);
+  if (++S.flockFeed >= FLOCK.PER) { S.flockFeed = 0; flockJoin(); }
   sfxChime(S.combo);
   fxBurst(x, y, z, '#FDE68A', 10, 6, 0.6, 7);
   floatText(x, y + 1, z, '+' + pts);
@@ -2421,9 +2548,13 @@ function simStep(dt) {
   for (const f of flocks) {
     f.z += f.vz * dt;
     f.x += Math.sin(WT * 0.6 + f.ph) * dt * 2;
+    if (f.flee) { f.x += f.flee * 18 * dt; f.y += 7 * dt; } // chased off by your flock
   }
   for (const s of obsStorms) s.cx = s.x + Math.sin(WT * 0.3 + s.ph) * 5 * s.dir;
-  for (const k of obsKites) k.cx = k.x + Math.sin(WT * 0.8 + k.ph) * 1.5;
+  for (const k of obsKites) {
+    if (k.cut) { k.fall += 22 * dt; k.y -= k.fall * dt; continue; } // a snapped kite tumbles into the water
+    k.cx = k.x + Math.sin(WT * 0.8 + k.ph) * 1.5;
+  }
 
   if (!A) {
     checkHits();
@@ -2501,9 +2632,14 @@ function updateVisuals(dt) {
   }
   // Kites and strings (kite cx is set in simStep).
   let n = 0;
-  for (const k of obsKites) { if (k.z < S.d - 4) continue; const o = slot(TMP.kite, n), s = slot(TMP.str, n++); o.x = k.cx; o.y = k.y; o.z = k.z; o.c = k.c; s.x = k.cx; s.y = 0; s.z = k.z; s.sy = k.y; }
+  let ns = 0; // snapped kites have no string and spin as they fall
+  for (const k of obsKites) {
+    if (k.z < S.d - 4) continue;
+    const o = slot(TMP.kite, n++); o.x = k.cx; o.y = k.y; o.z = k.z; o.c = k.c; o.r = k.cut ? WT * 7 : 0;
+    if (!k.cut) { const s = slot(TMP.str, ns++); s.x = k.cx; s.y = 0; s.z = k.z; s.sy = k.y; }
+  }
   setInst(IM.kite, TMP.kite, n);
-  setInst(IM.kiteStr, TMP.str, n);
+  setInst(IM.kiteStr, TMP.str, ns);
 
   // Flocks: white (friendly) and dark (rival) gulls; wings flap in the shader with a phase per bird.
   n = 0;
@@ -2513,7 +2649,7 @@ function updateVisuals(dt) {
       if (f.z + m.oz < S.d - 4) continue; // passed the gull: would fly through the camera
       const o = slot(TMP.flock, n);
       o.x = f.x + m.ox; o.y = f.y + m.oy + Math.sin(WT * 4 + f.ph) * 0.2; o.z = f.z + m.oz;
-      o.c = f.hostile ? '#2B2F36' : '#FFFFFF'; o.r = f.vz > 0 ? 0 : Math.PI;
+      o.c = f.hostile || f.scared ? '#2B2F36' : '#FFFFFF'; o.r = f.vz > 0 ? 0 : Math.PI;
       if (n < flockPhase.count) flockPhase.array[n] = f.ph + i * 1.3;
       n++;
     }
@@ -2564,6 +2700,7 @@ function updateVisuals(dt) {
   const mate = TMP.mate[0] || (TMP.mate[0] = { x: 0, y: 0, z: 0, c: '#FFF4D6' });
   mate.x = G.x - Math.sign(G.x || 1) * 3; mate.y = G.y + 0.8; mate.z = S.d - 1.2;
   setInst(IM.mate, TMP.mate, S.mate && S.state === 'playing' ? 1 : 0);
+  updateWingmen(dt);
 
   // The first-run ring pulses around the first simit pattern, until it is passed or a simit is taken.
   if (tutRing && S.d > tutRing.z + 8) tutRing = null;
@@ -2756,7 +2893,7 @@ function botThink(dt) {
   for (const o of obsBoats) for (const b of BOAT_BOXES[o.type]) boxes.push({ x: o.x + b.ox, y0: b.y0, y1: b.y1, z: o.z + b.oz, hw: b.hw, hd: b.hd });
   for (const b of obsBridges) for (const bx of BRIDGE_BOXES) boxes.push({ x: bx.x, y0: bx.y0, y1: bx.y1, z: b.z, hw: bx.hw, hd: bx.hd });
   for (const b of obsBridges) boxes.push({ x: 0, y0: 25.5, y1: 29, z: b.z, hw: BR.towerX, hd: 3.1 });
-  for (const k of obsKites) boxes.push({ x: k.cx, y0: k.y - 1.6, y1: k.y + 1.6, z: k.z, hw: 1.6, hd: 1.4 });
+  for (const k of obsKites) if (!k.cut) boxes.push({ x: k.cx, y0: k.y - 1.6, y1: k.y + 1.6, z: k.z, hw: 1.6, hd: 1.4 });
   for (const p of PR.post) boxes.push({ x: p.x, y0: p.y, y1: p.y + p.sy, z: p.z, hw: 0.45, hd: 0.45 });
   for (const f of flocks) if (f.hostile) for (const m of f.members) boxes.push({ x: f.x + m.ox, y0: f.y + m.oy - 1.5, y1: f.y + m.oy + 1.5, z: f.z + m.oz, hw: 2.2, hd: 2.2 });
   const picks = [];
@@ -2806,6 +2943,7 @@ function startRun() {
   S.carried = 0; S.feeds = 0; S.nearMiss = 0; S.nearCd = 0; S.piers = 0; S.mateUsed = false;
   S.mate = chickStage() === 4; // from chick stage 4 the young gull flies along in every run
   S.gustAt = 0; S.gustWarned = false;
+  flockReset();
   for (const s of STREAK) s.z = -999; // recycle the speed lines from the start of the run
   $('#combo').innerHTML = '';
   if (Q.has('t0')) S.t = +Q.get('t0') || 0; // test hook: start later in the day (e.g. ?t0=150 for night)
@@ -2831,7 +2969,7 @@ function gameOver(reason) {
   S.attract = true;
   S.overT = 0;
   S.combo = 0;
-  const run = { score: Math.round(S.score), dist: Math.round(S.d), simit: S.simit, fish: S.fish, combo: S.runCombo, t: +S.t.toFixed(1), reason, fact: META.factIdx % FACTS.length };
+  const run = { score: Math.round(S.score), dist: Math.round(S.d), simit: S.simit, fish: S.fish, combo: S.runCombo, flock: S.flockMax, t: +S.t.toFixed(1), reason, fact: META.factIdx % FACTS.length };
   META.factIdx++; // the next game-over card shows the next fact
   S.runs.push(run);
   if (S.runs.length > 50) S.runs.shift();
@@ -3181,6 +3319,7 @@ function renderChips() {
   if (S.goldT > 0) chips.push(['on', tx('goldChip') + ' ' + Math.ceil(S.goldT) + 's']);
   if (S.shieldOn) chips.push(['on', tx('shieldChip')]);
   if (S.combo >= 4) chips.push(['', 'x' + comboMult() + ' · ' + S.combo]);
+  if (S.flock > 0) chips.push([S.flock >= FLOCK.BREAK ? 'on' : '', tx('flockChip', { n: S.flock, m: flockMult().toFixed(2) })]);
   if (S.gustWarned && S.t < S.gustAt) chips.push(['on', ARROW(-S.gustDir) + tx('gustChip')]);
   const el = $('#chips');
   const sig = chips.map((c) => c[1]).join('|');
@@ -3318,6 +3457,7 @@ function updateDebug() {
     'runs: ' + S.runs.slice(-8).map((r) => r.score + ' / ' + r.dist + 'm / ' + r.t + 's ' + r.reason).join('  |  '),
     'gull x ' + G.x.toFixed(1) + ' y ' + G.y.toFixed(1) + ' z ' + gull.position.z.toFixed(1) + ' vis ' + gull.visible + '  cam ' + camera.position.x.toFixed(1) + ',' + camera.position.y.toFixed(1) + ',' + camera.position.z.toFixed(1),
     'carried ' + S.carried + '  feeds ' + S.feeds + '  nests ' + PR.nest.length + '  piers ' + S.piers + ' posts ' + PR.post.length + '  near ' + S.nearMiss + '  chick ' + META.chick + ' stage ' + chickStage() + (S.mate ? ' mate' : '') + '  late ' + lateK().toFixed(2),
+    'flock ' + S.flock + ' (max ' + S.flockMax + ', lost ' + S.flockLost + ')  kites cut ' + S.kitesCut + '  rivals chased ' + S.rivalsScared,
   ];
   $('#dbgL').textContent = lines.join('\n') + '\n';
 }
@@ -3469,7 +3609,9 @@ setScreen('title');
 if (FLAG.debug) { $('#dbg').classList.remove('hidden'); }
 if (Q.has('noassets')) document.querySelectorAll('.mascot').forEach((el) => el.remove()); // the mascot is an asset too
 // for screenshot tests (camera placement while paused) and the nest test (feeding)
-if (FLAG.debug) window.martiDebug = { THREE, scene, camera, gull, G, PR, boats: () => obsBoats, boxes: BOAT_BOXES };
+if (FLAG.debug) window.martiDebug = { THREE, scene, camera, gull, G, PR, boats: () => obsBoats, boxes: BOAT_BOXES,
+  // flock tests: pickups, hits and obstacles driven from the page
+  collectSimit, hitPlayer, kitePattern, flockPattern, kites: () => obsKites, flocks: () => flocks, WM, FLOCK, IM };
 spawnAhead(); // the title screen is never empty
 S.d = 0;
 updateVisuals(1 / 60);
