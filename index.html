@@ -3239,24 +3239,42 @@ window.addEventListener('pointerdown', (e) => {
   ensureAudio();
   if (isUI(e.target)) return;
   ptrDown = true; ptrType = e.pointerType; ptrMoved = 0;
-  ptrStart = { x: e.clientX, y: e.clientY, t: performance.now(), tx: S.tx, ty: S.tyBase };
+  const isLowerRight = (e.clientX / window.innerWidth > 0.75 && e.clientY / window.innerHeight > 0.75);
+  ptrStart = { x: e.clientX, y: e.clientY, t: performance.now(), tx: S.tx, ty: S.tyBase, lowerRight: isLowerRight };
   if (S.state === 'title' && assetsReady) { startRun(); return; }
   if (S.state === 'over' && S.overT > 0.6) { startRun(); return; }
-  if (S.state === 'playing' && ptrType !== 'touch') {
-    pointerSteer(e);
-    S.diveHold = true;
+  if (S.state === 'playing') {
+    if (ptrType !== 'touch') {
+      pointerSteer(e);
+      S.diveHold = true;
+    } else if (isLowerRight) {
+      S.diveHold = true;
+    }
   }
 });
 window.addEventListener('pointermove', (e) => {
   if (ptrDown && ptrStart) ptrMoved = Math.max(ptrMoved, Math.hypot(e.clientX - ptrStart.x, e.clientY - ptrStart.y));
-  if (e.pointerType === 'touch') { if (ptrDown) touchSteer(e); return; }
+  if (e.pointerType === 'touch') {
+    if (ptrDown) {
+      touchSteer(e);
+      if (ptrStart && ptrStart.lowerRight) {
+        const lrNow = (e.clientX / window.innerWidth > 0.7 && e.clientY / window.innerHeight > 0.7);
+        S.diveHold = lrNow;
+      }
+    }
+    return;
+  }
   if (isUI(e.target)) return;
   pointerSteer(e);
 });
 window.addEventListener('pointerup', (e) => {
-  // Prevent touch dive when releasing over UI buttons and clear ptrStart
   if (isUI(e.target)) { ptrDown = false; S.diveHold = false; ptrStart = null; return; }
-  if (ptrType === 'touch' && ptrStart && S.state === 'playing' && ptrMoved < 12 && performance.now() - ptrStart.t < 350) S.diveTimer = 0.8;
+  if (ptrType === 'touch' && ptrStart && S.state === 'playing') {
+    const holdDuration = performance.now() - ptrStart.t;
+    if (ptrStart.lowerRight || holdDuration > 150) {
+      if (ptrMoved < 25 || ptrStart.lowerRight) S.diveTimer = 0.8;
+    }
+  }
   ptrDown = false; S.diveHold = false; ptrStart = null;
 });
 
