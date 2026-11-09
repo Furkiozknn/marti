@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>Martı · Seagull Run</title>
+<meta name="arena-game" content="marti">
 <meta name="description" content="Fly a seagull over the Istanbul strait: snatch simit, dodge bridges and ships. · Boğaz üzerinde bir martı: simit kap, köprü ve gemilerden kaç.">
 <meta property="og:title" content="Martı · Seagull Run">
 <meta property="og:description" content="An endless 3D seagull run over the Istanbul strait: snatch simit from ferries, dodge bridge cables and kites, fly from sunset into a night of fireworks.">
@@ -1373,6 +1374,8 @@ button:focus-visible, a:focus-visible, input:focus-visible {
       <button class="btn ghost" id="bSetT" data-i18n="settings">Ayarlar</button>
       <button class="btn ghost pill" id="bLangT">EN</button>
     </div>
+    <div class="row"><button class="btn ghost" id="bDaily" data-i18n="daily">Günün Meydan Okuması</button></div>
+    <p class="bestline" id="dailyLine"></p>
     <p class="bestline" id="bestLine"></p>
     <div class="two">
       <div><h4 data-i18n="missions">Görevler</h4><ul id="missList"></ul></div>
@@ -1428,6 +1431,11 @@ button:focus-visible, a:focus-visible, input:focus-visible {
       <button class="btn" id="bRetry" data-i18n="retry">Tekrar dene</button>
       <button class="btn ghost" id="bMenuO" data-i18n="menu">Ana menü</button>
     </div>
+    <div class="row">
+      <button class="btn ghost" id="bShare" data-i18n="share">Paylaş</button>
+      <button class="btn ghost" id="bOther" data-i18n="anotherGame">Başka oyun</button>
+    </div>
+    <p class="bestline" id="oDaily"></p>
     <p class="hint" id="overMissions"></p>
     <p class="fact"><b data-i18n="didYou">Biliyor muydun?</b> <span id="oFact"></span></p>
   </div>
@@ -1468,6 +1476,11 @@ const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
 const lerp = (a, b, t) => a + (b - a) * t;
 const rnd = (a, b) => a + Math.random() * (b - a);
 const pick = (a) => a[(Math.random() * a.length) | 0];
+// Spawn dice: what is placed ahead of the gull (shore bands, patterns, bridges, nests). A daily-challenge run swaps in
+// the arena-kit day generator so everyone flies the same route; effects, sound and the bot keep Math.random.
+let SRND = Math.random;
+const srnd = (a, b) => a + SRND() * (b - a);
+const spick = (a) => a[(SRND() * a.length) | 0];
 // Guard a === b to avoid division by zero / NaN
 const smooth = (a, b, x) => { const t = a === b ? 0 : clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
 const TAU = Math.PI * 2;
@@ -1530,6 +1543,9 @@ const I18N = {
     flockJoin: 'Sürüne bir martı katıldı! ({n})', flockBig: 'Sürü büyüdü: uçurtma iplerini koparır, rakipleri kovar',
     flockKite: 'Sürü uçurtma ipini kopardı!', flockScare: 'Sürün rakip martıları kovaladı!', flockLost: 'Sürüden {n} martı dağıldı',
     flockChip: 'Sürü {n} · x{m}',
+    daily: 'Günün Meydan Okuması', share: 'Paylaş', anotherGame: 'Başka oyun', dailyLine: 'Herkese aynı rota · seri {s} gün · en iyi {b}',
+    dailyDone: 'bugün tamam', dailyOver: 'Günün Meydan Okuması · seri {s} gün · en iyi {b}', shareLine: '{n} puan · {d} · {k} simit',
+    aw1km: 'Martı: ilk 1 km', awChick: 'Martı: yavru büyüdü',
   },
   en: {
     tagline: 'A seagull run over the Bosphorus, hunting simit',
@@ -1561,6 +1577,9 @@ const I18N = {
     flockJoin: 'A gull joined your flock! ({n})', flockBig: 'Big flock: it snaps kite lines and chases rivals off',
     flockKite: 'Your flock snapped a kite line!', flockScare: 'Your flock chased the rivals off!', flockLost: '{n} gulls scattered from your flock',
     flockChip: 'Flock {n} · x{m}',
+    daily: 'Daily challenge', share: 'Share', anotherGame: 'Another game', dailyLine: 'The same route for everyone · streak {s} days · best {b}',
+    dailyDone: 'done today', dailyOver: 'Daily challenge · streak {s} days · best {b}', shareLine: '{n} points · {d} · {k} simit',
+    aw1km: 'Martı: first 1 km', awChick: 'Martı: the chick grew up',
   },
 };
 // Facts for the game-over card and the title line, shown in turn. Sources are in the comments (research pool, 2026-10-28).
@@ -1623,6 +1642,14 @@ try {
 }
 const isLow = () => FLAG.low || SET.quality === 'low';
 renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isLow() ? 1 : 1.5));
+// arena-kit: dynamic pixel ratio on weak GPUs, capped by the quality tier (re-attached when the tier changes)
+let arenaPerf = null;
+function arenaPerfAttach() {
+  if (!window.Arena) return;
+  if (arenaPerf) arenaPerf.stop();
+  arenaPerf = Arena.perf.attach(renderer, { max: Math.min(window.devicePixelRatio || 1, isLow() ? 1 : 1.5) });
+}
+arenaPerfAttach();
 renderer.setSize(window.innerWidth, window.innerHeight, false);
 renderer.shadowMap.enabled = !isLow();
 renderer.shadowMap.type = THREE.PCFShadowMap;
@@ -2466,39 +2493,39 @@ function comboMult() { return 1 + Math.min(4, Math.floor(S.combo / 4)); }
 // Shore band: houses, trees, mosques, balloons and specials on both shores, for a 40-unit stretch.
 function spawnShoreBand(z0) {
   for (const side of [-1, 1]) {
-    const n = 4 + ((Math.random() * 5) | 0);
+    const n = 4 + ((SRND() * 5) | 0);
     for (let i = 0; i < n; i++) {
-      const x = side * rnd(34, 74), z = z0 + rnd(0, 40), y = terrH(x, z);
-      const w = rnd(2.4, 3.6), h = rnd(2.5, 6), d = rnd(2.6, 3.4);
-      PR.house.push({ x, y, z, sx: w, sy: h, sz: d, c: pick(HOUSE_COLS) });
-      if (Math.random() < 0.6) PR.roof.push({ x, y: y + h, z, sx: w * 1.2, sy: rnd(0.9, 1.5), sz: d * 1.2, c: pick(['#7C2D12', '#991B1B', '#9A3412']) });
+      const x = side * srnd(34, 74), z = z0 + srnd(0, 40), y = terrH(x, z);
+      const w = srnd(2.4, 3.6), h = srnd(2.5, 6), d = srnd(2.6, 3.4);
+      PR.house.push({ x, y, z, sx: w, sy: h, sz: d, c: spick(HOUSE_COLS) });
+      if (SRND() < 0.6) PR.roof.push({ x, y: y + h, z, sx: w * 1.2, sy: srnd(0.9, 1.5), sz: d * 1.2, c: spick(['#7C2D12', '#991B1B', '#9A3412']) });
     }
     for (let i = 0; i < 3; i++) {
-      const x = side * rnd(34, 62), z = z0 + rnd(0, 40), y = terrH(x, z);
-      PR.tree.push({ x, y, z, sx: 1.2, sy: rnd(1.0, 1.7), sz: 1.2, c: pick(['#2F6B3F', '#3A7D44', '#25573A']) });
+      const x = side * srnd(34, 62), z = z0 + srnd(0, 40), y = terrH(x, z);
+      PR.tree.push({ x, y, z, sx: 1.2, sy: srnd(1.0, 1.7), sz: 1.2, c: spick(['#2F6B3F', '#3A7D44', '#25573A']) });
     }
-    if (Math.random() < 0.22) {
-      const x = side * rnd(46, 54), z = z0 + rnd(5, 35), y = terrH(x, z);
+    if (SRND() < 0.22) {
+      const x = side * srnd(46, 54), z = z0 + srnd(5, 35), y = terrH(x, z);
       // The mosque model faces the water (its +z turned towards x = 0).
       PR.mosque.push({ x, y: y - 0.3, z, r: side < 0 ? Math.PI / 2 : -Math.PI / 2 });
       // Procedural fallback: a cream body, a dome on top and two minarets on their own ground height.
-      const gold = Math.random() < 0.5 ? '#E9C46A' : '#F8FAFC';
+      const gold = SRND() < 0.5 ? '#E9C46A' : '#F8FAFC';
       PR.mbody.push({ x, y: y - 0.3, z, sx: 6.4, sy: 2.5, sz: 6.4, c: '#EFE6D2' });
       PR.dome.push({ x, y: y + 2.2, z, sx: 3.2, sy: 2.6, sz: 3.2, c: gold });
       const mx1 = x + side * 4.5, mz1 = z - 2.5, mx2 = x - side * 0.5, mz2 = z + 3.5;
       PR.minaret.push({ x: mx1, y: terrH(mx1, mz1) - 0.2, z: mz1, sx: 0.9, sy: 2.1, sz: 0.9 });
       PR.minaret.push({ x: mx2, y: terrH(mx2, mz2) - 0.2, z: mz2, sx: 0.8, sy: 2.4, sz: 0.8 });
     }
-    if (Math.random() < 0.12) {
-      const x = side * rnd(40, 70), z = z0 + rnd(0, 30);
-      PR.balloon.push({ x, y0: rnd(26, 40), y: 30, z, ph: rnd(0, TAU), sx: 1, sy: 1.2, sz: 1, c: pick(BAL_COLS) });
+    if (SRND() < 0.12) {
+      const x = side * srnd(40, 70), z = z0 + srnd(0, 30);
+      PR.balloon.push({ x, y0: srnd(26, 40), y: 30, z, ph: srnd(0, TAU), sx: 1, sy: 1.2, sz: 1, c: spick(BAL_COLS) });
     }
-    if (Math.random() < 0.5) {
-      PR.sky.push({ x: rnd(-150, 150), y: rnd(44, 66), z: z0 + rnd(0, 40), sx: rnd(1.2, 2.2), sy: rnd(0.8, 1.2), sz: 1, r: rnd(-0.15, 0.15) });
+    if (SRND() < 0.5) {
+      PR.sky.push({ x: srnd(-150, 150), y: srnd(44, 66), z: z0 + srnd(0, 40), sx: srnd(1.2, 2.2), sy: srnd(0.8, 1.2), sz: 1, r: srnd(-0.15, 0.15) });
     }
-    if (Math.random() < 0.06) addSpecial('mansion', side * rnd(40, 46), z0 + rnd(5, 30), side);
-    else if (Math.random() < 0.035) addSpecial('tower', side * rnd(60, 74), z0 + rnd(5, 30), side);
-    else if (Math.random() < 0.02) addSpecial('light', side * rnd(64, 80), z0 + rnd(5, 30), side);
+    if (SRND() < 0.06) addSpecial('mansion', side * srnd(40, 46), z0 + srnd(5, 30), side);
+    else if (SRND() < 0.035) addSpecial('tower', side * srnd(60, 74), z0 + srnd(5, 30), side);
+    else if (SRND() < 0.02) addSpecial('light', side * srnd(64, 80), z0 + srnd(5, 30), side);
   }
   PR.dirty = true;
 }
@@ -2520,12 +2547,12 @@ function addSpecial(kind, x, z, side) {
 }
 
 // Patterns of obstacles and pickups, spawned every spacing units ahead of the gull.
-function patSpacing() { return lerp(52, 24, diffK()) * rnd(0.8, 1.25); }
+function patSpacing() { return lerp(52, 24, diffK()) * srnd(0.8, 1.25); }
 function spawnPattern(z) {
   const early = S.t < 30;
-  const r = Math.random();
-  if (!early && Math.random() < 0.1) return pierPattern(z);
-  if (lateK() > 0 && Math.random() < 0.15 * lateK()) return stormPattern(z);
+  const r = SRND();
+  if (!early && SRND() < 0.1) return pierPattern(z);
+  if (lateK() > 0 && SRND() < 0.15 * lateK()) return stormPattern(z);
   if (r < 0.26) return simitPattern(z);
   if (r < 0.34) return fishPattern(z);
   if (r < 0.60) return shipPattern(z);
@@ -2535,12 +2562,12 @@ function spawnPattern(z) {
   return powerPattern(z);
 }
 function simitPattern(z) {
-  const x = rnd(-17, 17);
-  if (Math.random() < 0.5) {
-    const y0 = rnd(6, 16);
-    for (let i = 0; i < 4; i++) simits.push({ x: x + Math.sin(i * 0.9) * 2.5, y: y0 + Math.sin(i * 0.8) * 2, z: z + i * 4.2, ph: rnd(0, TAU) });
+  const x = srnd(-17, 17);
+  if (SRND() < 0.5) {
+    const y0 = srnd(6, 16);
+    for (let i = 0; i < 4; i++) simits.push({ x: x + Math.sin(i * 0.9) * 2.5, y: y0 + Math.sin(i * 0.8) * 2, z: z + i * 4.2, ph: srnd(0, TAU) });
   } else {
-    for (let i = 0; i < 5; i++) simits.push({ x, y: rnd(4.5, 6), z: z + i * 3.6, ph: rnd(0, TAU) });
+    for (let i = 0; i < 5; i++) simits.push({ x, y: srnd(4.5, 6), z: z + i * 3.6, ph: srnd(0, TAU) });
   }
   // The first simit pattern of a player's first run gets a pulsing ring (see updateVisuals).
   if (!tutRing && !META.hints.ring && S.state === 'playing' && !S.attract && !FLAG.auto && !simming) {
@@ -2551,24 +2578,24 @@ function simitPattern(z) {
 // Pier snacks: a row of simit and a fish crate over the water beside a jetty post. Hugging the edge low into a post costs
 // a feather; the crate refills stamina by 35 in total.
 function pierPattern(z) {
-  const side = Math.random() < 0.5 ? -1 : 1, x = side * 19;
-  for (let i = 0; i < 4; i++) simits.push({ x, y: 8.5, z: z + i * 3.4, ph: rnd(0, TAU) });
-  powers.push({ type: 'crate', x, y: 9.6, z: z + 15.5, ph: rnd(0, TAU), mesh: null, dead: false });
+  const side = SRND() < 0.5 ? -1 : 1, x = side * 19;
+  for (let i = 0; i < 4; i++) simits.push({ x, y: 8.5, z: z + i * 3.4, ph: srnd(0, TAU) });
+  powers.push({ type: 'crate', x, y: 9.6, z: z + 15.5, ph: srnd(0, TAU), mesh: null, dead: false });
   for (const dz of [-1, 13]) PR.post.push({ x: side * 20.8, y: 0, z: z + dz, sx: 0.9, sy: 4.2, sz: 0.9, c: '#7C2D12' });
   S.piers++; PR.dirty = true;
 }
 // Rooftop nest on a waterfront house at the corridor edge (the gull reaches it from the air, see checkNests).
 function spawnNest(z) {
-  const side = Math.random() < 0.5 ? -1 : 1, x = side * rnd(31, 33), y = terrH(x, z);
-  PR.house.push({ x, y, z, sx: 3, sy: 3.2, sz: 3, c: pick(HOUSE_COLS) });
+  const side = SRND() < 0.5 ? -1 : 1, x = side * srnd(31, 33), y = terrH(x, z);
+  PR.house.push({ x, y, z, sx: 3, sy: 3.2, sz: 3, c: spick(HOUSE_COLS) });
   PR.nest.push({ x, y: y + 3.2, z, sx: 1, sy: 1, sz: 1, c: '#FFFFFF', fed: false, told: false });
   PR.dirty = true;
 }
 function fishPattern(z) {
-  const n = 2 + ((Math.random() * 2) | 0);
+  const n = 2 + ((SRND() * 2) | 0);
   for (let i = 0; i < n; i++) {
-    const D = rnd(40, 58), zf = z + i * 14 + rnd(0, 8);
-    fishes.push({ x: rnd(-16, 16), zf, D, zs: zf - D, peak: rnd(4.5, 10) });
+    const D = srnd(40, 58), zf = z + i * 14 + srnd(0, 8);
+    fishes.push({ x: srnd(-16, 16), zf, D, zs: zf - D, peak: srnd(4.5, 10) });
   }
 }
 function makeBoat(type, x, z) {
@@ -2577,39 +2604,39 @@ function makeBoat(type, x, z) {
   mesh.castShadow = true;
   mesh.receiveShadow = true;
   scene.add(mesh);
-  return { type, x, z, vz, mesh, horned: false, ph: rnd(0, TAU) };
+  return { type, x, z, vz, mesh, horned: false, ph: srnd(0, TAU) };
 }
 function shipPattern(z) {
-  const r = Math.random();
+  const r = SRND();
   const type = r < 0.33 ? 'ferry' : r < 0.55 ? 'fishing' : r < 0.72 ? (S.t > 40 ? 'tanker' : 'ferry') : 'sail';
-  const x = rnd(-16, 16);
+  const x = srnd(-16, 16);
   const o = makeBoat(type, x, z);
   obsBoats.push(o);
   if (type === 'ferry') {
-    for (let j = 0; j < 3; j++) simits.push({ x, y: 5.3, z: z - 4 + j * 5, ph: rnd(0, TAU), follow: o, off: -4 + j * 5 });
+    for (let j = 0; j < 3; j++) simits.push({ x, y: 5.3, z: z - 4 + j * 5, ph: srnd(0, TAU), follow: o, off: -4 + j * 5 });
   }
 }
 function kitePattern(z) {
-  const side = Math.random() < 0.5 ? -1 : 1;
-  const n = lateK() > 0 ? 2 : 1 + ((Math.random() * 2) | 0); // late run: kites in pairs
+  const side = SRND() < 0.5 ? -1 : 1;
+  const n = lateK() > 0 ? 2 : 1 + ((SRND() * 2) | 0); // late run: kites in pairs
   for (let i = 0; i < n; i++) {
-    obsKites.push({ x: side * rnd(14, 21), cx: 0, y: rnd(14, 28), z: z + i * rnd(12, 30), ph: rnd(0, TAU), c: pick(KITE_COLS) });
+    obsKites.push({ x: side * srnd(14, 21), cx: 0, y: srnd(14, 28), z: z + i * srnd(12, 30), ph: srnd(0, TAU), c: spick(KITE_COLS) });
   }
 }
 function flockPattern(z) {
-  const hostile = Math.random() < 0.6;
+  const hostile = SRND() < 0.6;
   const back = hostile ? 1 : -1; // followers trail behind the leader, against the flight direction
   flocks.push({
-    x: rnd(-12, 12), y: rnd(6, 22), z: hostile ? z + 40 : z - 20, vz: hostile ? -9 * (1 + 0.2 * lateK()) : 9, hostile, ph: rnd(0, TAU),
+    x: srnd(-12, 12), y: srnd(6, 22), z: hostile ? z + 40 : z - 20, vz: hostile ? -9 * (1 + 0.2 * lateK()) : 9, hostile, ph: srnd(0, TAU),
     members: [{ ox: 0, oy: 0, oz: 0 }, { ox: -2.2, oy: 1, oz: 2.5 * back }, { ox: 2.2, oy: 1, oz: 2.5 * back }, { ox: -4.4, oy: 2, oz: 5 * back }],
   });
 }
 function stormPattern(z) {
-  obsStorms.push({ x: rnd(-12, 12), y: rnd(20, 27), z: z + 30, cx: 0, ph: rnd(0, TAU), dir: Math.random() < 0.5 ? -1 : 1, mesh: null });
+  obsStorms.push({ x: srnd(-12, 12), y: srnd(20, 27), z: z + 30, cx: 0, ph: srnd(0, TAU), dir: SRND() < 0.5 ? -1 : 1, mesh: null });
 }
 function powerPattern(z) {
-  const r = Math.random();
-  powers.push({ type: r < 0.4 ? 'tail' : r < 0.7 ? 'gold' : 'shield', x: rnd(-15, 15), y: rnd(7, 18), z: z + 10, ph: rnd(0, TAU), mesh: null, dead: false });
+  const r = SRND();
+  powers.push({ type: r < 0.4 ? 'tail' : r < 0.7 ? 'gold' : 'shield', x: srnd(-15, 15), y: srnd(7, 18), z: z + 10, ph: srnd(0, TAU), mesh: null, dead: false });
 }
 function spawnBridge(z) {
   const mesh = new THREE.Mesh(BRIDGE_GEO, M.vc);
@@ -3286,8 +3313,9 @@ function botThink(dt) {
 }
 
 // ---------- run lifecycle ----------
-function startRun() {
+function startRun(daily) {
   if (simming === false) ensureAudio();
+  S.daily = daily ? daily.day : 0; SRND = daily ? daily.rng : Math.random; S.arenaStreak = null;
   clearWorld();
   S.t = 0; S.d = 0; S.dist = 0; S.speed = 27;
   S.score = 0; S.lives = 3; S.stamina = 100; S.combo = 0; S.comboT = 0; S.runCombo = 0; S.mult = 1;
@@ -3314,8 +3342,8 @@ function startRun() {
 function spawnAhead() {
   while (nextBandZ < S.d + LOOK) { spawnShoreBand(nextBandZ); nextBandZ += 40; }
   while (nextPatZ < S.d + LOOK) { spawnPattern(nextPatZ); nextPatZ += patSpacing(); }
-  while (nextBridgeZ < S.d + LOOK) { spawnBridge(nextBridgeZ); nextBridgeZ += rnd(520, 780); }
-  while (nextNestZ < S.d + LOOK) { spawnNest(nextNestZ); nextNestZ += rnd(700, 900); }
+  while (nextBridgeZ < S.d + LOOK) { spawnBridge(nextBridgeZ); nextBridgeZ += srnd(520, 780); }
+  while (nextNestZ < S.d + LOOK) { spawnNest(nextNestZ); nextNestZ += srnd(700, 900); }
 }
 function gameOver(reason) {
   if (S.state !== 'playing') return;
@@ -3332,9 +3360,19 @@ function gameOver(reason) {
   S.newBest = isNew;
   saveHigh(run);
   missionsFlush();
+  arenaRunOver(run);
   if (!simming) sfxOver();
   setScreen('over', run, isNew);
 }
+// arena-kit after a run: passport badges and the daily streak (only for the day the route was seeded with).
+// The ?auto bot and ?sim never write to the player's passport.
+function arenaRunOver(run) {
+  if (!window.Arena || FLAG.auto || simming) return;
+  if (run.dist >= 1000) Arena.award('marti-1km', tx('aw1km'));
+  if (chickStage() === 4) Arena.award('marti-chick', tx('awChick'));
+  if (S.daily) { const d = Arena.daily(); if (d.day === S.daily) S.arenaStreak = d.complete(run.score); }
+}
+const arenaDailyAgain = () => (S.daily && window.Arena && Arena.daily().day === S.daily ? Arena.daily() : null);
 function togglePause() {
   if (S.state === 'playing') { S.state = 'paused'; setScreen('paused'); audioPause(true); }
   else if (S.state === 'paused') { S.state = 'playing'; setScreen('playing'); audioPause(false); }
@@ -3630,6 +3668,7 @@ function setLang(l) {
 }
 function applyLang() {
   document.documentElement.lang = LANG;
+  if (window.Arena) Arena.lang(LANG);
   document.querySelectorAll('[data-i18n]').forEach((el) => { el.textContent = tx(el.dataset.i18n); });
   $('#how').innerHTML = I18N[LANG].how.map((h) => '<li>' + h + '</li>').join('');
   renderStartButton();
@@ -3755,6 +3794,7 @@ function setScreen(mode, run, isNew) {
     $('#oSimit').textContent = run.simit;
     $('#newBest').textContent = isNew ? tx('newBest') : '';
     $('#oFact').textContent = factText(run.fact);
+    $('#oDaily').textContent = S.arenaStreak ? tx('dailyOver', { s: S.arenaStreak.streak, b: S.arenaStreak.best }) : '';
     renderOverMissions();
     renderHighList();
   }
@@ -3780,6 +3820,8 @@ const NEST_SVG = [
 ];
 function renderTitle() {
   const st = chickStage();
+  if (window.Arena) { const d = Arena.daily(); $('#dailyLine').textContent = (d.done ? tx('dailyDone') + ' · ' : '') + tx('dailyLine', { s: d.streak, b: d.best }); }
+  else $('#bDaily').classList.add('hidden');
   $('#titleFact').textContent = factText(META.factIdx);
   $('#nestCard').innerHTML = '<svg viewBox="0 0 76 56" aria-hidden="true">' + NEST_SVG[st - 1] + '</svg><span>' + tx('chickLine', { s: I18N[LANG].stages[st - 1], n: META.chick }) + '</span>';
 }
@@ -3845,6 +3887,7 @@ function renderSettings() {
 // Low: no shadows, pixel ratio 1.0, fewer firework sparks. High: shadows, pixel ratio up to 1.5.
 function applyQuality() {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isLow() ? 1 : 1.5));
+  arenaPerfAttach();
   renderer.setSize(window.innerWidth, window.innerHeight, false);
   if (renderer.shadowMap.enabled !== !isLow()) {
     renderer.shadowMap.enabled = !isLow();
@@ -3898,7 +3941,7 @@ function loop(now) {
 
 // Pause (and silence) while the tab is hidden.
 document.addEventListener('visibilitychange', () => {
-  if (document.hidden && S.state === 'playing') togglePause();
+  if (document.hidden && S.state === 'playing' && (!window.Arena || Arena.settings.autoPause)) togglePause(); // arena-kit: the player's auto-pause setting
   if (document.hidden) audioPause(true);
   else if (S.state !== 'paused') audioPause(false);
   lastFrame = performance.now();
@@ -3913,9 +3956,13 @@ window.addEventListener('resize', () => {
 
 // ---------- buttons ----------
 click('#bStart', () => { if (assetsReady) startRun(); });
-click('#bRetry', startRun);
+click('#bRetry', () => startRun(arenaDailyAgain())); // a daily run retries as the same daily
+click('#bDaily', () => { if (assetsReady && window.Arena) startRun(Arena.daily()); });
+click('#bShare', () => { if (!lastRun || !window.Arena) return; Arena.share({ title: 'Martı · ' + tx('over'), url: 'https://furkiozknn.github.io/marti/',
+  lines: [tx('shareLine', { n: lastRun.score, d: fmtDist(lastRun.dist), k: lastRun.simit })].concat(S.arenaStreak ? [tx('dailyOver', { s: S.arenaStreak.streak, b: S.arenaStreak.best })] : []) }); });
+click('#bOther', () => { if (!window.Arena) return; const g = Arena.games.filter((x) => x !== 'marti'); window.open('https://furkiozknn.github.io/' + g[(Date.now() / 60000 | 0) % g.length] + '/', '_blank', 'noopener'); });
 click('#bResume', togglePause);
-click('#bRestart', startRun);
+click('#bRestart', () => startRun(arenaDailyAgain()));
 click('#bMenuP', goMenu);
 click('#bMenuO', goMenu);
 click('#bPause', togglePause);
@@ -3960,6 +4007,11 @@ missionsLoad();
 applyLang();
 renderLives();
 setScreen('title');
+// arena-kit: accessibility button bottom-right (that corner holds no game controls); a run pauses when it is opened
+if (window.Arena) {
+  Arena.mountSettingsButton();
+  document.addEventListener('click', (e) => { if (e.target.closest && e.target.closest('.arena-gear') && S.state === 'playing') togglePause(); }, true);
+}
 if (FLAG.debug) { $('#dbg').classList.remove('hidden'); }
 if (Q.has('noassets')) document.querySelectorAll('.mascot').forEach((el) => el.remove()); // the mascot is an asset too
 // for screenshot tests (camera placement while paused) and the nest test (feeding)
