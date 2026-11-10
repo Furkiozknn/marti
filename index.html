@@ -17,11 +17,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
-<script>/*ARENA-KIT:BEGIN v1.0.1 sha256:bc575c398c95*/
+<script>/*ARENA-KIT:BEGIN v1.1.0 sha256:3bea83137e26*/
 /* ARENA-KIT v1 — shared layer for the 21 Claude Game Arena games.
  *
  * Injected inline into each game's index.html (between begin/end marker comments) by
- * arena-kit/inject.py, so every game stays a single file. Plain script, no imports, no network.
+ * arena-kit/inject.py, so every game stays a single file. Plain script, no imports; the kit itself opens no
+ * connection (v1.1 play events are handed to the page's existing GoatCounter counter, if it is there).
  * Everything is optional: a game that never calls Arena.* behaves exactly as before.
  *
  *   Arena.perf.attach(renderer)        dynamic pixel ratio for weak GPUs (Intel UHD)
@@ -32,6 +33,10 @@
  *   Arena.share({...})                 Web Share / clipboard text + optional PNG card
  *   Arena.profile(), Arena.award(id)   cross-game passport (shared origin localStorage)
  *   Arena.settings / openSettings()    accessibility panel (text size, contrast, motion, vibration, auto-pause)
+ *   Arena.complete({mount, feedback})  v1.1: "completed" event + one-tap 👍/👎 (once a day per game), inline in `mount`
+ *   Arena.track(name)                  v1.1: one GoatCounter event "<game>/<name>" per page load; automatic:
+ *                                      "start" (first real input) and "return" (played this game on an earlier day)
+ *                                      Nothing is sent or shown on quiet runs; no cookies, no ids, no new service.
  *
  * Storage: every key starts with "arena." and is versioned; every access is wrapped in try/catch
  * (private mode, quota, portals). Pure logic lives in Arena._core so it can be tested in Node.
@@ -39,7 +44,7 @@
 (function (root) {
   'use strict';
   if (root.Arena && root.Arena.version) return; // injected twice (e.g. iframe) -> keep the first
-  var VERSION = '1.0.1';
+  var VERSION = '1.1.0';
   var hasDOM = typeof document !== 'undefined';
 
   /* ---------- core (pure, Node-testable) ---------- */
@@ -59,6 +64,12 @@
     var y = Math.floor(key / 10000), m = Math.floor(key / 100) % 100, d = key % 100;
     return core.dayKey(new Date(Date.UTC(y, m - 1, d) - 86400000));
   };
+  // v1.1: a player is "returning" if this game was last played on an earlier day (old profiles: any earlier play)
+  core.isReturn = function (lastDay, plays, lastAnyAt, today) {
+    if (lastDay) return lastDay < today;
+    return !!(plays > 0 && lastAnyAt && core.dayKey(new Date(lastAnyAt)) < today);
+  };
+  core.eventName = function (name) { return String(name || '').replace(/[^a-z0-9-]/gi, '').slice(0, 24).toLowerCase(); };
   core.hash = function (str) { // FNV-1a 32-bit
     var h = 0x811c9dc5;
     for (var i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
@@ -127,10 +138,12 @@
   var STR = {
     tr: { again: 'Bir daha', another: 'Başka bir oyun dene', close: 'Kapat', settings: 'Erişilebilirlik',
       textSize: 'Yazı boyutu', contrast: 'Yüksek karşıtlık', motion: 'Hareketi azalt', vibration: 'Titreşim',
-      autoPause: 'Sekme değişince duraklat', copied: 'Panoya kopyalandı', streak: 'Seri', days: 'gün', share: 'Paylaş' },
+      autoPause: 'Sekme değişince duraklat', copied: 'Panoya kopyalandı', streak: 'Seri', days: 'gün', share: 'Paylaş',
+      fbAsk: 'Beğendin mi?', like: 'Beğendim', dislike: 'Beğenmedim', thanks: 'Teşekkürler!' },
     en: { again: 'Play again', another: 'Try another game', close: 'Close', settings: 'Accessibility',
       textSize: 'Text size', contrast: 'High contrast', motion: 'Reduce motion', vibration: 'Vibration',
-      autoPause: 'Pause when the tab is hidden', copied: 'Copied to clipboard', streak: 'Streak', days: 'days', share: 'Share' },
+      autoPause: 'Pause when the tab is hidden', copied: 'Copied to clipboard', streak: 'Streak', days: 'days', share: 'Share',
+      fbAsk: 'Did you enjoy it?', like: 'I liked it', dislike: 'I did not like it', thanks: 'Thanks!' },
   };
   var lang = 'en';
   try { lang = /^tr/i.test((hasDOM && document.documentElement.lang) || (root.navigator && navigator.language) || '') ? 'tr' : 'en'; } catch (e) {}
@@ -147,9 +160,13 @@
     gameId = (meta && meta.content) || (GAMES.indexOf(seg) >= 0 ? seg : 'unknown');
   } catch (e) {}
   function profile() { return get('profile.v1', { plays: {}, badges: {}, last: null, first: null }); }
+  var returning = false;
   function touchProfile() {
-    var p = profile(), now = Date.now();
+    var p = profile(), now = Date.now(), today = core.dayKey();
+    p.lastDay = p.lastDay || {};
+    returning = core.isReturn(p.lastDay[gameId], p.plays[gameId] || 0, p.last && p.last.at, today);
     p.plays[gameId] = (p.plays[gameId] || 0) + 1; p.last = { game: gameId, at: now }; p.first = p.first || now;
+    p.lastDay[gameId] = today;
     set('profile.v1', p); return p;
   }
   function award(id, label) {
@@ -202,6 +219,13 @@
     'width:40px;height:40px;border-radius:50%;border:0;background:rgba(14,13,11,.7);color:#f6f1e6;font:20px/40px system-ui;cursor:pointer;opacity:.7}' +
     '.arena-gear:hover,.arena-gear:focus-visible{opacity:1}' +
     'html[data-arena-contrast] body{filter:contrast(1.25) saturate(1.1)}' +
+    '.arena-fb{position:fixed;left:50%;top:calc(10px + env(safe-area-inset-top));transform:translateX(-50%);z-index:2147483000;white-space:nowrap;' +
+    'display:flex;align-items:center;gap:8px;padding:6px 6px 6px 14px;border-radius:999px;background:rgba(14,13,11,.9);color:#f6f1e6;' +
+    'font:600 calc(15px*var(--arena-text-scale,1))/1.2 system-ui,sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)}' +
+    '.arena-fb button{min-width:44px;min-height:44px;border:0;border-radius:50%;background:#2b2722;color:#f6f1e6;font:22px/1 system-ui;cursor:pointer}' +
+    '.arena-fb button.arena-fb-x{font-size:16px;background:transparent}' +
+    '.arena-fb.arena-fb-inline{position:static;transform:none;margin:12px auto 0;width:max-content;max-width:100%;box-shadow:none}' +
+    '.arena-fb button:focus-visible{outline:3px solid #3fd4dc;outline-offset:2px}' +
     'html[data-arena-reduced-motion] *{animation-duration:.001s!important;animation-iteration-count:1!important;transition-duration:.001s!important}';
   var styled = false;
   function style() {
@@ -270,6 +294,55 @@
     var close = modal(el('div', { class: 'arena-card' }, kids));
     again.addEventListener('click', function () { close(); if (o.onAgain) o.onAgain(); });
     return close;
+  }
+
+  /* ---------- play events (v1.1) ---------- */
+  // Handed to the page's own GoatCounter (`window.goatcounter.count`, already on 20 of 21 pages). The kit opens no
+  // connection itself; without the counter (or on ?auto / ?nosave / ?demo) the events are simply dropped.
+  var sent = {}, pending = [];
+  function gcSend(path, title) {
+    var gc = root.goatcounter;
+    if (!gc || typeof gc.count !== 'function') return false;
+    try { gc.count({ path: path, title: title || path, event: true }); } catch (e) {}
+    return true;
+  }
+  function flush(tries) {
+    pending = pending.filter(function (e) { return !gcSend(e[0], e[1]); });
+    if (pending.length && tries < 20) setTimeout(function () { flush(tries + 1); }, 500); // count.js loads async
+  }
+  function track(name, title) {
+    name = core.eventName(name);
+    if (quiet || !hasDOM || !name || sent[name]) return false;
+    sent[name] = 1;
+    var path = gameId + '/' + name;
+    if (!gcSend(path, title)) { pending.push([path, title]); if (pending.length === 1) flush(0); }
+    return true;
+  }
+  var fbEl = null;
+  function complete(o) {
+    o = o || {};
+    track('complete');
+    if (quiet || !hasDOM || !document.body || o.feedback === false || fbEl) return;
+    var asked = get('feedback.v1', {}), today = core.dayKey();
+    if (asked[gameId] === today) return;
+    style();
+    var up = el('button', { type: 'button', 'aria-label': t('like'), title: t('like'), text: '👍' });
+    var down = el('button', { type: 'button', 'aria-label': t('dislike'), title: t('dislike'), text: '👎' });
+    var x = el('button', { type: 'button', class: 'arena-fb-x', 'aria-label': t('close'), title: t('close'), text: '✕' });
+    var label = el('span', { text: t('fbAsk') });
+    var mount = o.mount && o.mount.appendChild ? o.mount : null;   // inline in the game's own end screen if given
+    fbEl = el('div', { class: mount ? 'arena-fb arena-fb-inline' : 'arena-fb', role: 'group', 'aria-label': t('fbAsk') }, [label, up, down, x]);
+    function done() { if (fbEl && fbEl.parentNode) fbEl.parentNode.removeChild(fbEl); fbEl = null; }
+    function vote(v) {
+      track(v); var a = get('feedback.v1', {}); a[gameId] = today; set('feedback.v1', a);
+      [up, down, x].forEach(function (b) { b.remove(); }); label.textContent = t('thanks'); announce(t('thanks'));
+      setTimeout(done, 1500);
+    }
+    up.addEventListener('click', function () { vote('like'); });
+    down.addEventListener('click', function () { vote('dislike'); });
+    x.addEventListener('click', done);
+    (mount || document.body).appendChild(fbEl);
+    if (!mount) setTimeout(done, o.ms || 20000);   // floating panel fades out; an inline one stays with the end screen
   }
 
   function daily(game, opts) {
@@ -368,7 +441,16 @@
       if (!settings.autoPause) return;
       emit(document.hidden ? 'pause' : 'resume');
     });
-    var boot = function () { applySettings(); touchProfile(); };
+    var boot = function () {
+      applySettings(); touchProfile();
+      if (quiet) return;
+      var first = function (e) {
+        if (e && e.isTrusted === false) return;
+        ['pointerdown', 'keydown', 'touchstart'].forEach(function (n) { document.removeEventListener(n, first, true); });
+        track('start'); if (returning) track('return');
+      };
+      ['pointerdown', 'keydown', 'touchstart'].forEach(function (n) { document.addEventListener(n, first, true); });
+    };
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
   }
 
@@ -376,6 +458,7 @@
     version: VERSION, quiet: quiet, game: gameId, games: GAMES.slice(), lang: function (l) { if (l) lang = l === 'tr' ? 'tr' : 'en'; return lang; },
     perf: perf, hint: hint, toast: toast, endCard: endCard, daily: daily, share: share, shareCard: shareCard,
     profile: profile, award: award, settings: settings, openSettings: openSettings, mountSettingsButton: mountSettingsButton,
+    track: track, complete: complete,
     on: function (name, fn) { (listeners[name] = listeners[name] || []).push(fn); },
     _core: core, _store: { get: get, set: set },
   };
@@ -1301,6 +1384,16 @@ button:focus-visible, a:focus-visible, input:focus-visible {
   #lives { margin: 0 2px; }
   #stamina { top: 116px; }
   #chips { top: 140px; }
+  /* Title card: Start and the Daily challenge in the first screen. At 360 and 390 px the Daily button sat below the
+     card's visible area (y 798-866 on 740-844 px screens); the button rows and the daily line now follow the tagline. */
+  #title .card { display: flex; flex-direction: column; }
+  #title .card > * { order: 2; flex-shrink: 0; }
+  #title .card > .title-vignette, #title .card > .crest, #title .card > .logo, #title .card > .tag { order: 0; }
+  #title .card > .logo { align-self: center; }
+  #title .card > .nestcard { margin-left: 0; margin-right: 0; } /* full width as before (auto margins shrink a flex item) */
+  #title .card > .row, #title .card > #dailyLine { order: 1; }
+  #title .card > .row:first-of-type { margin-top: 0; }
+  #title .card > #dailyLine { margin-bottom: 12px; }
 }
 
 /* Landscape mobile optimization */
@@ -1366,7 +1459,7 @@ button:focus-visible, a:focus-visible, input:focus-visible {
   </div>
   <div id="stamina" class="glass"><span id="stLabel" data-i18n="stamina">Enerji</span><span id="carry"></span><div id="stBar"></div></div>
   <div id="chips"></div>
-  <div id="toasts"></div>
+  <div id="toasts" role="status" aria-live="polite"></div>
   <div id="combo" aria-live="polite"></div>
 </div>
 
@@ -1499,6 +1592,10 @@ const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
 const lerp = (a, b, t) => a + (b - a) * t;
 const rnd = (a, b) => a + Math.random() * (b - a);
 const pick = (a) => a[(Math.random() * a.length) | 0];
+/** arena-kit "reduce motion": no camera shake, no blinking gull, rings and halos stop pulsing. Read live (visual layer only, the sim never reads it). */
+const calm = () => !!(window.Arena && Arena.settings && Arena.settings.reducedMotion);
+/** a short buzz on a hit; arena-kit v1.0.1 wraps navigator.vibrate, so its Vibration switch is respected */
+const haptic = (ms) => { try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) {} };
 // Spawn dice: what is placed ahead of the gull (shore bands, patterns, bridges, nests). A daily-challenge run swaps in
 // the arena-kit day generator so everyone flies the same route; effects, sound and the bot keep Math.random.
 let SRND = Math.random;
@@ -2770,12 +2867,13 @@ function nearMissCheck() {
     if (!near && Math.abs(d - b.z) < 3.1 + GZ + 1.5 && Math.abs(G.x) <= BR.towerX && Math.abs(G.y - cableY(G.x)) < 1.5 + GY + 1.5) near = true;
   }
   if (!near) return;
-  S.nearMiss++; S.nearCd = 1; S.score += 25; S.shake = Math.max(S.shake, 0.35);
+  S.nearMiss++; S.nearCd = 1; S.score += 25; if (!calm()) S.shake = Math.max(S.shake, 0.35);
   sfxWhoosh();
   floatText(G.x, G.y + 2, d, '+25');
 }
 function hitPlayer() {
   if (S.attract || S.inv > 0) return;
+  if (!simming) haptic(35);
   if (S.mate && !S.mateUsed) { // the young gull takes one hit per run
     S.mateUsed = true; S.inv = 1.2;
     toast(tx('mateHit'), 'good');
@@ -2790,7 +2888,7 @@ function hitPlayer() {
     sfxHit(0.4);
     return;
   }
-  S.lives -= 1; S.inv = 1.8; S.combo = 0; S.comboT = 0; S.shake = 0.9;
+  S.lives -= 1; S.inv = 1.8; S.combo = 0; S.comboT = 0; S.shake = calm() ? 0 : 0.9;
   S.tx = clamp(S.tx + (G.x > 0 ? -5 : 5), -CORR, CORR);
   fxBurst(G.x, G.y, S.d, '#FFFFFF', 22, 9, 1.1, 9);
   toast(tx('hit'), 'bad');
@@ -3091,8 +3189,9 @@ function updateVisuals(dt) {
   const nFish = n;
 
   // Powers: create meshes on demand, spin them.
+  const still = calm();
   let h = 0; // halos: one disc behind each visible simit, fish and power-up, pulsing a little
-  for (let i = 0; i < nSimit; i++) { const s = TMP.simit[i], o = slot(TMP.halo, h++); o.x = s.x; o.y = s.y; o.z = s.z - 0.3; o.sx = o.sy = 1.1 + 0.1 * Math.sin(WT * 4 + i); }
+  for (let i = 0; i < nSimit; i++) { const s = TMP.simit[i], o = slot(TMP.halo, h++); o.x = s.x; o.y = s.y; o.z = s.z - 0.3; o.sx = o.sy = still ? 1.1 : 1.1 + 0.1 * Math.sin(WT * 4 + i); }
   for (let i = 0; i < nFish; i++) { const f = TMP.fish[i], o = slot(TMP.halo, h++); o.x = f.x; o.y = f.y; o.z = f.z - 0.3; o.sx = o.sy = 1.2; }
   for (const p2 of powers) {
     if (!p2.mesh && !p2.dead) {
@@ -3118,7 +3217,7 @@ function updateVisuals(dt) {
   // The first-run ring pulses around the first simit pattern, until it is passed or a simit is taken.
   if (tutRing && S.d > tutRing.z + 8) tutRing = null;
   tutMesh.visible = !!tutRing;
-  if (tutRing) { tutMesh.position.set(tutRing.x, tutRing.y, tutRing.z); tutMesh.scale.setScalar(1 + 0.12 * Math.sin(WT * 6)); }
+  if (tutRing) { tutMesh.position.set(tutRing.x, tutRing.y, tutRing.z); tutMesh.scale.setScalar(still ? 1.06 : 1 + 0.12 * Math.sin(WT * 6)); }
   // Storms: create meshes on demand.
   for (const s of obsStorms) {
     if (!s.mesh) { s.mesh = new THREE.Mesh(stormGeo, M.vc); scene.add(s.mesh); }
@@ -3218,7 +3317,7 @@ function updateVisuals(dt) {
   gBody.rotation.z = -G.bank * 0.8;
   gBody.rotation.x = (diving ? 0.5 : clamp(-G.vy * 0.03, -0.35, 0.35)) + GULL_PITCH;
   gull.position.set(G.x, G.y, S.d);
-  gull.visible = !(S.inv > 0 && Math.floor(WT * 12) % 2 === 0 && !S.attract);
+  gull.visible = !(S.inv > 0 && !still && Math.floor(WT * 12) % 2 === 0 && !S.attract);
   if (!S.attract && Math.floor(G.flap / TAU) !== G._lastCycle) { G._lastCycle = Math.floor(G.flap / TAU); if (!diving) sfxFlap(); }
 
   // Gull water shadow: raycast XZ from gull position to water plane
@@ -3232,7 +3331,7 @@ function updateVisuals(dt) {
   gullShadow.visible = gull.visible;
 
   // Camera: behind and above the gull, shake on hits, wider when speeding.
-  const shake = S.shake * S.shake * 1.1;
+  const shake = still ? 0 : S.shake * S.shake * 1.1; // reduce motion: no shake (the rnd() calls below stay, same random sequence)
   // Camera stays ~19 units behind and follows the gull's x closely, so the gull stays centred
   // and its wings never fill more than a modest part of the view, even next to a shore.
   const tgtX = G.x * 0.85 + rnd(-shake, shake), tgtY = 7.5 + G.y * 0.5 + rnd(-shake, shake) * 0.6, tgtZ = S.d - 19;
@@ -3480,6 +3579,7 @@ function gameOver(reason) {
   arenaRunOver(run);
   if (!simming) sfxOver();
   setScreen('over', run, isNew);
+  if (window.Arena && Arena.complete) Arena.complete({ mount: $('#over .card') });   // arena-kit v1.1: marti/complete + one-tap 👍/👎 (nothing on ?auto)
 }
 // arena-kit after a run: passport badges and the daily streak (only for the day the route was seeded with).
 // The ?auto bot and ?sim never write to the player's passport.
@@ -4128,6 +4228,7 @@ setScreen('title');
 if (window.Arena) {
   Arena.mountSettingsButton();
   document.addEventListener('click', (e) => { if (e.target.closest && e.target.closest('.arena-gear') && S.state === 'playing') togglePause(); }, true);
+  Arena.on('settings', () => { if (calm()) S.shake = 0; }); // "reduce motion" switched on mid-run: stop a running shake now
 }
 if (FLAG.debug) { $('#dbg').classList.remove('hidden'); }
 if (Q.has('noassets')) document.querySelectorAll('.mascot').forEach((el) => el.remove()); // the mascot is an asset too
