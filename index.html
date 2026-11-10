@@ -1301,6 +1301,16 @@ button:focus-visible, a:focus-visible, input:focus-visible {
   #lives { margin: 0 2px; }
   #stamina { top: 116px; }
   #chips { top: 140px; }
+  /* Title card: Start and the Daily challenge in the first screen. At 360 and 390 px the Daily button sat below the
+     card's visible area (y 798-866 on 740-844 px screens); the button rows and the daily line now follow the tagline. */
+  #title .card { display: flex; flex-direction: column; }
+  #title .card > * { order: 2; flex-shrink: 0; }
+  #title .card > .title-vignette, #title .card > .crest, #title .card > .logo, #title .card > .tag { order: 0; }
+  #title .card > .logo { align-self: center; }
+  #title .card > .nestcard { margin-left: 0; margin-right: 0; } /* full width as before (auto margins shrink a flex item) */
+  #title .card > .row, #title .card > #dailyLine { order: 1; }
+  #title .card > .row:first-of-type { margin-top: 0; }
+  #title .card > #dailyLine { margin-bottom: 12px; }
 }
 
 /* Landscape mobile optimization */
@@ -1366,7 +1376,7 @@ button:focus-visible, a:focus-visible, input:focus-visible {
   </div>
   <div id="stamina" class="glass"><span id="stLabel" data-i18n="stamina">Enerji</span><span id="carry"></span><div id="stBar"></div></div>
   <div id="chips"></div>
-  <div id="toasts"></div>
+  <div id="toasts" role="status" aria-live="polite"></div>
   <div id="combo" aria-live="polite"></div>
 </div>
 
@@ -1499,6 +1509,10 @@ const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
 const lerp = (a, b, t) => a + (b - a) * t;
 const rnd = (a, b) => a + Math.random() * (b - a);
 const pick = (a) => a[(Math.random() * a.length) | 0];
+/** arena-kit "reduce motion": no camera shake, no blinking gull, rings and halos stop pulsing. Read live (visual layer only, the sim never reads it). */
+const calm = () => !!(window.Arena && Arena.settings && Arena.settings.reducedMotion);
+/** a short buzz on a hit; arena-kit v1.0.1 wraps navigator.vibrate, so its Vibration switch is respected */
+const haptic = (ms) => { try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) {} };
 // Spawn dice: what is placed ahead of the gull (shore bands, patterns, bridges, nests). A daily-challenge run swaps in
 // the arena-kit day generator so everyone flies the same route; effects, sound and the bot keep Math.random.
 let SRND = Math.random;
@@ -2761,12 +2775,13 @@ function nearMissCheck() {
     if (!near && Math.abs(d - b.z) < 3.1 + GZ + 1.5 && Math.abs(G.x) <= BR.towerX && Math.abs(G.y - cableY(G.x)) < 1.5 + GY + 1.5) near = true;
   }
   if (!near) return;
-  S.nearMiss++; S.nearCd = 1; S.score += 25; S.shake = Math.max(S.shake, 0.35);
+  S.nearMiss++; S.nearCd = 1; S.score += 25; if (!calm()) S.shake = Math.max(S.shake, 0.35);
   sfxWhoosh();
   floatText(G.x, G.y + 2, d, '+25');
 }
 function hitPlayer() {
   if (S.attract || S.inv > 0) return;
+  if (!simming) haptic(35);
   if (S.mate && !S.mateUsed) { // the young gull takes one hit per run
     S.mateUsed = true; S.inv = 1.2;
     toast(tx('mateHit'), 'good');
@@ -2781,7 +2796,7 @@ function hitPlayer() {
     sfxHit(0.4);
     return;
   }
-  S.lives -= 1; S.inv = 1.8; S.combo = 0; S.comboT = 0; S.shake = 0.9;
+  S.lives -= 1; S.inv = 1.8; S.combo = 0; S.comboT = 0; S.shake = calm() ? 0 : 0.9;
   S.tx = clamp(S.tx + (G.x > 0 ? -5 : 5), -CORR, CORR);
   fxBurst(G.x, G.y, S.d, '#FFFFFF', 22, 9, 1.1, 9);
   toast(tx('hit'), 'bad');
@@ -3082,8 +3097,9 @@ function updateVisuals(dt) {
   const nFish = n;
 
   // Powers: create meshes on demand, spin them.
+  const still = calm();
   let h = 0; // halos: one disc behind each visible simit, fish and power-up, pulsing a little
-  for (let i = 0; i < nSimit; i++) { const s = TMP.simit[i], o = slot(TMP.halo, h++); o.x = s.x; o.y = s.y; o.z = s.z - 0.3; o.sx = o.sy = 1.1 + 0.1 * Math.sin(WT * 4 + i); }
+  for (let i = 0; i < nSimit; i++) { const s = TMP.simit[i], o = slot(TMP.halo, h++); o.x = s.x; o.y = s.y; o.z = s.z - 0.3; o.sx = o.sy = still ? 1.1 : 1.1 + 0.1 * Math.sin(WT * 4 + i); }
   for (let i = 0; i < nFish; i++) { const f = TMP.fish[i], o = slot(TMP.halo, h++); o.x = f.x; o.y = f.y; o.z = f.z - 0.3; o.sx = o.sy = 1.2; }
   for (const p2 of powers) {
     if (!p2.mesh && !p2.dead) {
@@ -3109,7 +3125,7 @@ function updateVisuals(dt) {
   // The first-run ring pulses around the first simit pattern, until it is passed or a simit is taken.
   if (tutRing && S.d > tutRing.z + 8) tutRing = null;
   tutMesh.visible = !!tutRing;
-  if (tutRing) { tutMesh.position.set(tutRing.x, tutRing.y, tutRing.z); tutMesh.scale.setScalar(1 + 0.12 * Math.sin(WT * 6)); }
+  if (tutRing) { tutMesh.position.set(tutRing.x, tutRing.y, tutRing.z); tutMesh.scale.setScalar(still ? 1.06 : 1 + 0.12 * Math.sin(WT * 6)); }
   // Storms: create meshes on demand.
   for (const s of obsStorms) {
     if (!s.mesh) { s.mesh = new THREE.Mesh(stormGeo, M.vc); scene.add(s.mesh); }
@@ -3134,11 +3150,11 @@ function updateVisuals(dt) {
   gBody.rotation.z = -G.bank * 0.8;
   gBody.rotation.x = (diving ? 0.5 : clamp(-G.vy * 0.03, -0.35, 0.35)) + GULL_PITCH;
   gull.position.set(G.x, G.y, S.d);
-  gull.visible = !(S.inv > 0 && Math.floor(WT * 12) % 2 === 0 && !S.attract);
+  gull.visible = !(S.inv > 0 && !still && Math.floor(WT * 12) % 2 === 0 && !S.attract);
   if (!S.attract && Math.floor(G.flap / TAU) !== G._lastCycle) { G._lastCycle = Math.floor(G.flap / TAU); if (!diving) sfxFlap(); }
 
   // Camera: behind and above the gull, shake on hits, wider when speeding.
-  const shake = S.shake * S.shake * 1.1;
+  const shake = still ? 0 : S.shake * S.shake * 1.1; // reduce motion: no shake (the rnd() calls below stay, same random sequence)
   // Camera stays ~19 units behind and follows the gull's x closely, so the gull stays centred
   // and its wings never fill more than a modest part of the view, even next to a shore.
   const tgtX = G.x * 0.85 + rnd(-shake, shake), tgtY = 7.5 + G.y * 0.5 + rnd(-shake, shake) * 0.6, tgtZ = S.d - 19;
@@ -4034,6 +4050,7 @@ setScreen('title');
 if (window.Arena) {
   Arena.mountSettingsButton();
   document.addEventListener('click', (e) => { if (e.target.closest && e.target.closest('.arena-gear') && S.state === 'playing') togglePause(); }, true);
+  Arena.on('settings', () => { if (calm()) S.shake = 0; }); // "reduce motion" switched on mid-run: stop a running shake now
 }
 if (FLAG.debug) { $('#dbg').classList.remove('hidden'); }
 if (Q.has('noassets')) document.querySelectorAll('.mascot').forEach((el) => el.remove()); // the mascot is an asset too
