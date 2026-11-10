@@ -1724,6 +1724,7 @@ const M = {
   // soft white disc behind pickups (a billboard facing the camera, which looks along +z)
   glow: new THREE.MeshBasicMaterial({ color: 0xffffff, map: DOT, transparent: true, opacity: 0.6, depthWrite: false, side: THREE.DoubleSide, fog: false }),
   silh: new THREE.MeshBasicMaterial({ vertexColors: true, fog: false }),
+  telegraph: new THREE.MeshBasicMaterial({ color: 0xffbe3b, transparent: true, opacity: 0.62, side: THREE.DoubleSide, depthWrite: false, fog: false }),
 };
 
 // ---------- geometry helpers ----------
@@ -1847,6 +1848,7 @@ const nestGeo = merge([
 ]);
 const haloGeo = new THREE.PlaneGeometry(3.4, 3.4);
 const ringGeo = new THREE.RingGeometry(2.4, 2.9, 32);
+const teleRingGeo = new THREE.RingGeometry(1.5, 1.85, 32);
 // Soft cloud sprite: overlapping radial puffs on a canvas, drawn as a billboard (see M.cloud).
 const CLOUD_TEX = (() => {
   const c = document.createElement('canvas');
@@ -2015,7 +2017,7 @@ function setInst(mesh, arr, n = arr.length, noColor = false) {
 }
 
 // Reused per-frame instance lists (no new arrays or objects per frame).
-const TMP = { kite: [], str: [], flock: [], simit: [], fish: [], halo: [], mate: [], wing: [] };
+const TMP = { kite: [], str: [], flock: [], simit: [], fish: [], halo: [], mate: [], wing: [], telegraph: [] };
 const slot = (arr, i) => arr[i] || (arr[i] = { x: 0, y: 0, z: 0, r: 0 });
 
 const HOUSE_COLS = ['#F4A261', '#E76F51', '#2A9D8F', '#E9C46A', '#F5F5DC', '#E63946', '#8ECAE6', '#F1FAEE', '#FFB4A2', '#B5E48C'];
@@ -2053,6 +2055,7 @@ const IM = {
   mate: makeInst(rivalGeo, M.flock, 1),
   // your flock (Sürü): members in formation plus the ones scattering after a hit (see updateWingmen)
   wing: makeInst(wingmanGeo, M.flock, 24),
+  telegraph: makeInst(teleRingGeo, M.telegraph, 32),
 };
 const wingPhase = new THREE.InstancedBufferAttribute(new Float32Array(24), 1).setUsage(THREE.DynamicDrawUsage);
 IM.wing.geometry.setAttribute('instPhase', wingPhase);
@@ -2261,6 +2264,12 @@ wristR.add(wingMesh.outerR);
 gBody.add(wingL, wingR);
 gull.traverse((o) => { if (o.isMesh) o.castShadow = true; });
 scene.add(gull);
+// Gull water shadow: dark circular sprite mesh on water plane directly below gull
+const gullShadowGeo = new THREE.PlaneGeometry(1, 1).rotateX(-Math.PI / 2);
+const gullShadowMat = new THREE.MeshBasicMaterial({ color: 0x061426, map: DOT, transparent: true, opacity: 0.5, depthWrite: false });
+const gullShadow = new THREE.Mesh(gullShadowGeo, gullShadowMat);
+gullShadow.renderOrder = 2;
+scene.add(gullShadow);
 
 // ---------- generated models (GLB) with procedural fallback ----------
 // Models in assets/models replace the procedural meshes once they have loaded. Every procedural builder stays as the
@@ -3117,6 +3126,81 @@ function updateVisuals(dt) {
     s.mesh.scale.setScalar(1.05 + Math.sin(WT + s.ph) * 0.03);
   }
 
+  // Obstacle telegraph halos: subtle glowing ring outline mesh for obstacles within 35 units ahead
+  let tCount = 0;
+  for (const b of obsBridges) {
+    const bDist = b.z - S.d;
+    if (bDist > 0 && bDist <= 35) {
+      const dFactor = clamp((35 - bDist) / 18, 0.7, 1.0);
+      const pulse = 1.0 + 0.06 * Math.sin(WT * 7 + tCount);
+      const cx = clamp(G.x, -21, 21);
+      const cy = cableY(cx);
+      const o1 = slot(TMP.telegraph, tCount++);
+      o1.x = cx; o1.y = cy; o1.z = b.z;
+      o1.sx = o1.sy = o1.sz = 1.3 * dFactor * pulse;
+      o1.r = 0; o1.rx = 0;
+      if (Math.abs(G.y - 21.2) < 9) {
+        const o2 = slot(TMP.telegraph, tCount++);
+        o2.x = cx; o2.y = 21.2; o2.z = b.z;
+        o2.sx = o2.sy = o2.sz = 1.5 * dFactor * pulse;
+        o2.r = 0; o2.rx = 0;
+      }
+    }
+  }
+  for (const o of obsBoats) {
+    const oDist = o.z - S.d;
+    if (oDist > 0 && oDist <= 35) {
+      const dFactor = clamp((35 - oDist) / 18, 0.7, 1.0);
+      const pulse = 1.0 + 0.06 * Math.sin(WT * 7 + tCount);
+      if (o.type === 'sail') {
+        const mastY = clamp(G.y, 5, 21);
+        const t = slot(TMP.telegraph, tCount++);
+        t.x = o.x; t.y = mastY; t.z = o.z + 0.5;
+        t.sx = t.sy = t.sz = 1.25 * dFactor * pulse;
+        t.r = 0; t.rx = 0;
+      } else if (o.type === 'fishing') {
+        const t = slot(TMP.telegraph, tCount++);
+        t.x = o.x; t.y = 5.2; t.z = o.z + 0.3;
+        t.sx = t.sy = t.sz = 1.05 * dFactor * pulse;
+        t.r = 0; t.rx = 0;
+      } else if (o.type === 'tanker') {
+        const t = slot(TMP.telegraph, tCount++);
+        t.x = o.x; t.y = 9.5; t.z = o.z - 13.5;
+        t.sx = t.sy = t.sz = 1.4 * dFactor * pulse;
+        t.r = 0; t.rx = 0;
+      } else if (o.type === 'ferry') {
+        const t = slot(TMP.telegraph, tCount++);
+        t.x = o.x; t.y = 4.6; t.z = o.z - 1.5;
+        t.sx = t.sy = t.sz = 1.3 * dFactor * pulse;
+        t.r = 0; t.rx = 0;
+      }
+    }
+  }
+  for (const k of obsKites) {
+    if (k.cut) continue;
+    const kDist = k.z - S.d;
+    if (kDist > 0 && kDist <= 35) {
+      const dFactor = clamp((35 - kDist) / 18, 0.7, 1.0);
+      const pulse = 1.0 + 0.06 * Math.sin(WT * 7 + tCount);
+      const t = slot(TMP.telegraph, tCount++);
+      t.x = k.cx; t.y = k.y; t.z = k.z;
+      t.sx = t.sy = t.sz = 1.15 * dFactor * pulse;
+      t.r = 0; t.rx = 0;
+    }
+  }
+  for (const p of PR.post) {
+    const pDist = p.z - S.d;
+    if (pDist > 0 && pDist <= 35 && Math.abs(p.x - G.x) < 8) {
+      const dFactor = clamp((35 - pDist) / 18, 0.7, 1.0);
+      const pulse = 1.0 + 0.06 * Math.sin(WT * 7 + tCount);
+      const t = slot(TMP.telegraph, tCount++);
+      t.x = p.x; t.y = p.y + p.sy * 0.8; t.z = p.z;
+      t.sx = t.sy = t.sz = 0.95 * dFactor * pulse;
+      t.r = 0; t.rx = 0;
+    }
+  }
+  setInst(IM.telegraph, TMP.telegraph, tCount, true);
+
   // Music layers build with speed (only the bass and drums play at the start).
   AU.intensity = clamp((S.speed - 28) / 25, 0, 1);
 
@@ -3136,6 +3220,16 @@ function updateVisuals(dt) {
   gull.position.set(G.x, G.y, S.d);
   gull.visible = !(S.inv > 0 && Math.floor(WT * 12) % 2 === 0 && !S.attract);
   if (!S.attract && Math.floor(G.flap / TAU) !== G._lastCycle) { G._lastCycle = Math.floor(G.flap / TAU); if (!diving) sfxFlap(); }
+
+  // Gull water shadow: raycast XZ from gull position to water plane
+  const sX = G.x, sZ = S.d;
+  const sWaterY = waveH(sX, sZ, WT);
+  const sAlt = Math.max(0.1, G.y - sWaterY);
+  const sRadius = clamp(2.2 + sAlt * 0.08, 1.8, 5.0);
+  gullShadow.position.set(sX, sWaterY + 0.08, sZ);
+  gullShadow.scale.set(sRadius * 1.35, 1, sRadius * 0.9);
+  gullShadowMat.opacity = clamp(0.55 - sAlt * 0.009, 0.16, 0.55);
+  gullShadow.visible = gull.visible;
 
   // Camera: behind and above the gull, shake on hits, wider when speeding.
   const shake = S.shake * S.shake * 1.1;
@@ -4038,7 +4132,7 @@ if (window.Arena) {
 if (FLAG.debug) { $('#dbg').classList.remove('hidden'); }
 if (Q.has('noassets')) document.querySelectorAll('.mascot').forEach((el) => el.remove()); // the mascot is an asset too
 // for screenshot tests (camera placement while paused) and the nest test (feeding)
-if (FLAG.debug) window.martiDebug = { THREE, scene, camera, gull, G, PR, boats: () => obsBoats, boxes: BOAT_BOXES,
+if (FLAG.debug) window.martiDebug = { THREE, scene, camera, gull, gullShadow, G, PR, boats: () => obsBoats, boxes: BOAT_BOXES,
   // flock tests: pickups, hits and obstacles driven from the page
   collectSimit, hitPlayer, kitePattern, flockPattern, kites: () => obsKites, flocks: () => flocks, WM, FLOCK, IM };
 spawnAhead(); // the title screen is never empty
