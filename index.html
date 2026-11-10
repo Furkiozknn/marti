@@ -1290,6 +1290,19 @@ button:focus-visible, a:focus-visible, input:focus-visible {
   .cb { font-size: 28px; padding: 6px 18px; }
 }
 
+/* Narrow phones: logo + score + combo + feathers + 4 buttons is wider than the screen (the last buttons sat off-screen
+   and the score was squeezed to 0 px). Two rows: score, combo, feathers on top; logo and buttons below. */
+@media (max-width: 480px) {
+  #topbar { flex-wrap: wrap; row-gap: 0; }
+  #topbar::after { content: ''; order: 1; flex: 0 0 100%; height: 6px; } /* line break */
+  #topbar .stat { flex: 0 0 auto; }
+  #topbar .logo { order: 2; }
+  #topbar .icons { order: 2; margin-left: auto; }
+  #lives { margin: 0 2px; }
+  #stamina { top: 116px; }
+  #chips { top: 140px; }
+}
+
 /* Landscape mobile optimization */
 @media (max-height: 520px) and (orientation: landscape) {
   #title .card { max-width: 720px; padding: 14px 20px 12px; max-height: 94vh; }
