@@ -716,6 +716,63 @@ button:focus-visible, a:focus-visible, input:focus-visible {
   box-shadow: 0 0 0 5px rgba(252, 163, 17, 0.35);
 }
 
+/* Dedicated Dive Action Trigger (Ergonomic Touch / Hold Trigger) */
+#bDive {
+  position: absolute;
+  right: calc(18px + env(safe-area-inset-right));
+  bottom: calc(64px + env(safe-area-inset-bottom));
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  pointer-events: auto;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  background: radial-gradient(circle at 35% 30%, rgba(56, 189, 248, 0.3), rgba(10, 25, 47, 0.88));
+  border: 1.5px solid rgba(56, 189, 248, 0.45);
+  box-shadow: 0 8px 24px rgba(0, 10, 25, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: var(--foam-white);
+  cursor: pointer;
+  transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  z-index: 6;
+}
+#bDive:hover {
+  background: radial-gradient(circle at 35% 30%, rgba(56, 189, 248, 0.45), rgba(10, 25, 47, 0.92));
+  border-color: rgba(56, 189, 248, 0.7);
+  box-shadow: 0 10px 28px rgba(56, 189, 248, 0.35), inset 0 1px 2px rgba(255, 255, 255, 0.4);
+}
+#bDive:active, #bDive.active {
+  transform: scale(0.92) translateY(2px);
+  background: radial-gradient(circle at 35% 30%, rgba(252, 163, 17, 0.6), rgba(232, 93, 4, 0.9));
+  border-color: rgba(252, 163, 17, 0.9);
+  box-shadow: 0 4px 16px rgba(232, 93, 4, 0.65), inset 0 1px 2px rgba(255, 255, 255, 0.5);
+  color: #ffffff;
+}
+#bDive .dive-icon {
+  width: 22px;
+  height: 22px;
+  display: block;
+}
+#bDive .dive-lbl {
+  font-family: var(--font-display);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--sun-bright);
+  line-height: 1;
+}
+#bDive:active .dive-lbl, #bDive.active .dive-lbl {
+  color: #ffffff;
+}
+
 /* ---------- Aerodynamic Flight Stamina Gauge ---------- */
 #stamina {
   position: absolute;
@@ -1461,6 +1518,12 @@ button:focus-visible, a:focus-visible, input:focus-visible {
   <div id="chips"></div>
   <div id="toasts" role="status" aria-live="polite"></div>
   <div id="combo" aria-live="polite"></div>
+  <button id="bDive" type="button" aria-label="Dalış" title="Dalış">
+    <svg viewBox="0 0 24 24" class="dive-icon" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 3v13m0 0l-5-5m5 5l5-5M5 20c3.5-1.5 6.5 1.5 10 0s3.5-1.5 4 0"/>
+    </svg>
+    <span class="dive-lbl" data-i18n="diveAction">Dalış</span>
+  </button>
 </div>
 
 <div id="title" class="overlay">
@@ -1636,8 +1699,8 @@ const I18N = {
   tr: {
     tagline: 'Boğaz’ın üstünde, simit peşinde bir martı koşusu',
     how: [
-      '<b>Yön:</b> ok tuşları / WASD, ya da fareyi, parmağını hareket ettir',
-      '<b>Dalış:</b> Boşluk, fare tıkla ya da dokun (balık için)',
+      '<b>Yön:</b> ok tuşları / WASD, ya da fareyi, parmağını sürükle',
+      '<b>Dalış:</b> Boşluk, fare basılı tut, ekrana basılı tut (>150ms) ya da sağ alttaki dalış butonu',
       '<b>Simit kap:</b> enerjin dolsun, kombo kur, rüzgârı yakala',
       '<b>Kaçın:</b> köprü, gemi direkleri ve uçurtmalar. Rakip sürü simit çalar',
     ],
@@ -1654,8 +1717,9 @@ const I18N = {
     settings: 'Ayarlar', master: 'Genel ses', music: 'Müzik', sfx: 'Efektler', language: 'Dil', quality: 'Kalite',
     low: 'Düşük', high: 'Yüksek', fullscreen: 'Tam ekran', toggleFs: 'Aç / kapat', back: 'Geri',
     aPause: 'Duraklat (P)', aMusic: 'Müzik (M)', aSound: 'Ses efektleri (X)', aLang: 'Dil: English (L)', aSet: 'Ayarlar',
+    diveAction: 'Dalış', aDive: 'Dalış (Basılı tut ya da dokun)',
     tailChip: 'Kuyruk rüzgârı', goldChip: 'Altın simit x2', shieldChip: 'Kalkan hazır',
-    hSteer: 'Yön: fare, parmak ya da ok tuşları', hDive: 'Balık için Boşluk’u basılı tut ya da dokun',
+    hSteer: 'Yön: fare, parmak ya da ok tuşları', hDive: 'Balık için basılı tut ya da sağ alttaki dalış butonuna bas',
     hStamina: 'Enerji azalıyor: simit ye, enerjin dolsun', nestNeed: 'Yavruya simit lazım: önce bir simit taşı',
     fed: 'Yavru beslendi! +1 tüy', mateHit: 'Yavru martı kanadıyla çarpmayı emdi!', pier: 'Balık sandığı! Enerji +35',
     gust: 'Rüzgâr geliyor', gustChip: 'Rüzgâr', didYou: 'Biliyor muydun?', chickLine: 'Yavru: {s} · {n} besleme',
@@ -1670,8 +1734,8 @@ const I18N = {
   en: {
     tagline: 'A seagull run over the Bosphorus, hunting simit',
     how: [
-      '<b>Steer:</b> arrow keys / WASD, or move the mouse or your finger',
-      '<b>Dive:</b> hold Space, click or tap (for fish)',
+      '<b>Steer:</b> arrow keys / WASD, or drag mouse or your finger',
+      '<b>Dive:</b> hold Space, mouse hold, touch hold (>150ms) or lower-right dive button',
       '<b>Snatch simit:</b> refill your stamina, build a combo, catch a tailwind',
       '<b>Avoid:</b> bridge, ship masts and kites. The rival flock steals your simit',
     ],
@@ -1688,8 +1752,9 @@ const I18N = {
     settings: 'Settings', master: 'Master volume', music: 'Music', sfx: 'Effects', language: 'Language', quality: 'Quality',
     low: 'Low', high: 'High', fullscreen: 'Fullscreen', toggleFs: 'On / off', back: 'Back',
     aPause: 'Pause (P)', aMusic: 'Music (M)', aSound: 'Sound effects (X)', aLang: 'Language: Türkçe (L)', aSet: 'Settings',
+    diveAction: 'Dive', aDive: 'Dive (Hold or tap)',
     tailChip: 'Tailwind', goldChip: 'Golden x2', shieldChip: 'Shield ready',
-    hSteer: 'Steer: mouse, finger or arrow keys', hDive: 'Hold Space or tap to dive for fish',
+    hSteer: 'Steer: mouse, finger or arrow keys', hDive: 'Hold or tap the lower-right dive button to dive for fish',
     hStamina: 'Stamina is dropping: eat simit to refill it', nestNeed: 'The chick needs simit: carry one first',
     fed: 'Chick fed! +1 feather', mateHit: 'The young gull took the hit on its wing!', pier: 'Fish crate! Stamina +35',
     gust: 'Gust coming', gustChip: 'Gust', didYou: 'Did you know?', chickLine: 'Chick: {s} · {n} fed',
@@ -3025,6 +3090,14 @@ function simStep(dt) {
   else keyControls(dt);
   S.nearCd = Math.max(0, S.nearCd - dt);
 
+  // Touch hold duration > 150ms: activate dive when holding stationary (outside dedicated zone)
+  if (ptrDown && ptrType === 'touch' && ptrStart && ptrMoved < 14 && !isDiveZoneActive && S.state === 'playing') {
+    if (performance.now() - ptrStart.t > 150) {
+      S.diveHold = true;
+      const b = $('#bDive'); if (b) b.classList.add('active');
+    }
+  }
+
   // Gull steering: target follows the pointer or keys; diving pushes the target down.
   const diving = S.diveHold || S.diveTimer > 0;
   S.diveOff += ((diving ? -9 : 0) - S.diveOff) * Math.min(1, dt * 5);
@@ -3401,6 +3474,7 @@ function fireworkBurst() {
 // ---------- input ----------
 const KEYS = {};
 let ptrDown = false, ptrType = 'mouse', ptrStart = null, ptrMoved = 0;
+let touchHoldTimer = null, isDiveZoneActive = false;
 window.addEventListener('keydown', (e) => {
   ensureAudio();
   KEYS[e.code] = true;
@@ -3443,14 +3517,21 @@ function pointerSteer(e) {
   S.tx = -nx * CORR;
   S.tyBase = lerp(YMAX, 3, ny);
 }
-// Touch: relative drag from where the finger went down, so a tap (dive) never moves the steering target.
+// Touch: relative drag from where the finger went down, so steering drag never moves the steering target unintentionally.
 function touchSteer(e) {
   if (S.state !== 'playing' || !ptrStart) return;
   const dx = e.clientX - ptrStart.x, dy = e.clientY - ptrStart.y;
   S.tx = clamp(ptrStart.tx - (dx / window.innerWidth) * 2 * CORR * 1.4, -CORR, CORR);
   S.tyBase = clamp(ptrStart.ty - (dy / window.innerHeight) * (YMAX - 3) * 1.4, YMIN, YMAX);
 }
-function isUI(t) { return t && t.closest && t.closest('button, .card, .ibtn, a, input'); }
+function isUI(t) {
+  if (t && t.closest && t.closest('#bDive')) return false;
+  return t && t.closest && t.closest('button, .card, .ibtn, a, input, .arena-gear');
+}
+function isLowerRightZone(x, y) {
+  // Dedicated lower-right screen zone trigger: right 28% and bottom 30% of viewport
+  return x > window.innerWidth * 0.72 && y > window.innerHeight * 0.70;
+}
 window.addEventListener('pointerdown', (e) => {
   ensureAudio();
   if (isUI(e.target)) return;
@@ -3458,22 +3539,73 @@ window.addEventListener('pointerdown', (e) => {
   ptrStart = { x: e.clientX, y: e.clientY, t: performance.now(), tx: S.tx, ty: S.tyBase };
   if (S.state === 'title' && assetsReady) { startRun(); return; }
   if (S.state === 'over' && S.overT > 0.6) { startRun(); return; }
-  if (S.state === 'playing' && ptrType !== 'touch') {
-    pointerSteer(e);
-    S.diveHold = true;
+  if (S.state === 'playing') {
+    const isTargetDiveBtn = !!(e.target && e.target.closest && e.target.closest('#bDive'));
+    const inZone = isTargetDiveBtn || (ptrType === 'touch' && isLowerRightZone(e.clientX, e.clientY));
+    if (inZone) {
+      isDiveZoneActive = true;
+      S.diveHold = true;
+      const b = $('#bDive'); if (b) b.classList.add('active');
+    } else if (ptrType === 'touch') {
+      isDiveZoneActive = false;
+      // Require touch hold duration > 150ms without drag to trigger dive
+      clearTimeout(touchHoldTimer);
+      touchHoldTimer = setTimeout(() => {
+        if (ptrDown && ptrType === 'touch' && ptrMoved < 14 && S.state === 'playing') {
+          S.diveHold = true;
+          const b = $('#bDive'); if (b) b.classList.add('active');
+        }
+      }, 155);
+    } else {
+      pointerSteer(e);
+      S.diveHold = true;
+    }
   }
 });
 window.addEventListener('pointermove', (e) => {
-  if (ptrDown && ptrStart) ptrMoved = Math.max(ptrMoved, Math.hypot(e.clientX - ptrStart.x, e.clientY - ptrStart.y));
-  if (e.pointerType === 'touch') { if (ptrDown) touchSteer(e); return; }
+  if (ptrDown && ptrStart) {
+    ptrMoved = Math.max(ptrMoved, Math.hypot(e.clientX - ptrStart.x, e.clientY - ptrStart.y));
+  }
+  if (e.pointerType === 'touch') {
+    if (isDiveZoneActive) return;
+    if (ptrMoved >= 14) {
+      // Standard vertical or horizontal drag steering:
+      // Cancel hold dive timer and active dive hold so standard vertical steering never dives accidentally
+      if (touchHoldTimer) { clearTimeout(touchHoldTimer); touchHoldTimer = null; }
+      S.diveHold = false;
+      const b = $('#bDive'); if (b) b.classList.remove('active');
+    }
+    if (ptrDown) touchSteer(e);
+    return;
+  }
   if (isUI(e.target)) return;
   pointerSteer(e);
 });
 window.addEventListener('pointerup', (e) => {
+  if (touchHoldTimer) { clearTimeout(touchHoldTimer); touchHoldTimer = null; }
+  const bDive = $('#bDive'); if (bDive) bDive.classList.remove('active');
   // Prevent touch dive when releasing over UI buttons and clear ptrStart
-  if (isUI(e.target)) { ptrDown = false; S.diveHold = false; ptrStart = null; return; }
-  if (ptrType === 'touch' && ptrStart && S.state === 'playing' && ptrMoved < 12 && performance.now() - ptrStart.t < 350) S.diveTimer = 0.8;
-  ptrDown = false; S.diveHold = false; ptrStart = null;
+  if (isUI(e.target)) {
+    ptrDown = false; S.diveHold = false; ptrStart = null; isDiveZoneActive = false;
+    return;
+  }
+  if (ptrType === 'touch' && ptrStart && S.state === 'playing') {
+    const elapsed = performance.now() - ptrStart.t;
+    if (isDiveZoneActive) {
+      // Dedicated lower-right screen zone trigger: tap or release executes dive correctly
+      if (elapsed < 250) S.diveTimer = 0.7;
+    } else if (ptrMoved < 14 && elapsed > 150) {
+      // Touch hold duration > 150ms without drag: triggers dive correctly
+      if (elapsed < 350) S.diveTimer = 0.5;
+    }
+    // Quick vertical drags (ptrMoved >= 14 or elapsed <= 150ms outside dedicated zone) NEVER trigger dive!
+  }
+  ptrDown = false; S.diveHold = false; ptrStart = null; isDiveZoneActive = false;
+});
+window.addEventListener('pointercancel', () => {
+  if (touchHoldTimer) { clearTimeout(touchHoldTimer); touchHoldTimer = null; }
+  const bDive = $('#bDive'); if (bDive) bDive.classList.remove('active');
+  ptrDown = false; S.diveHold = false; ptrStart = null; isDiveZoneActive = false;
 });
 
 // ---------- bot (used for the title attract mode and ?auto) ----------
@@ -3537,6 +3669,8 @@ function startRun(daily) {
   S.score = 0; S.lives = 3; S.stamina = 100; S.combo = 0; S.comboT = 0; S.runCombo = 0; S.mult = 1;
   S.tailT = 0; S.goldT = 0; S.shieldOn = false; S.inv = 0; S.simit = 0; S.fish = 0; S.powers = 0; S.steals = 0;
   S.tx = 0; S.tyBase = 12; S.diveHold = false; S.diveOff = 0; S.diveTimer = 0; S.gustX = 0; S.gustY = 0; S.shake = 0;
+  isDiveZoneActive = false; if (touchHoldTimer) { clearTimeout(touchHoldTimer); touchHoldTimer = null; }
+  const bDivReset = $('#bDive'); if (bDivReset) bDivReset.classList.remove('active');
   S.overT = 0; S.cullT = 0; S.newBest = false; S.autoT = 0;
   S.carried = 0; S.feeds = 0; S.nearMiss = 0; S.nearCd = 0; S.piers = 0; S.mateUsed = false;
   S.mate = chickStage() === 4; // from chick stage 4 the young gull flies along in every run
@@ -3872,8 +4006,8 @@ function renderToggles() {
   $('#bMute').classList.toggle('off', SET.master === 0);
   $('#bLang .code').textContent = LANG === 'tr' ? 'EN' : 'TR';
   $('#bLangT').textContent = LANG === 'tr' ? 'English' : 'Türkçe';
-  const aria = { bPause: 'aPause', bMute: 'aMute', bMusic: 'aMusic', bSfx: 'aSound', bLang: 'aLang', bSet: 'aSet' };
-  for (const id in aria) { const b = $('#' + id); b.setAttribute('aria-label', tx(aria[id])); b.title = tx(aria[id]); }
+  const aria = { bPause: 'aPause', bMute: 'aMute', bMusic: 'aMusic', bSfx: 'aSound', bLang: 'aLang', bSet: 'aSet', bDive: 'aDive' };
+  for (const id in aria) { const b = $('#' + id); if (b) { b.setAttribute('aria-label', tx(aria[id])); b.title = tx(aria[id]); } }
   $('#bMusic').setAttribute('aria-pressed', String(AU.on.music));
   $('#bSfx').setAttribute('aria-pressed', String(AU.on.sfx));
   renderSettings();
@@ -4191,10 +4325,37 @@ click('#bLangT', () => setLang(LANG === 'tr' ? 'en' : 'tr'));
 click('#bSetT', openSettings);
 click('#bSetP', openSettings);
 click('#bSet', () => { if (S.state === 'playing') togglePause(); openSettings(); });
+const bDiveBtn = $('#bDive');
+if (bDiveBtn) {
+  bDiveBtn.addEventListener('pointerdown', (e) => {
+    e.stopPropagation();
+    ensureAudio();
+    if (S.state === 'playing') {
+      isDiveZoneActive = true;
+      S.diveHold = true;
+      bDiveBtn.classList.add('active');
+    }
+  });
+  const endDiveBtn = (e) => {
+    e.stopPropagation();
+    if (S.state === 'playing' && S.diveHold) {
+      S.diveTimer = 0.7;
+    }
+    S.diveHold = false;
+    isDiveZoneActive = false;
+    bDiveBtn.classList.remove('active');
+  };
+  bDiveBtn.addEventListener('pointerup', endDiveBtn);
+  bDiveBtn.addEventListener('pointercancel', endDiveBtn);
+}
 function goMenu() {
   S.state = 'title';
   S.attract = true;
   S.overT = 0;
+  S.diveHold = false;
+  isDiveZoneActive = false;
+  if (touchHoldTimer) { clearTimeout(touchHoldTimer); touchHoldTimer = null; }
+  const b = $('#bDive'); if (b) b.classList.remove('active');
   audioPause(false);
   setScreen('title');
   clearWorld();
