@@ -1293,7 +1293,43 @@ button:focus-visible, a:focus-visible, input:focus-visible {
   border: 1px solid rgba(255, 190, 11, 0.3);
   border-radius: 12px;
   padding: 8px 14px;
-  margin: 6px 0 10px;
+  margin: 6px 0 8px;
+}
+#overTip {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: #e2e8f0;
+  background: rgba(10, 25, 47, 0.65);
+  border: 1px solid rgba(56, 189, 248, 0.28);
+  border-radius: 12px;
+  padding: 8px 12px;
+  margin: 0 auto 10px;
+  text-align: left;
+  max-width: 440px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+#overTip.hidden { display: none !important; }
+#overTip .tip-badge {
+  flex-shrink: 0;
+  font-family: var(--font-body);
+  font-size: 10.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--sky-cyan);
+  background: rgba(56, 189, 248, 0.14);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  border-radius: 6px;
+  padding: 2px 7px;
+  line-height: 1.25;
+  margin-top: 1px;
+}
+#overTip .tip-text {
+  flex: 1;
+  color: #e2e8f0;
 }
 .newbest {
   color: var(--sun-bright);
@@ -1426,6 +1462,7 @@ button:focus-visible, a:focus-visible, input:focus-visible {
   .btn.ghost { min-height: 44px; font-size: 15px; }
   .btn, .segb { min-height: 44px; }
   .foot, .hint, .fact { font-size: 13px; }
+  #overTip { font-size: 12px; padding: 7px 10px; margin-bottom: 8px; }
   .toast { font-size: 14px; padding: 8px 16px; }
   .cb { font-size: 28px; padding: 6px 18px; }
 }
@@ -1599,6 +1636,7 @@ button:focus-visible, a:focus-visible, input:focus-visible {
     <img class="mascot" src="assets/mascot/kedi-sessiz.png" alt="" onerror="this.remove()">
     <div class="logo" style="font-size:40px" data-i18n="over">Koşu bitti</div>
     <p class="tag" id="overReason"></p>
+    <div id="overTip" class="hidden"><span class="tip-badge" data-i18n="tipBadge">İpucu</span><span class="tip-text" id="oTip"></span></div>
     <div class="newbest" id="newBest"></div>
     <div class="grid">
       <div><small data-i18n="score">Skor</small><b id="oScore">0</b></div>
@@ -1713,6 +1751,9 @@ const I18N = {
     newBest: 'Yeni rekor!', steal: 'Sürü simitini çaldı!', shield: 'Kalkan tüyü! Bir çarpmayı emer',
     shieldUsed: 'Kalkan çarpmayı emdi!', hit: 'Çarpıştın!', tail: 'Kuyruk rüzgârı! Hız ve skor x1.5',
     gold: 'Altın simit! Skor x2', missionDone: 'Görev tamam', crash: 'Üç kez çarptın', energy: 'Enerjin bitti',
+    tipBadge: 'İpucu', cable: 'Köprü kablosuna çarptın', bridge: 'Köprü kulesine çarptın',
+    ship: 'Gemi direğine çarptın', kite: 'Uçurtma ipine takıldın', post: 'İskele kazığına çarptın',
+    water: 'Boğaz sularına daldın',
     fly: 'İyi uçuşlar!', m: 'm', km: 'km',
     settings: 'Ayarlar', master: 'Genel ses', music: 'Müzik', sfx: 'Efektler', language: 'Dil', quality: 'Kalite',
     low: 'Düşük', high: 'Yüksek', fullscreen: 'Tam ekran', toggleFs: 'Aç / kapat', back: 'Geri',
@@ -1748,6 +1789,9 @@ const I18N = {
     newBest: 'New record!', steal: 'The flock stole your simit!', shield: 'Shield feather! Blocks one hit',
     shieldUsed: 'The shield absorbed a hit!', hit: 'Hit!', tail: 'Tailwind! Speed and score x1.5',
     gold: 'Golden simit! Score x2', missionDone: 'Mission complete', crash: 'Three hits', energy: 'Out of stamina',
+    tipBadge: 'Tip', cable: 'Hit a bridge cable', bridge: 'Hit the bridge structure',
+    ship: 'Hit a ship mast', kite: 'Tangled in a kite line', post: 'Hit a pier post',
+    water: 'Fell into the Bosphorus',
     fly: 'Have a good flight!', m: 'm', km: 'km',
     settings: 'Settings', master: 'Master volume', music: 'Music', sfx: 'Effects', language: 'Language', quality: 'Quality',
     low: 'Low', high: 'High', fullscreen: 'Fullscreen', toggleFs: 'On / off', back: 'Back',
@@ -1783,6 +1827,78 @@ const FACTS = [
   { tr: 'Evliya Çelebi 1630’larda İstanbul’da 70 simit fırını saydı.', en: 'In the 1630s Evliya Çelebi counted 70 simit bakeries in Istanbul.' },
 ];
 const factText = (i) => FACTS[((i % FACTS.length) + FACTS.length) % FACTS.length][LANG];
+
+// Contextual survival tips matching each death cause, displayed on the game-over card.
+const SURVIVAL_TIPS = [
+  {
+    cause: 'cable',
+    tips: [
+      { tr: 'Köprü altından geçerken alçaktan uç veya kulelerin etrafından geniş kavisle dön.', en: 'Fly low under the bridge or take a wide arc around the suspension towers.' },
+      { tr: 'Köprü kabloları merkeze doğru sarkar; kule diplerinde daha fazla boşluk bulabilirsin.', en: 'Suspension cables sag lowest near the center; find more clearance near the towers.' },
+    ],
+  },
+  {
+    cause: 'bridge',
+    tips: [
+      { tr: 'Köprüyü uzaktan görünce yüksekliğini ayarla; kuleler geniştir ama altından geçiş rahattır.', en: 'Adjust altitude early when the bridge appears; the clearance below is wide and safe.' },
+      { tr: 'Köprü tabliyesinin hem altından hem üstünden güvenle geçebilirsin.', en: 'You can fly safely either under or well above the bridge road deck.' },
+    ],
+  },
+  {
+    cause: 'ship',
+    tips: [
+      { tr: 'Vapur ve yelkenlilerin direkleri yüksektir; yanlarından geç veya arkalarındaki simitleri kap.', en: 'Ship masts reach high; steer around their sides or catch simit trailing behind ferries.' },
+      { tr: 'Büyük tankerlerin üzerinden aşmak yerine yan koridorları kullanmak daha güvenlidir.', en: 'It is safer to bank around the sides of large tankers than trying to clear their bridges.' },
+    ],
+  },
+  {
+    cause: 'kite',
+    tips: [
+      { tr: 'Uçurtmalar rüzgârla salınır; sürünü 6 martıya çıkarırsan sürün ipleri koparır!', en: 'Kites drift with the wind; grow your flock to 6 gulls to snap through kite lines!' },
+      { tr: 'Uçurtma iplerini fark ettiğinde ani alçalışla altlarından rahatça sıyrılabilirsin.', en: 'When you spot kite lines, dive down quickly to slip safely beneath them.' },
+    ],
+  },
+  {
+    cause: 'post',
+    tips: [
+      { tr: 'İskelelerdeki balık sandıkları +35 enerji verir, ama kıyı kazıklarına çok yaklaşma.', en: 'Fish crates at piers give +35 stamina, but keep clear of the wooden jetty posts.' },
+      { tr: 'Kıyıya yakın uçarken su seviyesinden biraz yukarıda kalarak kazıklardan kaçın.', en: 'When skimming near shores, stay slightly above water level to clear jetty posts.' },
+    ],
+  },
+  {
+    cause: 'stamina',
+    tips: [
+      { tr: 'Enerjini yüksek tutmak için simit topla ve zıplayan balıklara dal.', en: 'Snatch simit and dive for leaping fish to keep your stamina meter filled.' },
+      { tr: 'Sürekli dalış yapmak enerjiyi hızla tüketir; dalış butonunu yalnızca gerektiğinde kullan.', en: 'Continuous diving drains stamina quickly; hold the dive button only when aiming for fish.' },
+    ],
+  },
+  {
+    cause: 'water',
+    tips: [
+      { tr: 'Balık yakaladıktan hemen sonra yüksel; dalgaların hemen üstünde uzun süre kalma.', en: 'Pull up right after catching fish; do not linger too close to the cresting waves.' },
+      { tr: 'Dalıştan çıkarken hızla irtifa kazanarak suya temas etmekten kaçın.', en: 'Pull up quickly after a dive to avoid skimming too low over the water.' },
+    ],
+  },
+  {
+    cause: 'crash',
+    tips: [
+      { tr: 'Kalkan tüyü bularak veya yavru martıyı büyüterek çarpmalara karşı koruma kazan.', en: 'Pick up shield feathers or raise your chick to gain extra protection against hits.' },
+      { tr: 'Yakın geçişler (near-miss) ekstra puan ve hız verir; mesafeni dikkatle ayarla.', en: 'Near-misses reward bonus score and speed; gauge your distance carefully.' },
+    ],
+  },
+];
+const deathCauseText = (cause) => {
+  if (!cause) return tx('crash');
+  if (cause === 'stamina' || cause === 'energy') return tx('energy');
+  return tx(cause) || tx('crash');
+};
+const getSurvivalTip = (cause, idx = 0) => {
+  if (cause === 'energy') cause = 'stamina';
+  const entry = SURVIVAL_TIPS.find((t) => t.cause === cause) || SURVIVAL_TIPS.find((t) => t.cause === 'crash');
+  if (!entry || !entry.tips.length) return '';
+  const item = entry.tips[((idx % entry.tips.length) + entry.tips.length) % entry.tips.length];
+  return item[LANG] || item.en || '';
+};
 
 // ---------- settings and saves (arena.marti.*; old marti.* keys are read once and kept) ----------
 const KEY = { settings: 'arena.marti.settings', best: 'arena.marti.best', save: 'arena.marti.save' };
@@ -2557,6 +2673,7 @@ const S = {
   state: 'title', attract: true, t: 0, d: 0, speed: 27, dist: 0,
   score: 0, lives: 3, stamina: 100, combo: 0, comboT: 0, runCombo: 0, mult: 1,
   tailT: 0, goldT: 0, shieldOn: false, inv: 0, simit: 0, fish: 0, powers: 0, steals: 0,
+  deathCause: null,
   tx: 0, tyBase: 12, diveHold: false, diveOff: 0, diveTimer: 0, gustX: 0, gustY: 0, shake: 0,
   overT: 0, cullT: 0, newBest: false, runs: [], draws: 0, fps: 0, assets: [],
   carried: 0, feeds: 0, nearMiss: 0, nearCd: 0, piers: 0, mate: false, mateUsed: false,
@@ -2873,24 +2990,26 @@ function checkHits() {
   const d = S.d;
   for (const b of obsBridges) {
     if (Math.abs(d - b.z) > 9) continue;
-    for (const bx of BRIDGE_BOXES) if (hitBox(bx.x, bx.y0, bx.y1, b.z, bx.hw, bx.hd)) return hitPlayer();
-    if (Math.abs(G.x) <= BR.towerX && Math.abs(d - b.z) < 3.1 + GZ && Math.abs(G.y - cableY(G.x)) < 1.5 + GY) return hitPlayer();
+    for (const bx of BRIDGE_BOXES) if (hitBox(bx.x, bx.y0, bx.y1, b.z, bx.hw, bx.hd)) return hitPlayer('bridge');
+    if (Math.abs(G.x) <= BR.towerX && Math.abs(d - b.z) < 3.1 + GZ && Math.abs(G.y - cableY(G.x)) < 1.5 + GY) return hitPlayer('cable');
   }
   for (const o of obsBoats) {
     if (Math.abs(d - o.z) > 25) continue;
-    for (const b of BOAT_BOXES[o.type]) if (hitBox(o.x + b.ox, b.y0, b.y1, o.z + b.oz, b.hw, b.hd)) return hitPlayer();
+    for (const b of BOAT_BOXES[o.type]) if (hitBox(o.x + b.ox, b.y0, b.y1, o.z + b.oz, b.hw, b.hd)) return hitPlayer('ship');
   }
   for (const p of PR.post) {
     if (Math.abs(d - p.z) > 4) continue;
-    if (hitBox(p.x, p.y, p.y + p.sy, p.z, 0.45, 0.45)) return hitPlayer();
+    if (hitBox(p.x, p.y, p.y + p.sy, p.z, 0.45, 0.45)) return hitPlayer('post');
   }
   for (const k of obsKites) {
     if (k.cut || Math.abs(d - k.z) > 4) continue;
     if (hitBox(k.cx, k.y - 1.6, k.y + 1.6, k.z, 1.6, 1.4)) {
       if (S.flock >= FLOCK.BREAK) { cutKite(k); continue; } // a big flock snaps the line instead
-      return hitPlayer();
+      return hitPlayer('kite');
     }
   }
+  // Water: only if actually falling below water wave crest (normal low dives stay >= 1.4)
+  if (G.y < waveH(G.x, S.d, WT) - 0.2) return hitPlayer('water');
   // Rival flock: members steal simit (not a life, but costs stamina and the combo). A big flock of your own
   // chases a hostile flock off when it comes close (within 14 units ahead), before any member can steal.
   for (const f of flocks) {
@@ -2936,8 +3055,9 @@ function nearMissCheck() {
   sfxWhoosh();
   floatText(G.x, G.y + 2, d, '+25');
 }
-function hitPlayer() {
+function hitPlayer(cause = 'crash') {
   if (S.attract || S.inv > 0) return;
+  S.deathCause = cause;
   if (!simming) haptic(35);
   if (S.mate && !S.mateUsed) { // the young gull takes one hit per run
     S.mateUsed = true; S.inv = 1.2;
@@ -2959,7 +3079,7 @@ function hitPlayer() {
   toast(tx('hit'), 'bad');
   flockScatter(); // part of your flock scatters as well
   sfxHit(1);
-  if (S.lives <= 0) gameOver('crash');
+  if (S.lives <= 0) gameOver(cause);
 }
 function stealFood(x, y, z) {
   // A carried simit goes first; with none in the beak, the flock takes stamina.
@@ -2968,7 +3088,7 @@ function stealFood(x, y, z) {
   fxBurst(x, y, z, '#F59E0B', 12, 6, 0.7, 6);
   toast(tx('steal'), 'bad');
   sfxSteal();
-  if (S.stamina <= 0) { S.stamina = 0; gameOver('energy'); }
+  if (S.stamina <= 0) { S.stamina = 0; S.deathCause = 'stamina'; gameOver('stamina'); }
 }
 
 function checkPickups() {
@@ -3151,7 +3271,7 @@ function simStep(dt) {
     if (S.stamina > 0) {
       S.stamina -= (2.2 + S.t * 0.01) * dt * (diving ? 1.3 : 1);
       if (S.stamina < 45 && !META.hints.stamina) hintOnce('stamina', tx('hStamina'));
-      if (S.stamina <= 0) { S.stamina = 0; gameOver('energy'); }
+      if (S.stamina <= 0) { S.stamina = 0; S.deathCause = 'stamina'; gameOver('stamina'); }
     }
     if (S.state === 'playing' && Math.random() < dt * 0.1) sfxCall();
     // Splash when diving near the water.
@@ -3668,6 +3788,7 @@ function startRun(daily) {
   S.t = 0; S.d = 0; S.dist = 0; S.speed = 27;
   S.score = 0; S.lives = 3; S.stamina = 100; S.combo = 0; S.comboT = 0; S.runCombo = 0; S.mult = 1;
   S.tailT = 0; S.goldT = 0; S.shieldOn = false; S.inv = 0; S.simit = 0; S.fish = 0; S.powers = 0; S.steals = 0;
+  S.deathCause = null;
   S.tx = 0; S.tyBase = 12; S.diveHold = false; S.diveOff = 0; S.diveTimer = 0; S.gustX = 0; S.gustY = 0; S.shake = 0;
   isDiveZoneActive = false; if (touchHoldTimer) { clearTimeout(touchHoldTimer); touchHoldTimer = null; }
   const bDivReset = $('#bDive'); if (bDivReset) bDivReset.classList.remove('active');
@@ -3701,7 +3822,10 @@ function gameOver(reason) {
   S.attract = true;
   S.overT = 0;
   S.combo = 0;
-  const run = { score: Math.round(S.score), dist: Math.round(S.d), simit: S.simit, fish: S.fish, combo: S.runCombo, flock: S.flockMax, t: +S.t.toFixed(1), reason, fact: META.factIdx % FACTS.length };
+  if (!reason || reason === 'crash') reason = S.deathCause || 'crash';
+  S.deathCause = reason;
+  const tipIdx = Math.floor(Math.random() * 4);
+  const run = { score: Math.round(S.score), dist: Math.round(S.d), simit: S.simit, fish: S.fish, combo: S.runCombo, flock: S.flockMax, t: +S.t.toFixed(1), reason, deathCause: S.deathCause, tipIdx, fact: META.factIdx % FACTS.length };
   META.factIdx++; // the next game-over card shows the next fact
   S.runs.push(run);
   if (S.runs.length > 50) S.runs.shift();
@@ -4027,7 +4151,15 @@ function applyLang() {
   renderHighList();
   renderToggles();
   renderOverMissions();
-  if (lastRun) { $('#overReason').textContent = tx(lastRun.reason); $('#oFact').textContent = factText(lastRun.fact); }
+  if (lastRun) {
+    $('#overReason').textContent = deathCauseText(lastRun.deathCause || lastRun.reason);
+    const tip = getSurvivalTip(lastRun.deathCause || lastRun.reason, lastRun.tipIdx);
+    const tipEl = $('#overTip');
+    if (tipEl) tipEl.classList.toggle('hidden', !tip);
+    const oTip = $('#oTip');
+    if (oTip) oTip.textContent = tip;
+    $('#oFact').textContent = factText(lastRun.fact);
+  }
   renderTitle();
   if (S.state === 'over') $('#newBest').textContent = S.newBest ? tx('newBest') : '';
   if (S.state === 'playing' || S.state === 'paused') renderChips();
@@ -4138,7 +4270,12 @@ function setScreen(mode, run, isNew) {
   if (mode === 'title') { renderMissionList(); renderHighList(); renderTitle(); $('#chips').innerHTML = ''; $('#toasts').innerHTML = ''; }
   if (mode === 'over' && run) {
     lastRun = run;
-    $('#overReason').textContent = tx(run.reason);
+    $('#overReason').textContent = deathCauseText(run.deathCause || run.reason);
+    const tip = getSurvivalTip(run.deathCause || run.reason, run.tipIdx);
+    const tipEl = $('#overTip');
+    if (tipEl) tipEl.classList.toggle('hidden', !tip);
+    const oTip = $('#oTip');
+    if (oTip) oTip.textContent = tip;
     $('#oScore').textContent = run.score;
     $('#oBest').textContent = Math.max(bestScore(), run.score);
     $('#oDist').textContent = fmtDist(run.dist);
@@ -4199,9 +4336,9 @@ function updateDebug() {
   const lines = [
     'FPS ' + S.fps.toFixed(0) + '  draws ' + S.draws + '  tris ' + (renderer.info.render.triangles || 0) + '  quality ' + (isLow() ? 'low' : 'high') + '  assets ' + S.assets.length + '/' + MODEL_FILES.length,
     'state ' + S.state + '  t ' + S.t.toFixed(1) + 's  d ' + S.d.toFixed(0) + 'm  v ' + S.speed.toFixed(1),
-    'score ' + Math.round(S.score) + '  simit ' + S.simit + '  fish ' + S.fish + '  combo ' + S.combo + '  lives ' + S.lives + '  stam ' + S.stamina.toFixed(0),
+    'score ' + Math.round(S.score) + '  simit ' + S.simit + '  fish ' + S.fish + '  combo ' + S.combo + '  lives ' + S.lives + '  stam ' + S.stamina.toFixed(0) + '  cause ' + S.deathCause,
     'tail ' + S.tailT.toFixed(1) + '  gold ' + S.goldT.toFixed(1) + '  shield ' + S.shieldOn + '  runs ' + S.runs.length,
-    'runs: ' + S.runs.slice(-8).map((r) => r.score + ' / ' + r.dist + 'm / ' + r.t + 's ' + r.reason).join('  |  '),
+    'runs: ' + S.runs.slice(-8).map((r) => r.score + ' / ' + r.dist + 'm / ' + r.t + 's ' + (r.deathCause || r.reason)).join('  |  '),
     'gull x ' + G.x.toFixed(1) + ' y ' + G.y.toFixed(1) + ' z ' + gull.position.z.toFixed(1) + ' vis ' + gull.visible + '  cam ' + camera.position.x.toFixed(1) + ',' + camera.position.y.toFixed(1) + ',' + camera.position.z.toFixed(1),
     'carried ' + S.carried + '  feeds ' + S.feeds + '  nests ' + PR.nest.length + '  piers ' + S.piers + ' posts ' + PR.post.length + '  near ' + S.nearMiss + '  chick ' + META.chick + ' stage ' + chickStage() + (S.mate ? ' mate' : '') + '  late ' + lateK().toFixed(2),
     'flock ' + S.flock + ' (max ' + S.flockMax + ', lost ' + S.flockLost + ')  kites cut ' + S.kitesCut + '  rivals chased ' + S.rivalsScared,
@@ -4396,7 +4533,8 @@ if (Q.has('noassets')) document.querySelectorAll('.mascot').forEach((el) => el.r
 // for screenshot tests (camera placement while paused) and the nest test (feeding)
 if (FLAG.debug) window.martiDebug = { THREE, scene, camera, gull, gullShadow, G, PR, boats: () => obsBoats, boxes: BOAT_BOXES,
   // flock tests: pickups, hits and obstacles driven from the page
-  collectSimit, hitPlayer, kitePattern, flockPattern, kites: () => obsKites, flocks: () => flocks, WM, FLOCK, IM };
+  collectSimit, hitPlayer, kitePattern, flockPattern, kites: () => obsKites, flocks: () => flocks, WM, FLOCK, IM,
+  SURVIVAL_TIPS, deathCauseText, getSurvivalTip };
 spawnAhead(); // the title screen is never empty
 S.d = 0;
 updateVisuals(1 / 60);
