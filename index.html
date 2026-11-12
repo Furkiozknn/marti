@@ -3210,9 +3210,15 @@ function simStep(dt) {
   else keyControls(dt);
   S.nearCd = Math.max(0, S.nearCd - dt);
 
-  // Touch hold duration > 150ms: activate dive when holding stationary (outside dedicated zone)
-  if (ptrDown && ptrType === 'touch' && ptrStart && ptrMoved < 14 && !isDiveZoneActive && S.state === 'playing') {
-    if (performance.now() - ptrStart.t > 150) {
+  // Touch hold duration > 150ms: activate dive when holding stationary; clear hold-dive if touch drags beyond threshold
+  if (ptrDown && ptrType === 'touch' && ptrStart && S.state === 'playing') {
+    if (ptrMoved >= 14) {
+      if (S.diveHold) {
+        S.diveHold = false;
+        isDiveZoneActive = false;
+        const b = $('#bDive'); if (b) b.classList.remove('active');
+      }
+    } else if (!isDiveZoneActive && performance.now() - ptrStart.t > 150) {
       S.diveHold = true;
       const b = $('#bDive'); if (b) b.classList.add('active');
     }
@@ -3687,13 +3693,15 @@ window.addEventListener('pointermove', (e) => {
     ptrMoved = Math.max(ptrMoved, Math.hypot(e.clientX - ptrStart.x, e.clientY - ptrStart.y));
   }
   if (e.pointerType === 'touch') {
-    if (isDiveZoneActive) return;
     if (ptrMoved >= 14) {
       // Standard vertical or horizontal drag steering:
-      // Cancel hold dive timer and active dive hold so standard vertical steering never dives accidentally
+      // Cancel hold dive timer and active dive hold so dragging never stays latched in a dive
       if (touchHoldTimer) { clearTimeout(touchHoldTimer); touchHoldTimer = null; }
+      isDiveZoneActive = false;
       S.diveHold = false;
       const b = $('#bDive'); if (b) b.classList.remove('active');
+    } else if (isDiveZoneActive) {
+      return;
     }
     if (ptrDown) touchSteer(e);
     return;
