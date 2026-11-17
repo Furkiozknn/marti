@@ -2346,7 +2346,7 @@ const getSurvivalTip = (cause, idx = 0) => {
 
 // ---------- settings and saves (arena.marti.*; old marti.* keys are read once and kept) ----------
 const KEY = { settings: 'arena.marti.settings', best: 'arena.marti.best', save: 'arena.marti.save' };
-const browserLang = (navigator.language || 'en').toLowerCase().startsWith('tr') ? 'tr' : 'en';
+const browserLang = (/^tr/i.test(navigator.language || '') ? 'tr' : 'en');
 const coarse = window.matchMedia && matchMedia('(pointer:coarse)').matches;
 const SET = Object.assign({ master: 0.8, music: 0.6, sfx: 0.8, lang: browserLang, quality: coarse ? 'low' : 'high', musicOn: true, sfxOn: true },
   LS.get(KEY.settings, null) || (() => {
@@ -2361,6 +2361,7 @@ if (LS.get(KEY.best, null) === null && LS.get('marti.highs', null)) LS.set(KEY.b
 if (LS.get(KEY.save, null) === null && LS.get('marti.missions', null)) LS.set(KEY.save, LS.get('marti.missions', null));
 // One save record: the daily missions (date, p, done) and what lasts across runs (chick feeds, hints seen, fact index).
 const META = Object.assign({ chick: 0, hints: {}, factIdx: 0 }, LS.get(KEY.save, null) || {});
+if (SET.lang !== 'tr' && SET.lang !== 'en') SET.lang = browserLang; // a stored unknown language would break I18N[LANG]
 const saveSettings = () => LS.set(KEY.settings, SET);
 saveSettings();
 let LANG = Q.get('lang') === 'en' ? 'en' : Q.get('lang') === 'tr' ? 'tr' : SET.lang;
