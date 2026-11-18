@@ -2089,6 +2089,7 @@ button:focus-visible, a:focus-visible, input:focus-visible {
       <div><small data-i18n="simit">Simit</small><b id="oSimit">0</b></div>
     </div>
     <div class="row">
+      <button class="btn hidden" id="bCont" data-i18n="cont">Reklam izle, devam et</button>
       <button class="btn" id="bRetry" data-i18n="retry">Tekrar dene</button>
       <button class="btn ghost" id="bMenuO" data-i18n="menu">Ana menü</button>
     </div>
@@ -2186,7 +2187,7 @@ const I18N = {
       '<b>Simit kap:</b> enerjin dolsun, kombo kur, rüzgârı yakala',
       '<b>Kaçın:</b> köprü, gemi direkleri ve uçurtmalar. Rakip sürü simit çalar',
     ],
-    start: 'Başla', retry: 'Tekrar oyna', resume: 'Devam et', menu: 'Ana menü', restart: 'Yeniden başla',
+    start: 'Başla', retry: 'Tekrar oyna', cont: 'Reklam izle, devam et', resume: 'Devam et', menu: 'Ana menü', restart: 'Yeniden başla',
     paused: 'Duraklatıldı', over: 'Koşu bitti', loading: 'Yükleniyor… {n}/{m}', bestLine: 'En iyi skor: {n}',
     score: 'Skor', best: 'En iyi', dist: 'Mesafe', simit: 'Simit', combo: 'Kombo', stamina: 'Enerji',
     missions: 'Günlük görevler', highs: 'Yüksek skorlar',
@@ -2224,7 +2225,7 @@ const I18N = {
       '<b>Snatch simit:</b> refill your stamina, build a combo, catch a tailwind',
       '<b>Avoid:</b> bridge, ship masts and kites. The rival flock steals your simit',
     ],
-    start: 'Start', retry: 'Play again', resume: 'Resume', menu: 'Main menu', restart: 'Restart',
+    start: 'Start', retry: 'Play again', cont: 'Watch an ad to continue', resume: 'Resume', menu: 'Main menu', restart: 'Restart',
     paused: 'Paused', over: 'Run over', loading: 'Loading… {n}/{m}', bestLine: 'Best score: {n}',
     score: 'Score', best: 'Best', dist: 'Distance', simit: 'Simit', combo: 'Combo', stamina: 'Stamina',
     missions: 'Daily missions', highs: 'High scores',
@@ -4058,10 +4059,10 @@ window.addEventListener('keydown', (e) => {
   if (settingsOpen) { if (e.code === 'Escape' || e.code === 'KeyP') closeSettings(); return; }
   if (e.code === 'Space' && !onButton) {
     if (S.state === 'title' && assetsReady) { startRun(); return; }
-    if (S.state === 'over' && S.overT > 0.6) { startRun(); return; }
+    if (S.state === 'over' && S.overT > 0.6) { retryRun(); return; }
     if (S.state === 'playing') S.diveHold = true;
   }
-  if (e.code === 'Enter' && !onButton && ((S.state === 'title' && assetsReady) || S.state === 'over')) { startRun(); return; }
+  if (e.code === 'Enter' && !onButton && ((S.state === 'title' && assetsReady) || S.state === 'over')) { if (S.state === 'over') retryRun(); else startRun(); return; }
   if (e.code === 'KeyP' || e.code === 'Escape') togglePause();
   if (e.code === 'KeyN') toggleMute();
   if (e.code === 'KeyM') toggleMusic();
@@ -4112,7 +4113,7 @@ window.addEventListener('pointerdown', (e) => {
   ptrDown = true; ptrType = e.pointerType; ptrMoved = 0;
   ptrStart = { x: e.clientX, y: e.clientY, t: performance.now(), tx: S.tx, ty: S.tyBase };
   if (S.state === 'title' && assetsReady) { startRun(); return; }
-  if (S.state === 'over' && S.overT > 0.6) { startRun(); return; }
+  if (S.state === 'over' && S.overT > 0.6) { retryRun(); return; }
   if (S.state === 'playing') {
     const isTargetDiveBtn = !!(e.target && e.target.closest && e.target.closest('#bDive'));
     const inZone = isTargetDiveBtn || (ptrType === 'touch' && isLowerRightZone(e.clientX, e.clientY));
@@ -4248,7 +4249,7 @@ function startRun(daily) {
   S.tx = 0; S.tyBase = 12; S.diveHold = false; S.diveOff = 0; S.diveTimer = 0; S.gustX = 0; S.gustY = 0; S.shake = 0;
   isDiveZoneActive = false; if (touchHoldTimer) { clearTimeout(touchHoldTimer); touchHoldTimer = null; }
   const bDivReset = $('#bDive'); if (bDivReset) bDivReset.classList.remove('active');
-  S.overT = 0; S.cullT = 0; S.newBest = false; S.autoT = 0;
+  S.overT = 0; S.cullT = 0; S.newBest = false; S.autoT = 0; S.contUsed = false;
   S.carried = 0; S.feeds = 0; S.nearMiss = 0; S.nearCd = 0; S.piers = 0; S.mateUsed = false;
   S.mate = chickStage() === 4; // from chick stage 4 the young gull flies along in every run
   S.gustAt = 0; S.gustWarned = false;
@@ -4294,6 +4295,7 @@ function gameOver(reason) {
   if (!simming) sfxOver();
   setScreen('over', run, isNew);
   if (window.Arena && Arena.complete) Arena.complete({ mount: $('#over .card') });   // arena-kit v1.1: marti/complete + one-tap 👍/👎 (nothing on ?auto)
+  $('#bCont').classList.toggle('hidden', !canContinue());
 }
 // arena-kit after a run: passport badges and the daily streak (only for the day the route was seeded with).
 // The ?auto bot and ?sim never write to the player's passport.
@@ -4304,6 +4306,34 @@ function arenaRunOver(run) {
   if (S.daily) { const d = Arena.daily(); if (d.day === S.daily) S.arenaStreak = d.complete(run.score); }
 }
 const arenaDailyAgain = () => (S.daily && window.Arena && Arena.daily().day === S.daily ? Arena.daily() : null);
+// Portal ad hooks (G-050 pilot). Ads only at the natural break: after a run, when the player leaves the game-over card.
+// On the game's own site (no portal SDK) afterBreak() runs the action synchronously and the continue offer never shows,
+// so the site plays exactly as before. The ?auto bot restarts directly and is not affected. One tap = one action.
+let breakBusy = false;
+function afterBreak(f) {
+  if (!(window.Arena && Arena.portal && Arena.portal.name !== 'none')) return f();
+  if (breakBusy) return; breakBusy = true;
+  Arena.portal.midgame().catch(() => false).then(() => { breakBusy = false; f(); });
+}
+const retryRun = (daily) => afterBreak(() => startRun(daily));
+// Rewarded "continue": once per run, only where the portal can reward. The run that just ended is taken back out of the
+// run list and the high scores, so the continued run counts once; the gull comes back with 1 life and a short shield.
+function canContinue() {
+  return !!(window.Arena && Arena.portal && Arena.portal.canReward && !S.contUsed && !FLAG.auto && !simming && !S.daily);
+}
+function continueRun() {
+  if (S.state !== 'over' || !canContinue() || breakBusy) return;
+  breakBusy = true;
+  Arena.portal.rewarded().catch(() => false).then((ok) => {
+    breakBusy = false;
+    if (!ok || S.state !== 'over') return;
+    const run = S.runs.pop();
+    if (run) { const i = HIGHS.findIndex((h) => h.s === run.score && h.d === run.dist); if (i >= 0) { HIGHS.splice(i, 1); LS.set(KEY.best, HIGHS); } }
+    S.contUsed = true; S.lives = 1; S.stamina = Math.max(S.stamina, 60); S.inv = 2.5; S.deathCause = null;
+    S.state = 'playing'; S.attract = false;
+    setScreen('playing'); audioPause(false);
+  });
+}
 function togglePause() {
   if (S.state === 'playing') { S.state = 'paused'; setScreen('paused'); audioPause(true); }
   else if (S.state === 'paused') { S.state = 'playing'; setScreen('playing'); audioPause(false); }
@@ -4902,7 +4932,8 @@ window.addEventListener('resize', () => {
 
 // ---------- buttons ----------
 click('#bStart', () => { if (assetsReady) startRun(); });
-click('#bRetry', () => startRun(arenaDailyAgain())); // a daily run retries as the same daily
+click('#bRetry', () => retryRun(arenaDailyAgain())); // a daily run retries as the same daily
+click('#bCont', continueRun);
 click('#bDaily', () => { if (assetsReady && window.Arena) startRun(Arena.daily()); });
 click('#bShare', () => { if (!lastRun || !window.Arena) return; Arena.share({ title: 'Martı · ' + tx('over'), url: 'https://furkiozknn.github.io/marti/',
   lines: [tx('shareLine', { n: lastRun.score, d: fmtDist(lastRun.dist), k: lastRun.simit })].concat(S.arenaStreak ? [tx('dailyOver', { s: S.arenaStreak.streak, b: S.arenaStreak.best })] : []) }); });
@@ -4910,7 +4941,7 @@ click('#bOther', () => { if (!window.Arena) return; const g = Arena.games.filter
 click('#bResume', togglePause);
 click('#bRestart', () => startRun(arenaDailyAgain()));
 click('#bMenuP', goMenu);
-click('#bMenuO', goMenu);
+click('#bMenuO', () => afterBreak(goMenu));
 click('#bPause', togglePause);
 click('#bMute', toggleMute);
 click('#bMusic', () => { ensureAudio(); toggleMusic(); });
