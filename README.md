@@ -152,11 +152,23 @@ python -m http.server 8000
 
 Then open <http://localhost:8000/>.
 
+### Smoke test
+
+`test/duman.mjs` is a dependency-free smoke test (the dependency is installed outside the repo): it opens the page at desktop and phone size, checks for console and network errors, starts a run, pauses and resumes, plays a run out, checks the version tag, the What's new window and the achievements, and checks that an old save still loads.
+
+```bash
+PW_MODULE=<folder containing node_modules/playwright-core> CHROMIUM=<path to a Chromium-based browser> node test/duman.mjs
+```
+
 ## Made with Claude Code
 
 Built by **Claude Haiku 5.5** with Claude Code from one prompt: [prompts/marti.md](prompts/marti.md). The first version was fully procedural: the strait, the shores, the boats, the landmarks, and the gull are low-poly primitives with vertex colours, and the music and sounds are synthesised with the Web Audio API. Before release, an independent bot run in a real browser flew 796 seconds before running out of stamina, with 0 JS errors.
 
 The assets were remastered by the orchestrator, **Claude Opus 5.5**, with generated models: Tripo text-to-3D (through Higgsfield) for the simit (also the golden simit), the fish, the shield feather, the ferry, the fishing boat, the sailboat, the mosque, the Galata tower, the Maiden's tower, and the yalı, and GPT Image for the crest and the favicon. They were fitted with glTF-Transform (about 0.88 MB in `assets/`), and every procedural model stays as the fallback. A generated gull was tried and rejected, so the gull is a redesigned procedural one with grey wing tops, white undersides, and black tips (see [docs/assets.md](docs/assets.md)). A Godot 4 remake was made in round 2.
+
+### v2.1 update (November 2026)
+
+A maintenance pass: a version tag and a **What's new** window on the title screen, 11 local **achievements**, a chime, buzz and sparkle when you beat your own high score, a "More games" link to <https://furkiozknn.github.io/>, bigger touch targets for the footer links, share-card and theme-colour metadata, and a 404 page. Save data and the page address are unchanged. Details (in Turkish) are in [CHANGELOG.md](CHANGELOG.md).
 
 ### v2 update
 
