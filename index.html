@@ -13,6 +13,10 @@
 <meta property="og:image:height" content="540">
 <meta property="og:url" content="https://furkiozknn.github.io/marti/">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Martı · Seagull Run">
+<meta name="twitter:description" content="Boğaz üzerinde sonsuz bir martı koşusu: simit kap, köprü ve gemilerden kaç. · An endless seagull run over the Istanbul strait.">
+<meta name="twitter:image" content="https://furkiozknn.github.io/marti/docs/card.jpg">
+<meta name="theme-color" content="#0a192f">
 <link rel="icon" type="image/png" href="assets/ui/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1967,6 +1971,28 @@ button:focus-visible, a:focus-visible, input:focus-visible {
   #title .hint { margin-top: 4px; }
   #title .foot { margin-top: 6px; }
 }
+
+/* v2.1: sürüm etiketi, Yenilikler / Başarımlar penceresi, daha büyük dokunma hedefleri */
+.btn { min-height: 44px; }
+.foot { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 0 6px; }
+.foot a, .linkb { display: inline-flex; align-items: center; min-height: 44px; padding: 0 10px; }
+.linkb { background: none; border: 0; font: inherit; font-size: 13px; color: #9fb3c8; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.linkb:hover { color: var(--sun-gold); }
+#news .card { max-width: 560px; text-align: left; }
+#news h3 { margin: 0 0 4px; font-family: var(--font-display); font-size: 26px; font-weight: 800; }
+#news h4 { margin: 18px 0 8px; font-size: 13px; letter-spacing: 1px; text-transform: uppercase; color: var(--sun-gold); }
+#news .ver { margin: 0 0 8px; font-size: 13px; color: #94a3b8; }
+.nl { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.nl li { padding: 9px 12px; border-radius: 12px; background: rgba(255, 255, 255, 0.06); font-size: 14px; line-height: 1.4; }
+.achgrid { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.achgrid li { padding: 8px 10px; border-radius: 12px; background: rgba(255, 255, 255, 0.05); font-size: 13px; line-height: 1.3; opacity: 0.55; }
+.achgrid li.on { opacity: 1; background: rgba(252, 163, 17, 0.14); border: 1px solid rgba(252, 163, 17, 0.45); }
+.achgrid li b { display: block; font-size: 14px; }
+.achgrid li span { color: #cbd5e1; }
+.newach { margin: 8px 0 0; font-size: 14px; font-weight: 700; color: var(--sun-gold); }
+.newach:empty { display: none; }
+#news .row { margin-top: 16px; }
+@media (max-width: 480px) { .achgrid { grid-template-columns: 1fr; } #news .card { padding: 20px 16px 16px; } }
 </style>
 </head>
 <body>
@@ -2043,6 +2069,10 @@ button:focus-visible, a:focus-visible, input:focus-visible {
     </div>
     <p class="fact"><b data-i18n="didYou">Biliyor muydun?</b> <span id="titleFact"></span></p>
     <p class="hint" data-i18n="hint"></p>
+    <p class="foot">
+      <button class="linkb" id="bNews" type="button"><span id="verTag"></span> · <span data-i18n="news">Yenilikler</span></button>
+      <a class="linkb" id="titleHub" href="https://furkiozknn.github.io/" data-i18n="otherGames">Diğer oyunlar</a>
+    </p>
     <p class="foot"><a href="https://github.com/Furkiozknn" target="_blank" rel="noopener" data-i18n="footer">Claude Game Arena · built by Claude Haiku 5.5 · assets remastered</a></p>
   </div>
 </div>
@@ -2071,7 +2101,19 @@ button:focus-visible, a:focus-visible, input:focus-visible {
       <span data-i18n="quality">Kalite</span><div class="seg"><button class="segb" id="sLow" data-i18n="low">Düşük</button><button class="segb" id="sHigh" data-i18n="high">Yüksek</button></div>
       <span data-i18n="fullscreen">Tam ekran</span><div class="seg"><button class="segb" id="sFull" data-i18n="toggleFs">Aç / kapat</button></div>
     </div>
+    <p class="hint" id="setVer"></p>
     <div class="row"><button class="btn" id="bSetBack" data-i18n="back">Geri</button></div>
+  </div>
+</div>
+
+<div id="news" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="newsT">
+  <div class="card">
+    <h3 id="newsT" data-i18n="newsTitle">Neler yeni?</h3>
+    <p class="ver" id="newsVer"></p>
+    <ul class="nl" id="newsList"></ul>
+    <h4><span data-i18n="achTitle">Başarımlar</span> <span id="achCount"></span></h4>
+    <ul class="achgrid" id="achList"></ul>
+    <div class="row"><button class="btn" id="bNewsBack" type="button" data-i18n="back">Geri</button></div>
   </div>
 </div>
 
@@ -2082,6 +2124,7 @@ button:focus-visible, a:focus-visible, input:focus-visible {
     <p class="tag" id="overReason"></p>
     <div id="overTip" class="hidden"><span class="tip-badge" data-i18n="tipBadge">İpucu</span><span class="tip-text" id="oTip"></span></div>
     <div class="newbest" id="newBest"></div>
+    <p class="newach" id="oAch"></p>
     <div class="grid">
       <div><small data-i18n="score">Skor</small><b id="oScore">0</b></div>
       <div><small data-i18n="best">En iyi</small><b id="oBest">0</b></div>
@@ -2345,6 +2388,41 @@ const getSurvivalTip = (cause, idx = 0) => {
   return item[LANG] || item.en || '';
 };
 
+// ---------- v2.1: version, news, achievements ----------
+const VERSION = { v: '2.1', tr: 'Kasım 2026', en: 'November 2026' };
+Object.assign(I18N.tr, { news: 'Yenilikler', newsTitle: 'Neler yeni?', achTitle: 'Başarımlar', otherGames: 'Diğer oyunlar', newAch: 'Yeni başarım', beatBest: 'Rekoru geçtin!' });
+Object.assign(I18N.en, { news: 'What’s new', newsTitle: 'What’s new', achTitle: 'Achievements', otherGames: 'More games', newAch: 'New achievement', beatBest: 'New high score!' });
+const NEWS = {
+  tr: [
+    'Başarımlar: 11 yeni rozet. Kazandıkların bu pencerede ve koşu bitişinde görünür.',
+    'Kendi rekorunu geçtiğin an ses, titreşim ve kutlama efektiyle haber veriliyor.',
+    'Ana menüye sürüm etiketi, bu Yenilikler penceresi ve “Diğer oyunlar” bağlantısı eklendi.',
+    'Dokunmatik hedefler en az 44 px oldu; alt bağlantılar telefonda rahat basılıyor.',
+    'Paylaşım kartı (Twitter görseli, tema rengi) ve 404 sayfası eklendi.',
+  ],
+  en: [
+    'Achievements: 11 new badges. What you earn shows here and on the run-over card.',
+    'Beating your own high score now gets a chime, a buzz and a small celebration.',
+    'The title screen has a version tag, this What’s new window and a “More games” link.',
+    'Touch targets are at least 44 px; the bottom links are easy to tap on a phone.',
+    'A share card (Twitter image, theme colour) and a 404 page were added.',
+  ],
+};
+// Achievements are checked once per finished run (never for the ?auto bot) and kept in the save record (META.ach: id -> day).
+const ACH_DEFS = [
+  { id: 'first', tr: 'İlk uçuş', en: 'First flight', dtr: 'Bir koşuyu bitir', den: 'Finish a run', ok: () => true },
+  { id: 'km1', tr: 'Bir kilometre', en: 'One kilometre', dtr: 'Tek koşuda 1 km uç', den: 'Fly 1 km in one run', ok: (r) => r.dist >= 1000 },
+  { id: 'km3', tr: 'Boğaz’ı geçtin', en: 'Across the strait', dtr: 'Tek koşuda 3 km uç', den: 'Fly 3 km in one run', ok: (r) => r.dist >= 3000 },
+  { id: 'simit25', tr: 'Simit sofrası', en: 'Simit feast', dtr: 'Tek koşuda 25 simit kap', den: 'Snatch 25 simit in one run', ok: (r) => r.simit >= 25 },
+  { id: 'fish8', tr: 'Balıkçı martı', en: 'Fisher gull', dtr: 'Tek koşuda 8 balık yakala', den: 'Catch 8 fish in one run', ok: (r) => r.fish >= 8 },
+  { id: 'combo12', tr: 'Kombo ustası', en: 'Combo master', dtr: '12 kombo yap', den: 'Reach a 12 combo', ok: (r) => r.combo >= 12 },
+  { id: 'near6', tr: 'Kıl payı', en: 'Close shave', dtr: 'Tek koşuda 6 yakın geçiş yap', den: 'Make 6 near-misses in one run', ok: () => S.nearMiss >= 6 },
+  { id: 'night', tr: 'Gece martısı', en: 'Night gull', dtr: 'Koşuyu geceye kadar sürdür', den: 'Keep a run going into the night', ok: (r) => r.t >= 150 },
+  { id: 'chick', tr: 'Yavru büyüdü', en: 'All grown up', dtr: 'Yavruyu genç martı yap', den: 'Raise the chick to a young gull', ok: () => chickStage() === 4 },
+  { id: 'daily3', tr: 'Günün üç görevi', en: 'Daily hat-trick', dtr: 'Bir günde 3 görevi tamamla', den: 'Complete all 3 daily missions in a day', ok: () => !!MS && dailyIds().every((id) => MS.done[id]) },
+  { id: 'score3000', tr: 'Üç bin', en: 'Three thousand', dtr: 'Tek koşuda 3000 puan yap', den: 'Score 3000 in one run', ok: (r) => r.score >= 3000 },
+];
+
 // ---------- settings and saves (arena.marti.*; old marti.* keys are read once and kept) ----------
 const KEY = { settings: 'arena.marti.settings', best: 'arena.marti.best', save: 'arena.marti.save' };
 const browserLang = (/^tr/i.test(navigator.language || '') ? 'tr' : 'en');
@@ -2361,7 +2439,8 @@ const SET = Object.assign({ master: 0.8, music: 0.6, sfx: 0.8, lang: browserLang
 if (LS.get(KEY.best, null) === null && LS.get('marti.highs', null)) LS.set(KEY.best, LS.get('marti.highs', []));
 if (LS.get(KEY.save, null) === null && LS.get('marti.missions', null)) LS.set(KEY.save, LS.get('marti.missions', null));
 // One save record: the daily missions (date, p, done) and what lasts across runs (chick feeds, hints seen, fact index).
-const META = Object.assign({ chick: 0, hints: {}, factIdx: 0 }, LS.get(KEY.save, null) || {});
+const META = Object.assign({ chick: 0, hints: {}, factIdx: 0, ach: {} }, LS.get(KEY.save, null) || {});
+if (!META.ach || typeof META.ach !== 'object') META.ach = {};
 if (SET.lang !== 'tr' && SET.lang !== 'en') SET.lang = browserLang; // a stored unknown language would break I18N[LANG]
 const saveSettings = () => LS.set(KEY.settings, SET);
 saveSettings();
@@ -3128,6 +3207,7 @@ const S = {
   carried: 0, feeds: 0, nearMiss: 0, nearCd: 0, piers: 0, mate: false, mateUsed: false,
   gustAt: 0, gustWarned: false, gustDir: 1,
   flock: 0, flockFeed: 0, flockMax: 0, flockLost: 0, flockBigTold: false, kitesCut: 0, rivalsScared: 0,
+  newAch: [], bestAtStart: 0, beatShown: false,
 };
 window.marti = S;
 S.G = G;
@@ -4056,6 +4136,7 @@ window.addEventListener('keydown', (e) => {
   if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) e.preventDefault();
   if (e.repeat) return; // a held key must not restart the run or toggle twice
   const onButton = document.activeElement && document.activeElement.tagName === 'BUTTON';
+  if (newsOpen) { if (e.code === 'Escape' || e.code === 'KeyP') closeNews(); return; }
   if (settingsOpen) { if (e.code === 'Escape' || e.code === 'KeyP') closeSettings(); return; }
   if (e.code === 'Space' && !onButton) {
     if (S.state === 'title' && assetsReady) { startRun(); return; }
@@ -4101,7 +4182,7 @@ function touchSteer(e) {
 }
 function isUI(t) {
   if (t && t.closest && t.closest('#bDive')) return false;
-  return t && t.closest && t.closest('button, .card, .ibtn, a, input, .arena-gear');
+  return t && t.closest && t.closest('button, .card, .ibtn, a, input, .arena-gear, #news');
 }
 function isLowerRightZone(x, y) {
   // Dedicated lower-right screen zone trigger: right 28% and bottom 30% of viewport
@@ -4246,6 +4327,7 @@ function startRun(daily) {
   S.score = 0; S.lives = 3; S.stamina = 100; S.combo = 0; S.comboT = 0; S.runCombo = 0; S.mult = 1;
   S.tailT = 0; S.goldT = 0; S.shieldOn = false; S.inv = 0; S.simit = 0; S.fish = 0; S.powers = 0; S.steals = 0;
   S.deathCause = null;
+  S.bestAtStart = bestScore(); S.beatShown = false; S.newAch = [];
   S.tx = 0; S.tyBase = 12; S.diveHold = false; S.diveOff = 0; S.diveTimer = 0; S.gustX = 0; S.gustY = 0; S.shake = 0;
   isDiveZoneActive = false; if (touchHoldTimer) { clearTimeout(touchHoldTimer); touchHoldTimer = null; }
   const bDivReset = $('#bDive'); if (bDivReset) bDivReset.classList.remove('active');
@@ -4290,10 +4372,13 @@ function gameOver(reason) {
   const isNew = run.score > best && run.score > 0;
   S.newBest = isNew;
   saveHigh(run);
+  achCheck(run);
   missionsFlush();
   arenaRunOver(run);
   if (!simming) sfxOver();
   setScreen('over', run, isNew);
+  renderOverAch();
+  if (S.newAch.length && !simming) sfxChime(7);
   if (window.Arena && Arena.complete) Arena.complete({ mount: $('#over .card') });   // arena-kit v1.1: marti/complete + one-tap 👍/👎 (nothing on ?auto)
   $('#bCont').classList.toggle('hidden', !canContinue());
 }
@@ -4637,6 +4722,9 @@ function applyLang() {
   renderHighList();
   renderToggles();
   renderOverMissions();
+  renderVersion();
+  renderNews();
+  renderOverAch();
   if (lastRun) {
     $('#overReason').textContent = deathCauseText(lastRun.deathCause || lastRun.reason);
     const tip = getSurvivalTip(lastRun.deathCause || lastRun.reason, lastRun.tipIdx);
@@ -4809,6 +4897,7 @@ function updateHud(dt) {
   $('#sCombo').textContent = 'x' + comboMult();
   $('#sDist').textContent = fmtDist(S.d);
   $('#sBest').textContent = Math.max(bestScore(), Math.round(S.score));
+  if (S.state === 'playing' && !S.beatShown && S.bestAtStart > 0 && S.score > S.bestAtStart) beatBest();
   renderLives();
   const st = $('#stamina');
   st.classList.toggle('low', S.stamina < 25);
@@ -4894,6 +4983,56 @@ click('#sLow', () => { SET.quality = 'low'; saveSettings(); applyQuality(); rend
 click('#sHigh', () => { SET.quality = 'high'; saveSettings(); applyQuality(); renderSettings(); });
 click('#sFull', toggleFullscreen);
 click('#bSetBack', closeSettings);
+
+// ---------- v2.1 code: achievements, news window, record-beaten cue ----------
+function achCheck(run) {
+  S.newAch = [];
+  if (FLAG.auto) return;
+  for (const a of ACH_DEFS) {
+    let hit = false;
+    try { hit = !META.ach[a.id] && a.ok(run); } catch (e) { hit = false; }
+    if (hit) { META.ach[a.id] = dayKey(); S.newAch.push(a.id); }
+  }
+}
+function renderOverAch() {
+  const names = S.newAch.map((id) => ACH_DEFS.find((a) => a.id === id)).filter(Boolean).map((a) => a[LANG]);
+  $('#oAch').textContent = S.state === 'over' && names.length ? tx('newAch') + ': ' + names.join(' · ') : '';
+}
+function beatBest() {
+  S.beatShown = true;
+  if (simming) return;
+  toast(tx('beatBest'), 'good');
+  sfxChime(9);
+  haptic(30);
+  if (!calm()) for (const dx of [-7, 7]) FW.burst(G.x + dx, G.y + 7, S.d + 40, '#FDE68A', isLow() ? 10 : 18, 10, 1.4, 6);
+}
+function renderVersion() {
+  const v = 'v' + VERSION.v + ' · ' + VERSION[LANG];
+  $('#verTag').textContent = v;
+  $('#setVer').textContent = 'Martı ' + v;
+  $('#newsVer').textContent = 'Martı ' + v;
+}
+function renderNews() {
+  $('#newsList').innerHTML = NEWS[LANG].map((t) => '<li>' + t + '</li>').join('');
+  const got = ACH_DEFS.filter((a) => META.ach[a.id]).length;
+  $('#achCount').textContent = got + '/' + ACH_DEFS.length;
+  $('#achList').innerHTML = ACH_DEFS.map((a) => '<li class="' + (META.ach[a.id] ? 'on' : '') + '"><b>' + (META.ach[a.id] ? ICON.check : '') + a[LANG] + '</b><span>' + a['d' + LANG] + '</span></li>').join('');
+}
+let newsOpen = false;
+function openNews() {
+  if (S.state !== 'title') return;
+  newsOpen = true; renderNews();
+  $('#news').classList.remove('hidden');
+  setTimeout(() => $('#bNewsBack').focus({ preventScroll: true }), 60);
+}
+function closeNews() {
+  newsOpen = false;
+  $('#news').classList.add('hidden');
+  $('#bNews').focus({ preventScroll: true });
+}
+click('#bNews', openNews);
+click('#bNewsBack', closeNews);
+$('#news').addEventListener('click', (e) => { if (e.target.id === 'news') closeNews(); });
 
 // ---------- main loop ----------
 let lastFrame = performance.now(), fpsAcc = 0, fpsN = 0;
@@ -5010,6 +5149,7 @@ $('#fatal').style.display = 'none'; // the module runs, so the CDN watchdog mess
 missionsLoad();
 applyLang();
 renderLives();
+if (window.Arena && Arena.portal && Arena.portal.name !== 'none') $('#titleHub').classList.add('hidden'); // portals: no cross-promotion (same rule as the end card)
 setScreen('title');
 // arena-kit: accessibility button bottom-right (that corner holds no game controls); a run pauses when it is opened
 if (window.Arena) {
