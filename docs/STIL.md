@@ -30,5 +30,5 @@ Mavi zemin üzerinde daha açık mavi güneş ışını (sunburst) şeritleri, k
 
 ## Bu depoda kullanım
 - `docs/banner.svg` bu palet ve serif yazı diliyle yeniden çizildi (dış yazı tipi, betik, bağlantı yok; Georgia / serif yedekleri).
-- README: Türkçe + İngilizce kısa açıklama, "Şarkı videosundan" bölümü (3 küçük kare + `social-videos` bağlantısı).
+- README: Türkçe + İngilizce kısa açıklama ve şarkı videosuna tek satırlık bağlantı.
 - Görmediğim şeyler (müzik, sesin tamamı) yazılmadı.

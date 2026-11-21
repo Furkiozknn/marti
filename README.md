@@ -31,22 +31,9 @@
 
 <!-- gameplay gif -->
 
-## Şarkı videosundan / From the song video
+## Şarkı videosu / Song video
 
-<p align="center">
-  <img src="docs/banner.svg" width="100%" alt="Martı: Boğaz'da simit avı. Mavi zemin, sarı rozet, simit taşıyan martı ve vapur.">
-</p>
-
-<table>
-  <tr>
-    <td width="33%"><img src="docs/sarki-01.jpg" alt="Şarkı videosundan: simit taşıyan martı, çatıda yuvadaki yavru, vapur ve köprü"><br><sub>Başlık: "Turkish is easy… for a seagull?"</sub></td>
-    <td width="33%"><img src="docs/sarki-02.jpg" alt="Şarkı videosundan: simitini kaptıran simitçi, martı, 'Bagel? SİMİT!' yazısı"><br><sub>"Bagel? SİMİT!"</sub></td>
-    <td width="33%"><img src="docs/sarki-03.jpg" alt="Şarkı videosundan: oyun görüntüsü, altın gökyüzü altında Boğaz"><br><sub>Oyundan: "Dal suya, balık kap"</sub></td>
-  </tr>
-</table>
-
-**Martı · Oyun Şarkısı** (36 sn, dikey video): oyunun tanıtım şarkısı; simitçi, martı ve yuvadaki yavru üzerinden kelime sorusu ve Türkçe cevaplarla ("Bagel? SİMİT!", "Brave? YİĞİT!"). Video bu depoda değil; paylaşım videoları deposunda: [social-videos / 2026-11 / Martı oyun şarkısı](https://github.com/Furkiozknn/social-videos/blob/master/2026-11/2026-11-19-sarki-marti.mp4).
-*The song video (36 s, vertical) is a playful word-quiz tune about a seagull, a simit seller and a chick in a nest; it lives in the public social-videos repository, linked above.* Görsel stil notları: [docs/STIL.md](docs/STIL.md).
+**Martı · Oyun Şarkısı**: oyunun tanıtım şarkısı videosu, paylaşım videoları deposunda: [social-videos / 2026-11](https://github.com/Furkiozknn/social-videos/blob/master/2026-11/2026-11-19-sarki-marti.mp4). Videonun görsel stil notları: [docs/STIL.md](docs/STIL.md).
 
 ## Features
 
