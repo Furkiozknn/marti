@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://furkiozknn.github.io/marti/">
-    <img src="docs/card.jpg" width="100%" alt="Martı: fly a seagull over the Istanbul strait, snatch simit from ferries and dodge the bridge. Click to play in your browser.">
+    <img src="docs/card-3d.jpg" width="100%" alt="Martı: fly a seagull over the Istanbul strait, snatch simit from ferries and dodge the bridge. Click to play in your browser.">
   </a>
 </p>
 
@@ -29,13 +29,29 @@
 
 ## Features
 
+<p align="center">
+  <img src="docs/features.jpg" width="100%" alt="Martı feature overview: a cartoon seagull with a simit flies past an Istanbul ferry, beside five cream panels on endless strait flight, stamina and the nesting chick, combos and near misses, daily missions, and one file at 60 FPS.">
+</p>
+
+<details>
+<summary><b>Feature details</b></summary>
+
 - **Endless flight over the strait:** Steer inside the corridor over the water across an endless run that speeds up after the first 30 seconds, journeying from afternoon gold through sunset to a starry night with lit windows and fireworks.
 - **Stamina, feathers & nesting chick:** Manage draining stamina and 3 feathers; carry up to 2 simit to rooftop nests to chirp, earn +150, and recover a feather. Feeds accumulate across all runs (growing at 5, 15, and 30 feeds) until a young companion gull flies beside you and absorbs 1 hit per run.
 - **Dynamic combos & near-miss scoring:** Build multipliers up to x5 (golden simit x2, tailwind x1.5 speed and score, shield feather absorbing 1 hit), snatch fish crates at jetty posts, and score +25 for close calls past hulls, masts, kites, and bridge cables.
 - **Late-run ramp & daily missions:** Complete 3 missions a day saved to a local top-5 leaderboard; survive past 3 minutes as storm clouds thicken, kites fly in pairs, gusts give 2-second warnings, and hostile flocks fly 20% faster to steal simit.
 - **Ultra-lean web performance:** A single `index.html` running Three.js r170 delivering 60 fps at 31 draw calls and 47k triangles on Intel UHD 620 (touch targets sized 44 px for phones), verified by an automated bot flying 796 seconds with 0 JS errors.
 
+</details>
+
 ## How to play
+
+<p align="center">
+  <img src="docs/how-to-play.jpg" width="100%" alt="How to play Martı: a seagull with a simit lands by a chick in a rooftop nest at night under fireworks, with three steps (steer, snatch simit and dive for fish, feed the chick) and a table of mouse, touch and keyboard controls.">
+</p>
+
+<details>
+<summary><b>Goal and steps</b></summary>
 
 > [!TIP]
 > **Goal:** Fly as far and score as high as you can. The run is over when your stamina runs out or you lose all three feathers.
@@ -43,6 +59,8 @@
 1. **Steer inside the corridor:** Guide the gull with the mouse, a finger, or arrow keys / `WASD` to keep it within the corridor over the water and clear of obstacles.
 2. **Snatch simit & dive for fish:** Fly through simit rings on ferry decks and in the air to refill stamina and build combos; dive (hold `Space`, hold the mouse button, or tap) to catch jumping fish.
 3. **Feed the chick:** Carry up to two simit to a rooftop nest on the shore and fly low past it to gain +150, recover a lost feather, and grow your companion bird over time.
+
+</details>
 
 <details>
 <summary><b>Rules and hazards</b></summary>
