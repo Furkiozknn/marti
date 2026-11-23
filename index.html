@@ -1993,6 +1993,36 @@ button:focus-visible, a:focus-visible, input:focus-visible {
 .newach:empty { display: none; }
 #news .row { margin-top: 16px; }
 @media (max-width: 480px) { .achgrid { grid-template-columns: 1fr; } #news .card { padding: 20px 16px 16px; } }
+
+/* ---------- stil-3d: the song video's warm 3D world (sea blue #0F5E8C, sun yellow #FFD23F, soft clay shadows) ---------- */
+.overlay { background: radial-gradient(circle at 50% 18%, rgba(255, 196, 120, 0.42) 0%, rgba(15, 94, 140, 0.55) 45%, rgba(6, 30, 52, 0.86) 100%); }
+.card {
+  background: linear-gradient(170deg, rgba(25, 118, 168, 0.95) 0%, rgba(15, 94, 140, 0.96) 38%, rgba(9, 58, 92, 0.98) 100%);
+  border: 2px solid rgba(255, 220, 140, 0.45);
+  box-shadow: 0 26px 50px -12px rgba(3, 22, 40, 0.75), 0 10px 0 -4px rgba(6, 46, 74, 0.55), inset 0 2px 0 rgba(255, 255, 255, 0.35), inset 0 -6px 14px rgba(0, 30, 60, 0.35);
+}
+.card .logo { background: linear-gradient(180deg, #ffffff 35%, #ffe7a3 100%); -webkit-background-clip: text; filter: drop-shadow(0 4px 0 rgba(6, 46, 74, 0.6)) drop-shadow(0 8px 14px rgba(0, 0, 0, 0.35)); }
+.card .tag { color: #d6efff; }
+.btn { background: linear-gradient(180deg, #ffe066 0%, #ffd23f 45%, #f4a300 100%); color: #5a3200; border: 2px solid rgba(255, 255, 255, 0.55); text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5); box-shadow: 0 6px 0 #b86f00, 0 12px 22px rgba(120, 60, 0, 0.35), inset 0 2px 0 rgba(255, 255, 255, 0.6); }
+.btn:hover:not(:disabled) { box-shadow: 0 8px 0 #b86f00, 0 16px 26px rgba(120, 60, 0, 0.4), inset 0 2px 0 rgba(255, 255, 255, 0.6); }
+.btn:active:not(:disabled) { box-shadow: 0 2px 0 #b86f00, 0 6px 12px rgba(120, 60, 0, 0.35); }
+.btn.ghost { background: linear-gradient(180deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.1)); color: #ffffff; text-shadow: none; border: 2px solid rgba(255, 255, 255, 0.3); box-shadow: 0 5px 0 rgba(4, 40, 66, 0.6), 0 10px 18px rgba(0, 20, 40, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.35); }
+.how li, .two > div, .grid div, .nestcard { background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 4px 0 rgba(4, 40, 66, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.22); }
+.two li { background: rgba(4, 40, 66, 0.35); }
+.fact { background: rgba(4, 40, 66, 0.35); color: #e6f4ff; border-left-color: #ffd23f; }
+.glass { background: linear-gradient(170deg, rgba(25, 118, 168, 0.82) 0%, rgba(10, 66, 104, 0.9) 100%); border: 1px solid rgba(255, 220, 140, 0.35); box-shadow: 0 4px 0 rgba(4, 40, 66, 0.45), 0 10px 22px rgba(0, 20, 40, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3); }
+.ibtn { background: linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.08)); box-shadow: 0 3px 0 rgba(4, 40, 66, 0.5); }
+.title-vignette.has3d .hero-bosphorus-svg { display: none; }
+.hero3d { display: block; width: 150px; height: auto; margin: -6px auto -2px; filter: drop-shadow(0 10px 12px rgba(0, 30, 60, 0.45)); animation: glide3d 3.2s ease-in-out infinite; }
+@keyframes glide3d { 50% { transform: translateY(-5px) rotate(-2deg); } }
+.nestcard img.chick3d { flex: none; height: auto; filter: drop-shadow(0 6px 8px rgba(0, 30, 60, 0.4)); }
+.fig3d { position: absolute; top: 10px; right: 12px; height: auto; pointer-events: none; z-index: 2; filter: drop-shadow(0 8px 10px rgba(0, 30, 60, 0.45)); }
+.fig-over { width: 62px; }
+.fig-pause { width: 84px; top: 14px; }
+@media (min-width: 681px) and (max-height: 820px) { .hero3d { width: 104px; margin: -10px auto -4px; } }
+@media (max-height: 520px) and (orientation: landscape) { .fig3d { display: none; } }
+@media (max-width: 480px) { .hero3d { width: 112px; margin: -8px auto -4px; } .fig-over { width: 52px; top: 8px; right: 8px; } .fig-pause { width: 64px; top: 10px; right: 8px; } }
+@media (prefers-reduced-motion: reduce) { .hero3d { animation: none; } }
 </style>
 </head>
 <body>
@@ -2036,6 +2066,7 @@ button:focus-visible, a:focus-visible, input:focus-visible {
 <div id="title" class="overlay">
   <div class="card">
     <div class="title-vignette" aria-hidden="true">
+      <img class="hero3d" src="assets/3d/poz-marti.webp" alt="" onload="this.parentNode.classList.add('has3d')" onerror="this.remove()">
       <svg viewBox="0 0 180 70" class="hero-bosphorus-svg">
         <defs>
           <linearGradient id="sunGlow" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -2079,6 +2110,7 @@ button:focus-visible, a:focus-visible, input:focus-visible {
 
 <div id="pause" class="overlay hidden">
   <div class="card">
+    <img class="fig3d fig-pause" src="assets/3d/poz-marti.webp" alt="" onerror="this.remove()">
     <div class="logo" style="font-size:40px" data-i18n="paused">Duraklatıldı</div>
     <p class="tag" data-i18n="hint"></p>
     <div class="col">
@@ -2119,7 +2151,7 @@ button:focus-visible, a:focus-visible, input:focus-visible {
 
 <div id="over" class="overlay hidden">
   <div class="card">
-    <img class="mascot" src="assets/mascot/kedi-sessiz.png" alt="" onerror="this.remove()">
+    <img class="fig3d fig-over" src="assets/3d/poz-yavru.webp" alt="" onerror="this.remove()">
     <div class="logo" style="font-size:40px" data-i18n="over">Koşu bitti</div>
     <p class="tag" id="overReason"></p>
     <div id="overTip" class="hidden"><span class="tip-badge" data-i18n="tipBadge">İpucu</span><span class="tip-text" id="oTip"></span></div>
@@ -2177,6 +2209,9 @@ const Q = new URLSearchParams(location.search);
 const FLAG = { auto: Q.has('auto'), debug: Q.has('debug'), low: Q.has('low'), run: Q.has('run') };
 const SIM_SECONDS = parseFloat(Q.get('sim') || '0') || 0;
 const $ = (s) => document.querySelector(s);
+// stil-3d sprite atlases and their meshes (filled by loadAssets / applySprites; see "stil-3d" further down)
+const SPR_FILES = ['marti', 'nesne', 'ufuk'];
+const SPR = { tint: new THREE.Color(1, 1, 1), mats: [] };
 const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
 const lerp = (a, b, t) => a + (b - a) * t;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -2516,7 +2551,8 @@ const DOT = (() => {
 
 const M = {
   vc: new THREE.MeshLambertMaterial({ vertexColors: true }),
-  water: new THREE.MeshLambertMaterial({ vertexColors: true, flatShading: true }),
+  // stil-3d: glossy facets catch the sun as sparkles, like the sea in the song video
+  water: new THREE.MeshPhongMaterial({ vertexColors: true, shininess: 90, specular: 0x9adcff }),
   land: new THREE.MeshLambertMaterial({ vertexColors: true, flatShading: true, side: THREE.DoubleSide }),
   white: new THREE.MeshLambertMaterial({ color: 0xffffff }),
   house: new THREE.MeshLambertMaterial({ color: 0xffffff }),
@@ -2639,7 +2675,8 @@ const winGeo = (() => {
 })();
 // A 4-sided cone has its corners on the axes; turn it 45 degrees so the roof lines up with the box.
 const roofGeo = new THREE.ConeGeometry(0.72, 0.8, 4).rotateY(Math.PI / 4).translate(0, 0.4, 0);
-const treeGeo = new THREE.ConeGeometry(0.8, 3.2, 6).translate(0, 1.6, 0);
+// stil-3d: round chibi trees (a soft ball crown) instead of cones; same base point and height
+const treeGeo = new THREE.SphereGeometry(1.15, 12, 9).scale(1, 1.25, 1).translate(0, 1.75, 0);
 const domeGeo = new THREE.SphereGeometry(1, 14, 8, 0, TAU, 0, Math.PI / 2);
 const minaretGeo = merge([
   part(new THREE.CylinderGeometry(0.25, 0.35, 8, 8), '#F8FAFC', [0, 4, 0]),
@@ -2940,7 +2977,7 @@ function updateSky(p) {
 }
 
 // ---------- terrain and water ----------
-const DEEP = new THREE.Color('#1E6091'), CREST = new THREE.Color('#6CBDE3'), FOAM = new THREE.Color('#F4FBFF');
+const DEEP = new THREE.Color('#1979B4'), CREST = new THREE.Color('#5FD0EE'), FOAM = new THREE.Color('#F4FBFF');
 const SAND = new THREE.Color('#E9D7A3'), GRASS = new THREE.Color('#8DBF6A'), HILL = new THREE.Color('#4F8F4E');
 function waveH(x, z, t) {
   return 0.45 * Math.sin(x * 0.21 + t * 1.1) + 0.35 * Math.sin(z * 0.17 - t * 1.6 + x * 0.05) + 0.18 * Math.sin(x * 0.6 + z * 0.45 + t * 2.4);
@@ -3033,6 +3070,7 @@ function updateWater() {
   }
   waterGeo.attributes.position.needsUpdate = true;
   waterGeo.attributes.color.needsUpdate = true;
+  waterGeo.computeVertexNormals(); // smooth rolling waves (stil-3d), the facets were too hard for the clay look
 }
 
 // ---------- gull ----------
@@ -3109,7 +3147,14 @@ function loadAssets() {
     ASSET[name] = { geo, map, mat: new THREE.MeshLambertMaterial({ map, flatShading: true }) };
   }).catch((err) => console.warn('[marti] model not loaded, using the procedural one:', name, (err && err.message) || err))
     .finally(() => { assetsLoaded++; renderStartButton(); });
-  return Promise.all(MODEL_FILES.map(one));
+  // stil-3d sprite atlases (the song video's 3D chibi look); a missing one keeps the procedural mesh
+  const tl = new THREE.TextureLoader();
+  const tex = (name) => tl.loadAsync(`assets/3d/${name}.webp`).then((t) => {
+    t.colorSpace = THREE.SRGBColorSpace;
+    t.anisotropy = 4;
+    SPR[name] = t;
+  }).catch((err) => console.warn('[marti] sprite not loaded, using the procedural look:', name, (err && err.message) || err));
+  return Promise.all([...MODEL_FILES.map(one), ...SPR_FILES.map(tex)]);
 }
 // Swaps in the models that loaded (only those).
 function applyAssets() {
@@ -3126,8 +3171,150 @@ function applyAssets() {
     IM.mosque.castShadow = false;
     for (const k of ['mbody', 'dome', 'minaret']) IM[k].count = 0;
   }
+  applySprites();
   PR.dirty = true;
   S.assets = Object.keys(A);
+}
+
+// ---------- stil-3d: 3D chibi sprites from the song video ----------
+// Atlases in assets/3d (cut from item sheets, see CREDITS.md) replace the procedural gull, the flocks, simit, fish,
+// kites, nests, power-ups and the horizon once they load. Drawing only: every position, size used by collisions and
+// timing still comes from the same simulation data; the procedural meshes are just hidden (count 0 / visible false).
+// With ?noassets, from file:// or when a file fails, the procedural look stays.
+// marti.webp 2x2: 0 back, wings up / 1 back, glide / 2 front / 3 chick in the nest
+// nesne.webp 3x3: 0 simit / 1 fish / 2 golden simit / 3-5 kites red, yellow, blue / 6 feather / 7 tailwind / 8 fish crate
+const KITE_CELL = { '#EF4444': 3, '#F59E0B': 4, '#22C55E': 4, '#3B82F6': 5, '#EC4899': 3, '#A855F7': 5 };
+const PWR_CELL = { gold: 2, shield: 6, tail: 7, crate: 8 };
+const PWR_SIZE = { gold: 3.4, shield: 3.2, tail: 3.6, crate: 3.4 };
+// plane (w x h, moved up by oy) whose uv covers one cell of an N x N atlas
+function cellGeo(w, h, N, cell, oy = 0) {
+  const g = new THREE.PlaneGeometry(w, h).translate(0, oy, 0);
+  const uv = g.attributes.uv, cc = cell % N, rr = Math.floor(cell / N);
+  for (let i = 0; i < uv.count; i++) uv.setXY(i, (uv.getX(i) + cc) / N, (uv.getY(i) + N - 1 - rr) / N);
+  return g;
+}
+// Instanced camera-facing quads: the instance matrix gives the centre and the size (rotation is ignored), the
+// per-instance attribute instCell picks the atlas cell. One draw call per atlas user, like the meshes they replace.
+function bbMat(tex, N) {
+  const m = new THREE.MeshBasicMaterial({ map: tex, alphaTest: 0.4, side: THREE.DoubleSide });
+  m.onBeforeCompile = (sh) => {
+    sh.vertexShader = sh.vertexShader
+      .replace('#include <common>', '#include <common>\nattribute float instCell;')
+      .replace('#include <uv_vertex>', `#include <uv_vertex>
+  { float cc = mod(instCell, ${N}.0), rr = floor(instCell / ${N}.0 + 0.001);
+    vMapUv = vec2((uv.x + cc) / ${N}.0, (uv.y + ${N}.0 - 1.0 - rr) / ${N}.0); }`)
+      .replace('#include <project_vertex>', `vec4 mvPosition = modelViewMatrix * instanceMatrix * vec4(0.0, 0.0, 0.0, 1.0);
+  mvPosition.xy += position.xy * vec2(length(instanceMatrix[0].xyz), length(instanceMatrix[1].xyz));
+  gl_Position = projectionMatrix * mvPosition;`);
+  };
+  m.customProgramCacheKey = () => 'bb' + N;
+  SPR.mats.push(m);
+  return m;
+}
+function makeBB(tex, N, w, h, cap, oy = 0, tinted = false) {
+  const g = new THREE.PlaneGeometry(w, h).translate(0, oy, 0);
+  g.setAttribute('instCell', new THREE.InstancedBufferAttribute(new Float32Array(cap), 1).setUsage(THREE.DynamicDrawUsage));
+  const m = makeInst(g, bbMat(tex, N), cap);
+  if (tinted) { for (let i = 0; i < cap; i++) m.setColorAt(i, _ic.set('#FFFFFF')); }
+  return m;
+}
+// n billboards from the same per-frame list the procedural mesh used; cellOf picks the cell, colOf (optional) a tint
+function setBB(mesh, arr, n, cellOf, colOf) {
+  n = Math.min(n, mesh.instanceMatrix.count);
+  const cellA = mesh.geometry.attributes.instCell;
+  for (let i = 0; i < n; i++) {
+    const o = arr[i];
+    _im.makeScale(o.sx === undefined ? 1 : o.sx, o.sy === undefined ? 1 : o.sy, 1).setPosition(o.x, o.y, o.z);
+    mesh.setMatrixAt(i, _im);
+    cellA.array[i] = cellOf(o, i);
+    if (colOf) mesh.setColorAt(i, _ic.set(colOf(o, i)));
+  }
+  mesh.count = n;
+  mesh.instanceMatrix.needsUpdate = true;
+  cellA.needsUpdate = true;
+  if (colOf && mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+}
+const flapCell = (ph) => (Math.sin(WT * 9 + ph) > 0.2 ? 0 : 1);
+function applySprites() {
+  if (SPR.marti) {
+    // the player's gull: one quad in the body group (so it banks and pitches with it), seen from behind
+    const GW = 7.8;
+    SPR.gullGeo = [cellGeo(GW, GW, 2, 0, 0.6), cellGeo(GW, GW, 2, 1, 0.6)];
+    SPR.gullMat = new THREE.MeshBasicMaterial({ map: SPR.marti, transparent: true, alphaTest: 0.05, depthWrite: false, side: THREE.DoubleSide });
+    SPR.gull = new THREE.Mesh(SPR.gullGeo[1], SPR.gullMat);
+    SPR.gull.rotation.y = Math.PI; // the quad's front looks back at the chase camera
+    SPR.gull.renderOrder = 3;
+    gBody.add(SPR.gull);
+    bodyMesh.visible = wingL.visible = wingR.visible = false;
+    // rival and friendly flocks, your flock, the young gull, the chick in the rooftop nests
+    SPR.flock = makeBB(SPR.marti, 2, 7.4, 7.4, 80, 0, true);
+    SPR.wing = makeBB(SPR.marti, 2, 7.4, 7.4, 24);
+    SPR.mate = makeBB(SPR.marti, 2, 5.2, 5.2, 1);
+    SPR.nest = makeBB(SPR.marti, 2, 2.8, 2.8, 16, 1.1);
+  }
+  if (SPR.nesne) {
+    SPR.simit = makeBB(SPR.nesne, 3, 2.9, 2.9, 160);
+    SPR.fish = makeBB(SPR.nesne, 3, 3.2, 3.2, 40);
+    SPR.kite = makeBB(SPR.nesne, 3, 5.6, 5.6, 16, -1.2);
+    SPR.pwr = {};
+    for (const k in PWR_CELL) {
+      const t = SPR.nesne.clone();
+      t.repeat.set(1 / 3, 1 / 3);
+      t.offset.set((PWR_CELL[k] % 3) / 3, (2 - Math.floor(PWR_CELL[k] / 3)) / 3);
+      t.needsUpdate = true;
+      SPR.pwr[k] = new THREE.SpriteMaterial({ map: t, alphaTest: 0.4 });
+    }
+  }
+  if (SPR.ufuk) {
+    // Istanbul skyline strip on the horizon (replaces the flat bridge silhouette); tinted by the light, hazed to the sky
+    const img = SPR.ufuk.image, W = 980, H = (W * img.height) / img.width;
+    SPR.skyMat = new THREE.ShaderMaterial({
+      uniforms: { map: { value: SPR.ufuk }, tint: { value: new THREE.Color(1, 1, 1) }, haze: { value: new THREE.Color() }, hazeK: { value: 0.3 } },
+      vertexShader: 'varying vec2 vUv;\nvoid main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+      fragmentShader: 'uniform sampler2D map; uniform vec3 tint, haze; uniform float hazeK; varying vec2 vUv;\nvoid main() {\n  vec4 c = texture2D(map, vUv);\n  if (c.a < 0.02) discard;\n  gl_FragColor = vec4(mix(c.rgb * tint, haze, hazeK), c.a);\n  #include <tonemapping_fragment>\n  #include <colorspace_fragment>\n}',
+      transparent: true, depthWrite: false, fog: false,
+    });
+    SPR.sky = new THREE.Mesh(new THREE.PlaneGeometry(W, H).translate(0, H / 2 - 6, 0), SPR.skyMat);
+    SPR.sky.rotation.y = Math.PI;
+    SPR.sky.renderOrder = -0.5;
+    SPR.sky.frustumCulled = false;
+    scene.add(SPR.sky);
+    silMesh.visible = false;
+  }
+  if (SPR.marti) renderTitle();
+}
+const _white = new THREE.Color(1, 1, 1);
+// per frame, after the procedural instance lists are written: hide those meshes and draw the sprites instead
+function updateSprites(nSimit, nFish, nKite, nFlock) {
+  if (!SPR.gull && !SPR.simit && !SPR.sky) return;
+  // sprites are unlit pictures: give them the scene's light (warm day, blue night)
+  SPR.tint.copy(hemi.color).multiplyScalar(clamp(0.3 + hemi.intensity * 0.8, 0, 1)).lerp(_white, 0.3);
+  for (const m of SPR.mats) m.color.copy(SPR.tint);
+  if (SPR.gull) {
+    SPR.gullMat.color.copy(SPR.tint);
+    IM.flock.count = 0;
+    setBB(SPR.flock, TMP.flock, nFlock, (o, i) => (o.r ? 2 : flapCell(flockPhase.array[i] || 0)), (o) => (o.c === '#FFFFFF' ? '#FFFFFF' : '#707A8C'));
+    const nw = IM.wing.count;
+    IM.wing.count = 0;
+    setBB(SPR.wing, TMP.wing, nw, (o, i) => flapCell(wingPhase.array[i] || 0));
+    const nm = IM.mate.count;
+    IM.mate.count = 0;
+    setBB(SPR.mate, TMP.mate, nm, () => flapCell(1.7));
+  }
+  if (SPR.simit) {
+    IM.simit.count = 0;
+    setBB(SPR.simit, TMP.simit, nSimit, () => 0);
+    IM.fish.count = 0;
+    setBB(SPR.fish, TMP.fish, nFish, () => 1);
+    IM.kite.count = 0;
+    setBB(SPR.kite, TMP.kite, nKite, (o) => KITE_CELL[o.c] || 3);
+    for (const k in SPR.pwr) SPR.pwr[k].color.copy(SPR.tint);
+  }
+  if (SPR.sky) {
+    SPR.sky.position.set(G.x * 0.3, 0, S.d + 440);
+    SPR.skyMat.uniforms.tint.value.copy(SPR.tint);
+    SPR.skyMat.uniforms.haze.value.copy(scene.fog.color);
+  }
 }
 
 // ---------- particles (Points ring buffers: one for bursts near the gull, one for the fireworks) ----------
@@ -3342,7 +3529,7 @@ function spawnShoreBand(z0) {
     }
     for (let i = 0; i < 3; i++) {
       const x = side * srnd(34, 62), z = z0 + srnd(0, 40), y = terrH(x, z);
-      PR.tree.push({ x, y, z, sx: 1.2, sy: srnd(1.0, 1.7), sz: 1.2, c: spick(['#2F6B3F', '#3A7D44', '#25573A']) });
+      PR.tree.push({ x, y, z, sx: 1.2, sy: srnd(1.0, 1.7), sz: 1.2, c: spick(['#4E9A4A', '#62AE52', '#3F8A45']) });
     }
     if (SRND() < 0.22) {
       const x = side * srnd(46, 54), z = z0 + srnd(5, 35), y = terrH(x, z);
@@ -3855,6 +4042,7 @@ function updateVisuals(dt) {
     }
     setInst(IM.sky, PR.sky);
     setInst(IM.nest, PR.nest);
+    if (SPR.nest) { IM.nest.count = 0; setBB(SPR.nest, PR.nest, PR.nest.length, () => 3); }
     setInst(IM.post, PR.post);
   }
   for (const b of PR.balloon) b.y = b.y0 + Math.sin(WT * 0.7 + b.ph) * 0.6;
@@ -3878,6 +4066,7 @@ function updateVisuals(dt) {
     if (!k.cut) { const s = slot(TMP.str, ns++); s.x = k.cx; s.y = 0; s.z = k.z; s.sy = k.y; }
   }
   setInst(IM.kite, TMP.kite, n);
+  const nKite = n;
   setInst(IM.kiteStr, TMP.str, ns);
 
   // Flocks: white (friendly) and dark (rival) gulls; wings flap in the shader with a phase per bird.
@@ -3894,6 +4083,7 @@ function updateVisuals(dt) {
     }
   }
   setInst(IM.flock, TMP.flock, n);
+  const nFlock = n;
   flockPhase.needsUpdate = true;
   flockUniforms.uTime.value = WT;
 
@@ -3923,7 +4113,8 @@ function updateVisuals(dt) {
   for (let i = 0; i < nFish; i++) { const f = TMP.fish[i], o = slot(TMP.halo, h++); o.x = f.x; o.y = f.y; o.z = f.z - 0.3; o.sx = o.sy = 1.2; }
   for (const p2 of powers) {
     if (!p2.mesh && !p2.dead) {
-      p2.mesh = new THREE.Mesh(PWR[p2.type].geo, PWR[p2.type].mat);
+      if (SPR.pwr && SPR.pwr[p2.type]) { p2.mesh = new THREE.Sprite(SPR.pwr[p2.type]); p2.mesh.scale.set(PWR_SIZE[p2.type], PWR_SIZE[p2.type], 1); }
+      else p2.mesh = new THREE.Mesh(PWR[p2.type].geo, PWR[p2.type].mat);
       p2.mesh.castShadow = false;
       scene.add(p2.mesh);
     }
@@ -3941,6 +4132,7 @@ function updateVisuals(dt) {
   mate.x = G.x - Math.sign(G.x || 1) * 3; mate.y = G.y + 0.8; mate.z = S.d - 1.2;
   setInst(IM.mate, TMP.mate, S.mate && S.state === 'playing' ? 1 : 0);
   updateWingmen(dt);
+  updateSprites(nSimit, nFish, nKite, nFlock);
 
   // The first-run ring pulses around the first simit pattern, until it is passed or a simit is taken.
   if (tutRing && S.d > tutRing.z + 8) tutRing = null;
@@ -4042,6 +4234,13 @@ function updateVisuals(dt) {
   const wrist = 0.45 * flapA - (diving ? 0.35 : 0.12);
   wristR.rotation.z = wrist;
   wristL.rotation.z = -wrist;
+  if (SPR.gull) {
+    // sprite gull: wings-up frame on the upstroke, glide frame otherwise (and while diving); a bit bigger on portrait
+    // phones, where the wide vertical field of view makes it small (drawing only, the hit box is unchanged)
+    SPR.gull.geometry = SPR.gullGeo[!diving && Math.sin(G.flap) > 0.25 ? 0 : 1];
+    const k = camera.aspect < 0.9 ? 1.25 : 1;
+    SPR.gull.scale.set(k, k * (1 + 0.04 * Math.sin(G.flap)), 1);
+  }
   gBody.rotation.z = -G.bank * 0.8;
   gBody.rotation.x = (diving ? 0.5 : clamp(-G.vy * 0.03, -0.35, 0.35)) + GULL_PITCH;
   gull.position.set(G.x, G.y, S.d);
@@ -4885,7 +5084,9 @@ function renderTitle() {
   if (window.Arena) { const d = Arena.daily(); $('#dailyLine').textContent = (d.done ? tx('dailyDone') + ' · ' : '') + tx('dailyLine', { s: d.streak, b: d.best }); }
   else $('#bDaily').classList.add('hidden');
   $('#titleFact').textContent = factText(META.factIdx);
-  $('#nestCard').innerHTML = '<svg viewBox="0 0 76 56" aria-hidden="true">' + NEST_SVG[st - 1] + '</svg><span>' + tx('chickLine', { s: I18N[LANG].stages[st - 1], n: META.chick }) + '</span>';
+  // stil-3d: the chick from the song video (it grows with the stage); the drawn nest stays as the fallback
+  const pic = SPR.marti ? '<img class="chick3d" src="assets/3d/' + (st >= 4 ? 'poz-marti' : 'poz-yavru') + '.webp" alt="" style="width:' + (st >= 4 ? 76 : 40 + 6 * st) + 'px">' : '<svg viewBox="0 0 76 56" aria-hidden="true">' + NEST_SVG[st - 1] + '</svg>';
+  $('#nestCard').innerHTML = pic + '<span>' + tx('chickLine', { s: I18N[LANG].stages[st - 1], n: META.chick }) + '</span>';
 }
 let hudT = 0;
 function updateHud(dt) {
