@@ -637,6 +637,62 @@
   };
 })(typeof window !== 'undefined' ? window : globalThis);
 /*ARENA-KIT:END*/</script>
+<script>
+/* saglamlik: shown when WebGL cannot start or the three.js module never loads (CDN blocked / offline). Classic script, runs before the module. */
+(function () {
+  var C = {"play":"#bStart","key":"arena.marti.settings","wrap":"","card":"","btn":"btn","btn2":"btn ghost","bg":"background:rgba(4,14,28,.7);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);","cardStyle":"background:#0f3a5f;color:#eef6fb;border:1px solid rgba(255,255,255,.28);border-radius:18px;padding:22px 20px;width:min(92vw,440px);text-align:center;box-shadow:0 14px 44px rgba(0,0,0,.55)","h2":"margin:0;font-size:22px;color:#fff","p":"font-size:15px"};
+  var S = {
+    tr: { gt: 'WebGL kullanılamıyor', gb: 'Bu oyun WebGL ister ama tarayıcın başlatamadı. Tarayıcı ayarlarından donanım hızlandırmayı aç ya da başka bir tarayıcı dene (Chrome, Edge, Firefox).',
+          lt: '3D motoru yüklenemedi', lb: 'three.js internetten (jsDelivr) indirilemedi. Bağlantını kontrol edip sayfayı yenile; bir reklam veya içerik engelleyici cdn.jsdelivr.net adresini engelliyor olabilir.', rt: 'Yeniden dene', sw: 'English' },
+    en: { gt: 'WebGL is not available', gb: 'This game needs WebGL, but your browser could not start it. Turn on hardware acceleration in the browser settings or try another browser (Chrome, Edge, Firefox).',
+          lt: 'The 3D engine could not load', lb: 'three.js could not be downloaded (jsDelivr). Check your connection and reload; an ad or content blocker may be blocking cdn.jsdelivr.net.', rt: 'Try again', sw: 'Türkçe' }
+  };
+  var G = window.__glGuard = { up: false, kind: null, lang: null, box: null };
+  function pick() {
+    try { var q = new URLSearchParams(location.search).get('lang'); if (q === 'tr' || q === 'en') return q; } catch (e) {}
+    try { var s = JSON.parse(localStorage.getItem(C.key)); if (s && (s.lang === 'tr' || s.lang === 'en')) return s.lang; } catch (e) {}
+    return /^tr/i.test(navigator.language || '') ? 'tr' : 'en';
+  }
+  function paint() {
+    var T = S[G.lang], b = G.box; if (!b) return;
+    b.querySelector('h2').textContent = T[G.kind === 'gl' ? 'gt' : 'lt'];
+    b.querySelector('p').textContent = T[G.kind === 'gl' ? 'gb' : 'lb'];
+    b.querySelector('.gg-r').textContent = T.rt; b.querySelector('.gg-s').textContent = T.sw;
+    document.documentElement.setAttribute('data-glguard', G.kind);
+    try { if (C.play && G.pd === undefined) { var pb = document.querySelector(C.play); if (pb) { G.pd = pb.disabled; pb.disabled = true; } } } catch (e) {}
+    /* the module never loaded: its buttons stay empty, so hide them */
+    try { if (G.kind === 'load') [].forEach.call(document.querySelectorAll('button,.btn'), function (e) { if (b.contains(e) || e.__ggh || e.tagName === 'A' || (e.textContent || '').trim() || e.querySelector('img,svg,canvas') || e.getAttribute('aria-label')) return; e.__ggh = 1; (G.hid = G.hid || []).push([e, e.style.getPropertyValue('display'), e.style.getPropertyPriority('display')]); e.style.setProperty('display', 'none', 'important'); }); } catch (e) {}
+    /* a half-loaded menu must not keep saying "Loading" behind the notice */
+    try { var q = document.querySelectorAll('body *'), i, e, t; for (i = 0; i < q.length; i++) { e = q[i]; if (e.children.length || b.contains(e) || e.__ggh) continue; t = (e.textContent || '').trim(); if (/^(Yükleniyor|Loading)[….]*(\s*\/\s*(Yükleniyor|Loading)[….]*)?\s*\d*(\/\d+)?$/.test(t)) { e.__ggh = 1; (G.hid = G.hid || []).push([e, e.style.getPropertyValue('display'), e.style.getPropertyPriority('display')]); e.style.setProperty('display', 'none', 'important'); } } } catch (e) {}
+  }
+  function show(kind, lang) {
+    if (G.kind === 'gl' && kind !== 'gl') return;
+    G.kind = kind; G.lang = G.lang || lang || pick();
+    if (!G.box) {
+      var w = document.createElement('div'); w.id = 'glGuard'; w.className = C.wrap; w.setAttribute('role', 'alert');
+      w.style.cssText = 'display:flex;position:fixed;top:0;left:0;right:0;bottom:0;z-index:2147483000;align-items:center;justify-content:center;padding:14px;overflow:auto;' + (C.bg || '');
+      w.innerHTML = '<div class="' + C.card + '" style="' + (C.cardStyle || '') + '"><h2 style="' + (C.h2 || '') + '"></h2><p style="margin:10px 0 16px;line-height:1.45;' + (C.p || '') + '"></p>' +
+        '<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><button type="button" class="' + C.btn + ' gg-r"></button><button type="button" class="' + C.btn2 + ' gg-s"></button></div></div>';
+      w.querySelector('.gg-r').onclick = function () { location.reload(); };
+      w.querySelector('.gg-s').onclick = function () { G.lang = G.lang === 'tr' ? 'en' : 'tr'; paint(); };
+      (document.body || document.documentElement).appendChild(w); G.box = w;
+    }
+    paint();
+  }
+  G.fail = function (kind, lang) { show(kind, lang); };
+  G.started = function () { G.up = true; if (G.box && G.kind === 'load') { (G.hid || []).forEach(function (h) { h[0].__ggh = 0; h[0].style.setProperty('display', h[1], h[2]); }); G.hid = []; G.box.remove(); G.box = null; G.kind = null; document.documentElement.removeAttribute('data-glguard'); try { var pb = C.play && document.querySelector(C.play); if (pb && G.pd !== undefined) pb.disabled = G.pd; } catch (e) {} G.pd = undefined; } };
+  /* a Proxy that swallows every call/property so top-level code can finish without a real renderer; boot() then stops at glFail */
+  G.stub = function (canvas) {
+    var f = function () {}, p = new Proxy(f, {
+      get: function (t, k) { if (k === 'domElement') return canvas; if (k === Symbol.toPrimitive) return function () { return 0; }; if (k === 'then') return undefined; return p; },
+      set: function () { return true; }, apply: function () { return p; }, construct: function () { return p; }
+    });
+    return p;
+  };
+  window.addEventListener('error', function (e) { var t = e.target; if (!G.up && t && t.tagName === 'SCRIPT' && t.type === 'module') show('load'); }, true);
+  setTimeout(function () { if (!G.up) show('load'); }, 20000);
+})();
+</script>
 <script type="importmap">
 { "imports": {
     "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
@@ -2195,6 +2251,7 @@ setTimeout(function () {
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+window.__glGuard && __glGuard.started(); // three.js loaded: the load-failure watchdog stands down
 window.martiBoot = true; // tells the CDN watchdog (classic script above) that the module started
 
 /* ============================================================
@@ -2497,9 +2554,9 @@ let renderer = null;
 try {
   renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
 } catch (e) {
-  $('#fatal').style.display = 'flex';
-  $('#fatal').textContent = 'WebGL is not available in this browser. / Tarayıcında WebGL yok.';
-  throw e;
+  window.__errs && window.__errs.push('WebGL: ' + (e && e.message));
+  window.__glGuard && __glGuard.fail('gl');
+  await new Promise(function () {}); // no renderer: stop here quietly, the notice stays
 }
 const isLow = () => FLAG.low || SET.quality === 'low';
 renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isLow() ? 1 : 1.5));
